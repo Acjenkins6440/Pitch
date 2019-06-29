@@ -1,14 +1,13 @@
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
+import React, { PureComponent } from "react";
 import PropTypes from 'prop-types';
-import Input from "../presentational/Input.jsx";
+import Card from './Card.jsx';
 
-class App extends Component {
+class App extends PureComponent {
   constructor() {
     super();
 
     this.state = {
-      title: ""
+      title: "",
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -19,8 +18,9 @@ class App extends Component {
   }
 
   render() {
+    
     return (
-      <Card suit={card.suit} symbol={card.symbol} number={card.number} />
+      <Card index={23} />
     );
   }
 }
