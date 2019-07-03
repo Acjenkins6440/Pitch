@@ -18,9 +18,9 @@ class App extends PureComponent {
   }
 
   render() {
-    
+
     return (
-      <Card index={23} />
+      <Card suit='hearts' number={3} symbol='♥'/>
     );
   }
 }
