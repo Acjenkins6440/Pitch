@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 
+
 class Card extends Component {
   constructor(props){
     super(props);
   }
   render(){
+    const classes = useStyles(props)
     return(
       <div className={'card '+this.props.suit}>
         <span className='ulSymbol'>{this.props.symbol}</span>
