@@ -42,4 +42,8 @@ const styles = {
   }
 }
 
-const Card = () => <Card />
+const Card = ({ classes, children }) => (
+
+)<Card />
+
+export default Card;

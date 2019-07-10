@@ -1,20 +1,54 @@
-import React, { Component } from "react";
+import React, { Component } from "react"
+import { render } from 'react-dom'
+import injectSheet from 'react-jss'
 
-
-class Card extends Component {
-  constructor(props){
-    super(props);
-  }
-  render(){
-    const classes = useStyles(props)
-    return(
-      <div className={'card '+this.props.suit}>
-        <span className='ulSymbol'>{this.props.symbol}</span>
-        <span className='number'>{this.props.number}</span>
-        <span className='brSymbol'>{this.props.symbol}</span>
-      </div>
-    )
+const styles = {
+  card: {
+    border: '1px solid black',
+    width: '50px',
+    height: '70px',
+    position: 'relative'
+  },
+  number: {
+    position: 'absolute',
+    bottom: '50%',
+    right: '50%'
+  },
+  hearts: {
+    color: "red"
+  },
+  diamonds: {
+    color: "red"
+  },
+  spades: {
+    color: "black"
+  },
+  clubs: {
+    color: "black"
+  },
+  ulSymbol: {
+    fontSize: '30px',
+    position: 'absolute',
+    top: '0',
+    left: '0',
+    marginTop: '-8px'
+  },
+  brSymbol: {
+    fontSize: '30px',
+    position: 'absolute',
+    bottom: '0',
+    right: '0'
   }
 }
 
-export default Card;
+const Card = ({classes, children}) => (
+  <div className={classes.card + " " + suit}>
+    <span className={classes.ulSymbol}>{symbol}</span>
+    <span className={classes.number}>{number}</span>
+    <span className={classes.brSymbol}>{symbol}</span>
+  </div>
+)
+console.log(Card)
+const StyledCard = injectSheet(styles)(Card)
+
+export default StyledCard;
