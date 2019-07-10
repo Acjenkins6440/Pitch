@@ -1,30 +1,19 @@
-import React from 'react'
-import { render } from 'react-dom'
-import injectSheet from 'react-jss'
-import Card from '../components/Card.jsx'
-
-const styles = {
+const CardStyles = {
   card: {
     border: '1px solid black',
     width: '50px',
     height: '70px',
-    position: 'relative'
+    position: 'relative',
   },
   number: {
     position: 'absolute',
     bottom: '50%',
     right: '50%'
   },
-  hearts: {
+  red_suit: {
     color: "red"
   },
-  diamonds: {
-    color: "red"
-  },
-  spades: {
-    color: "black"
-  },
-  clubs: {
+  black_suit: {
     color: "black"
   },
   ulSymbol: {
@@ -42,8 +31,4 @@ const styles = {
   }
 }
 
-const Card = ({ classes, children }) => (
-
-)<Card />
-
-export default Card;
+export default CardStyles;

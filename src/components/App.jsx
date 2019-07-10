@@ -18,9 +18,13 @@ class App extends PureComponent {
   }
 
   render() {
-
+    const props = {
+      suit: 'hearts',
+      number: 3,
+      symbol: '♥'
+    }
     return (
-      <Card suit='hearts' number={3} symbol='♥'/>
+      <Card props={props}/>
     );
   }
 }
