@@ -4,16 +4,15 @@ import injectSheet from 'react-jss'
 import cardStyles from '../styles/cardStyles.jss'
 
 
-const Card = ({classes, children, props}) => (
+const UnstyledCard = ({classes, children, props}) => (
   <div className={classes.card}>
-    <div className={(props.suit == "hearts" || props.suit == "diamonds") ? classes.red_suit : classes.black_suit}>
-      <span className={classes.ulSymbol}>{props.symbol}</span>
+    <div className={(props.suit == "♥" || props.suit == "♦") ? classes.red_suit : classes.black_suit}>
+      <span className={classes.ulSymbol}>{props.suit}</span>
       <span className={classes.number}>{props.number}</span>
-      <span className={classes.brSymbol}>{props.symbol}</span>
+      <span className={classes.brSymbol}>{props.suit}</span>
     </div>
   </div>
 )
-console.log(Card)
-const StyledCard = injectSheet(cardStyles)(Card)
+const Card = injectSheet(cardStyles)(UnstyledCard)
 
-export default StyledCard;
+export default Card;
