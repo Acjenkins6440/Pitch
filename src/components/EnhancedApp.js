@@ -6,13 +6,14 @@ import { drawCardActionCreator } from '../redux/actions_and_reducers';
 
 class App extends PureComponent {
   render() {
+    const {card, inDeck, drawCard} = this.props;
     return (
       <div>
         <h1>Draw a Card</h1>
-        <p>Cards left in deck: {Object.keys(this.props.inDeck).length}</p>
-        <h2>{this.props.card.number ? this.props.card.number + " of " + this.props.card.suit : "Click to start drawing!"}</h2>
-        <button onClick={() => this.props.drawCard()}>Draw Card</button>
-        <Card card={this.props.card} />
+        <p>Cards left in deck: {Object.keys(inDeck).length}</p>
+        <h2>{card.number ? card.number + " of " + card.suit : "Click to start drawing!"}</h2>
+        <button onClick={() => drawCard()}>Draw Card</button>
+        <Card card={card} />
       </div>
     );
   }
