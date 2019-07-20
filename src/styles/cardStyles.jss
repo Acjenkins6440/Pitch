@@ -1,3 +1,4 @@
+// TODO: Probably want the stylesheets next to the components that they style (in the file tree) 
 const CardStyles = {
   card: {
     border: '1px solid black',

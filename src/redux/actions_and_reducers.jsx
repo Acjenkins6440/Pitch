@@ -1,3 +1,5 @@
+
+// TODO: Remove coupling between view and state: 
 const suit_id_object = {
   0: '♥',
   1: '♦',
@@ -10,6 +12,7 @@ const face_card_object = {
   12: 'Q',
   13: 'K'
 };
+// TODO: Just randomize the deck at the start of the game and use Array.slice to take cards off the top 
 const getRandomIndexOfObject = inDeck => {
   var keys = Object.keys(inDeck);
   return Math.floor(keys.length * Math.random());
@@ -49,6 +52,7 @@ const getCardFromDeck = inDeck => {
   return card;
 };
 
+// TODO: Rename this to something that could describe a stateful object
 const draw = (state, action) => {
   switch (action.type) {
     case "draw":
@@ -58,6 +62,8 @@ const draw = (state, action) => {
   }
 }
 
+// TODO: Just export const draw ... and export anything else you need using non-default export syntax, 
+// then modules that consume this can be more explicit with what theyre importing 
 const actions_and_reducers = {
   draw_action: draw
 }
