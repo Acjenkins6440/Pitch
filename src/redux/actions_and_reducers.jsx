@@ -15,6 +15,10 @@ const getRandomIndexOfObject = inDeck => {
   return Math.floor(keys.length * Math.random());
 };
 
+export const drawCardActionCreator = () => {
+  return { type: "draw" };
+}
+
 const drawCard = state => {
   const inDeck = state["inDeck"];
   const inPlay = state["inPlay"];
