@@ -1,7 +1,6 @@
 import React, { PureComponent } from "react";
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import Card from './Card.jsx';
 import { drawCardActionCreator } from '../redux/actions_and_reducers';
 
@@ -19,6 +18,7 @@ class App extends PureComponent {
   }
 }
 
+// TODO: read https://react-redux.js.org/using-react-redux/connect-mapdispatch#defining-mapdispatchtoprops-as-an-object
 const mapDispatchToProps = {
   drawCard: drawCardActionCreator
 }
@@ -26,6 +26,7 @@ const mapDispatchToProps = {
 function mapStateToProps(state) {
   console.log(state)
   return {
+    // TODO: This ["syntax"] is unnecessary, but running eslint --fix can auto-fix alot of these things for you
     card: state["drawnCard"],
     inDeck: state["inDeck"],
     inPlay: state["inPlay"]
@@ -40,6 +41,7 @@ const EnhancedApp = connect(
 
 
 App.propTypes = {
+  // TODO: typecheck other props too 
   title: PropTypes.string
 }
 

@@ -1,10 +1,9 @@
 import React, { Component } from "react"
-import { render } from 'react-dom'
 import injectSheet from 'react-jss'
 import cardStyles from '../styles/cardStyles.jss'
 
 
-const UnstyledCard = ({classes, children, props}) => (
+const UnstyledCard = ({classes, children, props}) => ( // TODO: do you want ...props here (rest spread)?
   <div className={classes.card}>
     <div className={(props.suit == "♥" || props.suit == "♦") ? classes.red_suit : classes.black_suit}>
       <span className={classes.ulSymbol}>{props.suit}</span>
