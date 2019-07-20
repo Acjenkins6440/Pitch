@@ -1,3 +1,6 @@
+# compiled assets
+dist
+
 # Logs
 logs
 *.log
