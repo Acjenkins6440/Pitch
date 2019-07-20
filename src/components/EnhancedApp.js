@@ -11,7 +11,7 @@ class App extends PureComponent {
       <div>
         <h1>Draw a Card</h1>
         <p>Cards left in deck: {Object.keys(inDeck).length}</p>
-        <h2>{card.number ? card.number + " of " + card.suit : "Click to start drawing!"}</h2>
+        <h2>{card.number ? `${card.number} of ${card.suit}`: "Click to start drawing!"}</h2>
         <button onClick={() => drawCard()}>Draw Card</button>
         <Card card={card} />
       </div>
