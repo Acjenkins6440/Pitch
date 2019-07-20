@@ -3,12 +3,12 @@ import injectSheet from 'react-jss'
 import cardStyles from '../styles/cardStyles.jss'
 
 
-const UnstyledCard = ({classes, children, props}) => ( // TODO: do you want ...props here (rest spread)?
+const UnstyledCard = ({classes, children, card}) => (
   <div className={classes.card}>
-    <div className={(props.suit == "♥" || props.suit == "♦") ? classes.red_suit : classes.black_suit}>
-      <span className={classes.ulSymbol}>{props.suit}</span>
-      <span className={classes.number}>{props.number}</span>
-      <span className={classes.brSymbol}>{props.suit}</span>
+    <div className={(card.suit == "♥" || card.suit == "♦") ? classes.red_suit : classes.black_suit}>
+      <span className={classes.ulSymbol}>{card.suit}</span>
+      <span className={classes.number}>{card.number}</span>
+      <span className={classes.brSymbol}>{card.suit}</span>
     </div>
   </div>
 )

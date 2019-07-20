@@ -12,7 +12,7 @@ class App extends PureComponent {
         <p>Cards left in deck: {Object.keys(this.props.inDeck).length}</p>
         <h2>{this.props.card.number ? this.props.card.number + " of " + this.props.card.suit : "Click to start drawing!"}</h2>
         <button onClick={() => this.props.drawCard()}>Draw Card</button>
-        <Card props={this.props.card} />
+        <Card card={this.props.card} />
       </div>
     );
   }
