@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import EnhancedApp from "./components/EnhancedApp.jsx";
+import EnhancedApp from "./components/EnhancedApp";
 import { Provider } from "react-redux"
-import stores from './redux/stores.jsx';
+import stores from './redux/stores';
 
 const store = stores['deckStore'];
 
