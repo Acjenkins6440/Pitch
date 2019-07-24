@@ -24,7 +24,7 @@ const draw = actions_and_reducers['draw_action'];
 const reducer = combineReducers({
   deck,
 })
-const deckStore = createStore(draw, deckState);
+const deckStore = createStore(draw, deckState, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
 // TODO: just have 1 store - its the redux thing to do 
 const stores = {
