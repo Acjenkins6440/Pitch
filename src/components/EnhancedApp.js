@@ -1,19 +1,17 @@
 import React, { PureComponent } from "react";
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Card from './Card';
-import { drawCardActionCreator } from '../redux/actions_and_reducers';
+import { shuffleDeck } from '../redux/deck'
 
 class App extends PureComponent {
   render() {
-    const {card, inDeck, drawCard} = this.props;
+    const { deck, shuffleDeck } = this.props;
     return (
       <div>
         <h1>Draw a Card</h1>
-        <p>Cards left in deck: {Object.keys(inDeck).length}</p>
-        <h2>{card.number ? `${card.number} of ${card.suit}`: "Click to start drawing!"}</h2>
-        <button onClick={() => drawCard()}>Draw Card</button>
-        <Card card={card} />
+        <p>Cards left in deck: {deck.length}</p>
+        <h2>Click to shuffle!</h2>
+        <button onClick={() => shuffleDeck()}>Shuffle</button>
       </div>
     );
   }
@@ -21,29 +19,24 @@ class App extends PureComponent {
 
 // TODO: read https://react-redux.js.org/using-react-redux/connect-mapdispatch#defining-mapdispatchtoprops-as-an-object
 const mapDispatchToProps = {
-  drawCard: drawCardActionCreator
+  shuffleDeck
 }
 
-function mapStateToProps(state) {
-  console.log(state)
+function mapStateToProps( { deck } ) {
   return {
-    // TODO: This ["syntax"] is unnecessary, but running eslint --fix can auto-fix alot of these things for you
-    card: state["drawnCard"],
-    inDeck: state["inDeck"],
-    inPlay: state["inPlay"]
+    deck
   };
 }
-
 
 const EnhancedApp = connect(
   mapStateToProps,
   mapDispatchToProps,
 )(App)
 
-
 App.propTypes = {
-  // TODO: typecheck other props too 
-  title: PropTypes.string
+  // TODO: typecheck other props too
+  shuffleDeck: PropTypes.func.isRequired,
+  deck: PropTypes.arrayOf(PropTypes.string).isRequired
 }
 
 export default EnhancedApp;
