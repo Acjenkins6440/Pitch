@@ -17,7 +17,6 @@ class App extends PureComponent {
   }
 }
 
-// TODO: read https://react-redux.js.org/using-react-redux/connect-mapdispatch#defining-mapdispatchtoprops-as-an-object
 const mapDispatchToProps = {
   shuffleDeck
 }
@@ -34,7 +33,6 @@ const EnhancedApp = connect(
 )(App)
 
 App.propTypes = {
-  // TODO: typecheck other props too
   shuffleDeck: PropTypes.func.isRequired,
   deck: PropTypes.arrayOf(PropTypes.string).isRequired
 }

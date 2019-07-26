@@ -1,5 +1,3 @@
-// TODO figure out how to initialize state inside reducer
-// Also figure out how to do drawCard() and resetAndShuffle() inside reducer?
 const initializeState = () => {
   const deckArray = [];
   for (let i = 1; i < 14; i++) {

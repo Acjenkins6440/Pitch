@@ -1,6 +1,6 @@
 import React from 'react';
 import injectSheet from 'react-jss';
-import cardStyles from '../styles/cardStyles.jss';
+import cardStyles from './cardStyles.jss';
 
 const UnstyledCard = ({ card, classes }) => (
   <div className={classes.card}>
