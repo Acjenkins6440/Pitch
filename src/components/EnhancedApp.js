@@ -1,7 +1,7 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { shuffleDeck } from '../redux/deck'
+import { shuffleDeck } from '../redux/deck';
 
 class App extends PureComponent {
   render() {
@@ -9,7 +9,10 @@ class App extends PureComponent {
     return (
       <div>
         <h1>Draw a Card</h1>
-        <p>Cards left in deck: {deck.length}</p>
+        <p>
+Cards left in deck:
+          {deck.length}
+        </p>
         <h2>Click to shuffle!</h2>
         <button onClick={() => shuffleDeck()}>Shuffle</button>
       </div>
@@ -18,23 +21,23 @@ class App extends PureComponent {
 }
 
 const mapDispatchToProps = {
-  shuffleDeck
-}
+  shuffleDeck,
+};
 
-function mapStateToProps( { deck } ) {
+function mapStateToProps({ deck }) {
   return {
-    deck
+    deck,
   };
 }
 
 const EnhancedApp = connect(
   mapStateToProps,
   mapDispatchToProps,
-)(App)
+)(App);
 
 App.propTypes = {
   shuffleDeck: PropTypes.func.isRequired,
-  deck: PropTypes.arrayOf(PropTypes.string).isRequired
-}
+  deck: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
 
 export default EnhancedApp;

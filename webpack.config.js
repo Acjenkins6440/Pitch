@@ -7,7 +7,7 @@ module.exports = (env) => {
     entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: 'bundle.development.js'
+      filename: 'bundle.development.js',
     },
     module: {
       rules: [
@@ -15,13 +15,13 @@ module.exports = (env) => {
           test: /\.js$/,
           exclude: /node_modules/,
           use: {
-            loader: "babel-loader",
+            loader: 'babel-loader',
             options: {
-              presets: ['@babel/preset-env', '@babel/preset-react']
-            }
-          }
-        }
-      ]
+              presets: ['@babel/preset-env', '@babel/preset-react'],
+            },
+          },
+        },
+      ],
     },
-  }
+  };
 };
