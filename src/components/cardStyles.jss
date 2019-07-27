@@ -1,10 +1,17 @@
-// TODO: Probably want the stylesheets next to the components that they style (in the file tree)
 const CardStyles = {
   card: {
     border: '1px solid black',
     width: '50px',
     height: '70px',
     position: 'relative',
+    '&:hover': {
+      'z-index': 6,
+    },
+    'z-index': props => props.cardIndex,
+    overflow: 'show',
+    float: 'left',
+    'marginLeft': '-10px',
+    'background-color': 'rgba(135, 206, 250, 1)',
   },
   number: {
     position: 'absolute',
