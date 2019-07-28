@@ -7,8 +7,7 @@
     "test": "jest",
     "test:watch": "npm test -- --watch",
     "build": "webpack --env=production",
-    "lint": "eslint",
-    "lintfix": "eslint --fix",
+    "lint": "eslint ./src",
     "start": "webpack-dev-server --env=development"
   },
   "repository": {
