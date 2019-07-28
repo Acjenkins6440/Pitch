@@ -17,11 +17,7 @@ class App extends PureComponent {
     } = this.props;
     return (
       <div>
-        <h1>Draw a Card</h1>
-        <p>
-          Cards left in deck:
-          {deck.length}
-        </p>
+        <h1>Draw Some Cards!</h1>
         <h2>Click to shuffle!</h2>
         <button onClick={() => shuffleDeck()}>Shuffle</button>
         <h2>Click to deal!</h2>
@@ -30,9 +26,8 @@ class App extends PureComponent {
           <Hand playerNum={playerNum} key={hands[playerNum].toString()}>
             {hands[playerNum].map(card => (
               <span key={card}>
-                {/* <Card card={card} key={card} /> */}
-                {card}
-,&nbsp;
+                <Card cardKey={card} />
+                &nbsp;
               </span>
             ))}
           </Hand>
