@@ -13,10 +13,10 @@ export default function handsReducer(state = initialState, action) {
 
 export const dealHands = (deck) => {
   const hands = [
-    deck.slice(0, 6),
-    deck.slice(6, 12),
-    deck.slice(12, 18),
-    deck.slice(18, 24),
+    deck.slice(0, 6).sort(),
+    deck.slice(6, 12).sort(),
+    deck.slice(12, 18).sort(),
+    deck.slice(18, 24).sort(),
   ];
   return {
     type: 'deal',
