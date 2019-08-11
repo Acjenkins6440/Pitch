@@ -1,6 +1,6 @@
 const initializeState = () => {
   const deckArray = [];
-  for (let i = 1; i < 14; i++) {
+  for (let i = 1; i < 14; i += 1) {
     deckArray.push(`h${i}`);
     deckArray.push(`d${i}`);
     deckArray.push(`s${i}`);
@@ -12,7 +12,7 @@ const initialState = initializeState();
 
 function resetAndShuffle() {
   const newDeck = initializeState();
-  for (let i = newDeck.length - 1; i > 0; i--) {
+  for (let i = newDeck.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
     const temp = newDeck[i];
     newDeck[i] = newDeck[j];

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const Player = ({ children, selectPlayer }) => (
   <div>
@@ -12,5 +13,10 @@ const Player = ({ children, selectPlayer }) => (
     {children}
   </div>
 );
+
+Player.propTypes = {
+  children: PropTypes.node.isRequired,
+  selectPlayer: PropTypes.func.isRequired,
+};
 
 export default Player;
