@@ -12,26 +12,16 @@ const CardStyles = {
     float: 'left',
     'marginLeft': '-10px',
     'background-color': 'rgba(135, 206, 250, 1)',
-    flipped: {
-      color: 'rgba(135, 206, 250, 0)',
-     '-webkit-touch-callout': 'none', /* iOS Safari */
-       '-webkit-user-select': 'none', /* Safari */
-        '-khtml-user-select': 'none', /* Konqueror HTML */
-          '-moz-user-select': 'none', /* Firefox */
-           '-ms-user-select': 'none', /* Internet Explorer/Edge */
-               'user-select': 'none', /* Non-prefixed version, currently
-                                     supported by Chrome and Opera */
-    }
   },
   number: {
     position: 'absolute',
     bottom: '50%',
     right: '50%'
   },
-  red_suit: {
+  redSuit: {
     color: "red"
   },
-  black_suit: {
+  blackSuit: {
     color: "black"
   },
   ulSymbol: {
