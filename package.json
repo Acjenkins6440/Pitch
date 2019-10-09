@@ -10,6 +10,9 @@
     "lint": "eslint ./src",
     "start": "webpack-dev-server --env=development"
   },
+  "rules": {
+    "linebreak-style": "windows"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Acjenkins6440/Pitch.git"
