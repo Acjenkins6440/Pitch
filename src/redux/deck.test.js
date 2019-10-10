@@ -9,7 +9,7 @@ describe('Action Creators', () => {
   });
 });
 const initialState = deckReducer(undefined, { type: 'null' });
-const shuffledDeck = deckReducer(initialState, shuffleDeck);
+const shuffledDeck = deckReducer(undefined, shuffleDeck());
 
 describe('Reducers', () => {
   it('should initialize the deck array state', () => {
@@ -20,8 +20,7 @@ describe('Reducers', () => {
       expect(shuffledDeck.length).toEqual(initialState.length);
     });
     it('should be a different deck than initialState', () => {
-      expect(shuffledDeck[0]).not.toMatch(/initialState[0]/);
-      expect(shuffledDeck[1]).not.toMatch(/initialState[1]/);
+      expect(initialState).not.toEqual(shuffledDeck);
     });
   });
 });
