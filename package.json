@@ -47,10 +47,12 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-jss": "^8.6.1",
+    "react-modal": "^3.11.2",
     "react-redux": "^6.0.1",
     "react-redux-firebase": "^3.0.0-alpha.14",
     "recompose": "^0.30.0",
     "redux": "^4.0.4",
-    "svg-cards": "^4.0.0"
+    "svg-cards": "^4.0.0",
+    "use-global-hook": "^0.1.12"
   }
 }

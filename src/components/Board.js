@@ -1,17 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { shuffleDeck } from '../redux/deck';
+import { dealHands } from '../redux/hands';
+import { selectPlayer } from '../redux/player';
+
 import Player from './Player';
 import Hand from './Hand';
 import Card from './Card';
 
 const Board = ({
-  deck, hands, playerNum, dealHands, selectPlayer, remoteShuffleDeck,
+  dealHands, selectPlayer, shuffleDeck,
 }) => (
   <div>
     <h1>Draw Some Cards!</h1>
     <h2>Click to shuffle!</h2>
-    <button type="button" onClick={() => remoteShuffleDeck()}>Shuffle</button>
+    <button type="button" onClick={() => shuffleDeck()}>Shuffle</button>
     <h2>Click to deal!</h2>
     <button type="button" onClick={() => dealHands(deck)}>Deal</button>
     <Player selectPlayer={selectPlayer}>
