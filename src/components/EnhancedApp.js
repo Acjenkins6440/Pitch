@@ -8,30 +8,20 @@ import { shuffleDeck } from '../redux/deck';
 import { dealHands } from '../redux/hands';
 import { selectPlayer } from '../redux/player';
 
-import Player from './Player';
-import Hand from './Hand';
-import Card from './Card';
+import Board from './Board';
+
 
 const App = ({
   deck, hands, playerNum, dealHands, selectPlayer, remoteShuffleDeck,
 }) => (
-  <div>
-    <h1>Draw Some Cards!</h1>
-    <h2>Click to shuffle!</h2>
-    <button type="button" onClick={() => remoteShuffleDeck()}>Shuffle</button>
-    <h2>Click to deal!</h2>
-    <button type="button" onClick={() => dealHands(deck)}>Deal</button>
-    <Player selectPlayer={selectPlayer}>
-      <Hand playerNum={playerNum} key={hands[playerNum].toString()}>
-        {hands[playerNum].map(card => (
-          <span key={card}>
-            <Card cardKey={card} />
-                &nbsp;
-          </span>
-        ))}
-      </Hand>
-    </Player>
-  </div>
+  <Board
+    deck={deck}
+    hands={hands}
+    playerNum={playerNum}
+    dealHands={dealHands}
+    selectPlayer={selectPlayer}
+    remoteShuffleDeck={remoteShuffleDeck}
+  />
 );
 
 const enhance = compose(
