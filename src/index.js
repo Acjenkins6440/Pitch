@@ -1,8 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import EnhancedApp from './components/EnhancedApp';
+import App from './components/App';
+import Firebase, { FirebaseContext } from './components/Firebase';
+import './styles/_all.scss';
 
 ReactDOM.render(
-  <EnhancedApp />,
+  <FirebaseContext.Provider value={new Firebase()}>
+    <App />
+  </FirebaseContext.Provider>,
   document.getElementById('app'),
 );

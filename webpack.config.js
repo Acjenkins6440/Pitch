@@ -1,7 +1,8 @@
 const path = require('path');
 
+const devMode = process.env.NODE_ENV !== 'production'
+
 module.exports = (env) => {
-  console.log(env);
   return {
     mode: env,
     entry: './src/index.js',
@@ -21,6 +22,21 @@ module.exports = (env) => {
             },
           },
         },
+        {
+          test: /\.(scss|sass|css)$/,
+          use: [
+            'style-loader',
+            'css-loader',
+            'sass-loader'
+          ]
+        },
+        {
+
+          test:  /\.(png|jpe?g|gif)$/i,
+          use: [{
+            loader: 'file-loader'
+          }]
+        }
       ],
     },
   };

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import injectSheet from 'react-jss';
 import cardStyles from './cardStyles.jss';
+import cardBack from '../assets/cardback.jpeg'
 
 const numMap = {
   1: 'A',
@@ -24,19 +25,33 @@ const keyToNum = (cardKey) => {
 const keyToSuit = cardKey => suitMap[cardKey[0]];
 
 const UnstyledCard = ({ cardKey, classes }) => {
-  const card = {
+  const card = cardKey !== "blank" ? {
     suit: keyToSuit(cardKey),
     number: keyToNum(cardKey),
-  };
-  return (
-    <div className={classes.card}>
-      <div className={(card.suit === '♥' || card.suit === '♦') ? classes.redSuit : classes.blackSuit}>
-        <span className={classes.ulSymbol}>{card.suit}</span>
-        <span className={classes.number}>{card.number}</span>
-        <span className={classes.brSymbol}>{card.suit}</span>
+  } : 
+  'blank';
+  if(card == 'blank'){
+    return (
+      <div className={classes.card}>
+        <div className="card-back">
+          <img src={cardBack} width="100%" height="100%" />
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+  else{
+    return (
+      <div className={classes.card}>
+        <div className="card-front">
+          <div className={(card.suit === '♥' || card.suit === '♦') ? classes.redSuit : classes.blackSuit}>
+            <span className={classes.ulSymbol}>{card.suit}</span>
+            <span className={classes.number}>{card.number}</span>
+            <span className={classes.brSymbol}>{card.suit}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 };
 const Card = injectSheet(cardStyles)(UnstyledCard);
 

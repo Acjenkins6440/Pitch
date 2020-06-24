@@ -1,16 +1,18 @@
-const CardStyles = {
+export default {
   card: {
     border: '1px solid black',
-    width: '50px',
-    height: '70px',
+    width: '16%',
+    height: '90%',
+    margin: '0 auto',
     position: 'relative',
+    perspective: '1000px',
     '&:hover': {
       'z-index': 6,
+      border: '2px solid black'
     },
     'z-index': props => props.cardIndex,
     overflow: 'show',
     float: 'left',
-    'marginLeft': '-10px',
     'background-color': 'rgba(135, 206, 250, 1)',
   },
   number: {
@@ -36,7 +38,5 @@ const CardStyles = {
     position: 'absolute',
     bottom: '0',
     right: '0'
-  }
+  },
 }
-
-export default CardStyles;
