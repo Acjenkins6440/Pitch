@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import cardBack from '../assets/cardback.jpeg'
+import cardBack from '../assets/cardback.jpeg';
 
 const numMap = {
   1: 'A',
@@ -10,25 +10,24 @@ const numMap = {
 };
 
 const Card = ({ cardKey }) => {
-  if(cardKey == 'blank'){
+  if (cardKey == 'blank') {
     return (
       <div className="card">
         <div className="card-back">
-          <img src={cardBack}/>
+          <img src={cardBack} />
         </div>
       </div>
     );
   }
-  else{
-    const imgSrc = `/public/images/${cardKey}.svg`
-    return (
-      <div className="card">
-        <div className="front">
-          <img src={imgSrc} />
-        </div>
+
+  const imgSrc = `/public/images/${cardKey}.svg`;
+  return (
+    <div className="card">
+      <div className="front">
+        <img src={imgSrc} />
       </div>
-    );
-  }
+    </div>
+  );
 };
 
 Card.propTypes = {
