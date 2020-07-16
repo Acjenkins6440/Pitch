@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from '@reach/router';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import { googleLogin, createUserWithEmail } from '../providers/UserProvider';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
@@ -29,12 +30,22 @@ const SignUp = () => {
     }
   }
 
+  const submitHandler = (event) => {
+    event.preventDefault();
+    if(event.target.id === 'google'){
+      googleLogin()
+    }
+    else{
+      createUserWithEmail(email, password)
+    }
+  }
+
   return (
     <div className="sign-in-container">
       <h1 className="center">Sign Up</h1>
       <br />
       <div className="sign-in-form-container">
-        <Form className="sign-in-form" onSubmit={(e) => e.preventDefault()}>
+        <Form className="sign-in-form" onSubmit={submitHandler}>
           <Form.Group controlId="email">
             <Form.Label>Email:</Form.Label>
             <Form.Control onChange={onChange} name="email" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
@@ -55,7 +66,7 @@ const SignUp = () => {
         <div className="hr-holder">
           <hr />
         </div>
-        <button className="google-sign-in btn btn-primary"></button>
+        <button id="google" className="google-sign-in btn btn-primary" onClick={submitHandler}></button>
         <div className="hr-holder">
           <hr />
         </div>

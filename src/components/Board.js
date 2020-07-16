@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Player from './Player';
-import Hand from './Hand';
-import Card from './Card';
+import Button from 'react-bootstrap/Button';
+import { logout } from '../providers/UserProvider';
 
 const Board = ({ playerSeat }) => {
   const players = [];
@@ -14,6 +14,7 @@ const Board = ({ playerSeat }) => {
   console.log(players);
   return (
     <div id="board">
+      <Button onClick={logout} />
       {players}
     </div>
   );

@@ -34,7 +34,7 @@ const PasswordReset = () => {
           }
           <Form.Group controlId="resetEmail">
             <Form.Label>Email:</Form.Label>
-            <Form.Control onChange={onChange} name="resetEmail" value={email} type="email" placeholder="E.g:RustyShackleford@gmail.com" />
+            <Form.Control onChange={onChange} name="resetEmail" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
             <br />
             <div className="center">
               <Button className="sign-in-button" type="submit">Send reset link</Button>
