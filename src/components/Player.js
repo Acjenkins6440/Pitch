@@ -4,28 +4,32 @@ import Hand from './Hand';
 
 
 const getPlayerPos = (playerNum) => {
-  if(playerNum === 0) {
-    return 'bottom'
+  if (playerNum === 0) {
+    return 'bottom';
   }
-  else if(playerNum === 1) {
-    return 'left'
+  if (playerNum === 1) {
+    return 'left';
   }
-  else if(playerNum === 2) {
-    return 'top'
+  if (playerNum === 2) {
+    return 'top';
   }
-  else {
-    return 'right'
-  }
-}
+
+  return 'right';
+};
 
 const Player = ({ playerNum, playerSeat }) => {
-  const className = 'player ' + getPlayerPos(playerNum)
+  const className = `player ${getPlayerPos(playerNum)}`;
 
   return (
     <div className={className}>
-      <Hand playerSeat={playerSeat} playerNum={playerNum}/>
+      <Hand playerSeat={playerSeat} playerNum={playerNum} />
     </div>
-  )
-}
+  );
+};
+
+Player.propTypes = {
+  playerNum: PropTypes.number.isRequired,
+  playerSeat: PropTypes.number.isRequired,
+};
 
 export default Player;

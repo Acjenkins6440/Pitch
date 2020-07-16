@@ -1,0 +1,60 @@
+body{
+  background: radial-gradient(circle, rgba(9,121,55,1) 90%, rgba(2,0,36,1) 100%);
+  .center{
+    text-align: center;
+  }
+  .sign-in-container{
+    background-color: #9c9c9c;
+    width: 450px;
+    text-align: center;
+    margin: 0 auto;
+    margin-top: 10%;
+    border: 3px groove white;
+    padding: 10px;
+    form{
+      text-align: left;
+      input {
+        width: 80%;
+        margin: 0 auto;
+      }
+      label{
+        margin-left: 10%;
+      }
+      button{
+        text-align: center;
+      }
+    }
+    .hr-holder{
+      hr{
+        width: 90%;
+        display: inline-block;
+        border: none;
+        border-top: 1px solid black;
+        overflow: visible;
+        text-align: center;
+        &:after{
+          background: #9c9c9c;
+          content: 'or';
+          padding: 0 4px;
+          position: relative;
+          top: -15px;
+        }
+      }
+    margin: 10px 0;
+  }
+  .sign-in-button{
+    width: 185px;
+  }
+  .google-sign-in{
+      width: 185px;
+      height: 40px;
+      background-image: url('/src/assets/google/light_normal.png');
+      background-position: -3px -3px;
+      border: 0;
+      border-radius: 3px;
+      &:active{
+        background-image: url('/src/assets/google/light_focus.png');
+      }
+    }
+  }
+}
