@@ -17,7 +17,7 @@ const PasswordReset = () => {
   };
   const submitHandler = (event) => {
     event.preventDefault();
-    resetPassword(email, setEmailHasBeenSent, setError)
+    resetPassword(email, setEmailHasBeenSent, setError);
   };
 
   return (

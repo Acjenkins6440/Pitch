@@ -23,11 +23,11 @@ const SignIn = () => {
     event.preventDefault();
     const { name } = event.target;
     if (name === 'email') {
-      emailLogin(email, password);
+      emailLogin(email, password, setError);
     } else if (name === 'google') {
-      googleLogin();
+      googleLogin(setError);
     } else {
-      anonymousLogin();
+      anonymousLogin(setError);
     }
   };
 
@@ -39,21 +39,25 @@ const SignIn = () => {
         <Form className="sign-in-form" onSubmit={submitHandler} name="email">
           <Form.Group controlId="email">
             <Form.Label>Email:</Form.Label>
-            <Form.Control onChange={onChange} name="email" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
+            <Form.Control required onChange={onChange} name="email" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
           </Form.Group>
           <Form.Group controlId="password">
             <Form.Label>Password:</Form.Label>
-            <Form.Control onChange={onChange} name="password" value={password} type="password" placeholder="Password" />
+            <Form.Control required onChange={onChange} name="password" value={password} type="password" placeholder="Password" />
           </Form.Group>
           <br />
           <div className="center">
+            {error
+              ? (<p className="error">{`${error.code}: ${error.message}`}</p>)
+              : ''
+            }
             <Button className="sign-in-button" type="submit">Sign In</Button>
           </div>
         </Form>
         <div className="hr-holder">
           <hr />
         </div>
-        <button onClick={submitHandler} name="google" className="google-sign-in btn btn-primary" />
+        <button type="submit" onClick={submitHandler} name="google" className="google-sign-in btn btn-primary" />
         <br />
         <br />
         <Button onClick={submitHandler} name="anonymous" className="sign-in-button">Sign in anonymously</Button>

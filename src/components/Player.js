@@ -27,4 +27,9 @@ const Player = ({ playerNum, playerSeat }) => {
   );
 };
 
+Player.propTypes = {
+  playerNum: PropTypes.number.isRequired,
+  playerSeat: PropTypes.number.isRequired,
+};
+
 export default Player;

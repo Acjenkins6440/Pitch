@@ -7,20 +7,20 @@ import { logout } from '../providers/UserProvider';
 const Board = ({ playerSeat }) => {
   const players = [];
 
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 4; i += 1) {
     const player = <Player key={i} playerNum={i} playerSeat={playerSeat} />;
     players.push(player);
   }
   return (
     <div id="board">
-      <Button onClick={logout} />
+      <Button className="logout-button" onClick={logout}>Logout</Button>
       {players}
     </div>
   );
 };
 
 Board.propTypes = {
-  playerSeat: PropTypes.string.isRequired,
+  playerSeat: PropTypes.number.isRequired,
 };
 
 export default Board;

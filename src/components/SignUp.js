@@ -10,13 +10,6 @@ const SignUp = () => {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState(null);
 
-  const emailPassSignUpHandler = (event, email, password) => {
-    event.preventDefault();
-    setEmail('');
-    setPassword('');
-    setDisplayName('');
-  };
-
   const onChange = (event) => {
     const { name, value } = event.currentTarget;
     if (name === 'email') {
@@ -31,9 +24,12 @@ const SignUp = () => {
   const submitHandler = (event) => {
     event.preventDefault();
     if (event.target.id === 'google') {
-      googleLogin();
+      googleLogin(setError);
     } else {
-      createUserWithEmail(email, password);
+      createUserWithEmail(email, password, setError);
+      setEmail('');
+      setPassword('');
+      setDisplayName('');
     }
   };
 
@@ -45,25 +41,29 @@ const SignUp = () => {
         <Form className="sign-in-form" onSubmit={submitHandler}>
           <Form.Group controlId="email">
             <Form.Label>Email:</Form.Label>
-            <Form.Control onChange={onChange} name="email" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
+            <Form.Control required onChange={onChange} name="email" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
           </Form.Group>
           <Form.Group controlId="displayName">
             <Form.Label>Display name:</Form.Label>
-            <Form.Control onChange={onChange} name="displayName" value={displayName} type="text" placeholder="E.g: Team Ambien" />
+            <Form.Control required onChange={onChange} name="displayName" value={displayName} type="text" placeholder="E.g: Team Ambien" />
           </Form.Group>
           <Form.Group controlId="password">
             <Form.Label>Password:</Form.Label>
-            <Form.Control onChange={onChange} name="password" value={password} type="password" placeholder="Password" />
+            <Form.Control required onChange={onChange} name="password" value={password} type="password" placeholder="Password" />
           </Form.Group>
           <br />
           <div className="center">
+            {error
+              ? (<p className="error">{`${error.code}: ${error.message}`}</p>)
+              : ''
+            }
             <Button className="sign-in-button" type="submit">Sign Up</Button>
           </div>
         </Form>
         <div className="hr-holder">
           <hr />
         </div>
-        <button id="google" className="google-sign-in btn btn-primary" onClick={submitHandler} />
+        <button type="submit" id="google" className="google-sign-in btn btn-primary" onClick={submitHandler} />
         <div className="hr-holder">
           <hr />
         </div>
