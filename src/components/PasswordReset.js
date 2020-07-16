@@ -17,7 +17,7 @@ const PasswordReset = () => {
   };
   const submitHandler = (event) => {
     event.preventDefault();
-    console.log(event.currentTarget.value);
+    resetPassword(email, setEmailHasBeenSent, setError)
   };
 
   return (
@@ -31,7 +31,7 @@ const PasswordReset = () => {
             : ''
           }
           { error
-            ? (<p className="error">{error}</p>)
+            ? (<p className="error">{`${error.code}: ${error.message}`}</p>)
             : ''
           }
           <Form.Group controlId="resetEmail">

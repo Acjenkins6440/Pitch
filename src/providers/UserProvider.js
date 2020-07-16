@@ -36,8 +36,12 @@ const createUserWithEmail = (email, password, displayName) => {
     });
 };
 
-const resetPassword = (email) => {
-  firebase.auth().sendPasswordResetEmail(email).then(result => result).catch(error => error);
+const resetPassword = (email, setEmailHasBeenSent, setError) => {
+  firebase.auth().sendPasswordResetEmail(email).then((result) => {
+    setEmailHasBeenSent(true);
+  }).catch((error) =>{
+    setError(error)
+  });
 };
 
 const logout = () => {
