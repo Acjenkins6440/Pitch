@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
+import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import Player from './Player';
-import Button from 'react-bootstrap/Button';
 import { logout } from '../providers/UserProvider';
 
 const Board = ({ playerSeat }) => {
@@ -11,13 +11,16 @@ const Board = ({ playerSeat }) => {
     const player = <Player key={i} playerNum={i} playerSeat={playerSeat} />;
     players.push(player);
   }
-  console.log(players);
   return (
     <div id="board">
       <Button onClick={logout} />
       {players}
     </div>
   );
+};
+
+Board.propTypes = {
+  playerSeat: PropTypes.string.isRequired,
 };
 
 export default Board;

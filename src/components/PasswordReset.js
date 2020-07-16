@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { Link } from "@reach/router";
+import React, { useState } from 'react';
+import { Link } from '@reach/router';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import { resetPassword } from '../providers/UserProvider';
 
 const PasswordReset = () => {
   const [email, setEmail] = useState('');
@@ -10,12 +11,13 @@ const PasswordReset = () => {
 
   const onChange = (event) => {
     const { name, value } = event.currentTarget;
-    if (name === "resetEmail") {
+    if (name === 'resetEmail') {
       setEmail(value);
     }
   };
-  const sendReset = (event) => {
+  const submitHandler = (event) => {
     event.preventDefault();
+    console.log(event.currentTarget.value);
   };
 
   return (
@@ -23,13 +25,13 @@ const PasswordReset = () => {
       <h1 className="center">Reset Your Password</h1>
       <br />
       <div className="sign-in-form-container">
-        <Form className="sign-in-form-container" onSubmit={(e) => e.preventDefault()}>
-          { emailHasBeenSent ? 
-            (<p>An email containing a reset link has been sent!</p>) 
+        <Form className="sign-in-form-container" onSubmit={submitHandler}>
+          { emailHasBeenSent
+            ? (<p>An email containing a reset link has been sent!</p>)
             : ''
-          } 
-          { error ? 
-            (<p className="error">{error}</p>) 
+          }
+          { error
+            ? (<p className="error">{error}</p>)
             : ''
           }
           <Form.Group controlId="resetEmail">
@@ -41,13 +43,12 @@ const PasswordReset = () => {
             </div>
           </Form.Group>
         </Form>
-        
+
         <Link to="/" className="sign-in-button">Back to Sign In</Link>
 
       </div>
     </div>
-  )
+  );
+};
 
-}
-
-export default PasswordReset
+export default PasswordReset;

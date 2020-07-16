@@ -10,30 +10,26 @@ const SignIn = () => {
   const [error, setError] = useState(null);
 
   const onChange = (event) => {
-    const { name, value } = event.currentTarget; 
+    const { name, value } = event.currentTarget;
 
-    if(name === 'email') {
+    if (name === 'email') {
       setEmail(value);
-    }
-
-    else if(name === 'password') {
-      setPassword(value)
+    } else if (name === 'password') {
+      setPassword(value);
     }
   };
 
   const submitHandler = (event) => {
-    event.preventDefault()
-    const name = event.target.name
+    event.preventDefault();
+    const { name } = event.target;
     if (name === 'email') {
       emailLogin(email, password);
-    }
-    else if (name === 'google') {
+    } else if (name === 'google') {
       googleLogin();
-    }
-    else {
+    } else {
       anonymousLogin();
     }
-  }
+  };
 
   return (
     <div className="sign-in-container">
@@ -57,19 +53,21 @@ const SignIn = () => {
         <div className="hr-holder">
           <hr />
         </div>
-        <button onClick={submitHandler} name="google" className="google-sign-in btn btn-primary"></button>
+        <button onClick={submitHandler} name="google" className="google-sign-in btn btn-primary" />
         <br />
         <br />
         <Button onClick={submitHandler} name="anonymous" className="sign-in-button">Sign in anonymously</Button>
         <div className="hr-holder">
           <hr />
         </div>
-          Do you need an account? <Link to="/signUp" className="sign-in-button">Sign up here!</Link>
+        Do you need an account?
+        {' '}
+        <Link to="/signUp" className="sign-in-button">Sign up here!</Link>
         <br />
         <Link to="passwordReset" className="sign-in-button">Forgot Password?</Link>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignIn
+export default SignIn;

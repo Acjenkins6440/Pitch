@@ -19,26 +19,23 @@ const SignUp = () => {
 
   const onChange = (event) => {
     const { name, value } = event.currentTarget;
-    if(name === 'email') {
+    if (name === 'email') {
       setEmail(value);
-    }
-    else if(name === 'password') {
+    } else if (name === 'password') {
       setPassword(value);
-    }
-    else {
+    } else {
       setDisplayName(value);
     }
-  }
+  };
 
   const submitHandler = (event) => {
     event.preventDefault();
-    if(event.target.id === 'google'){
-      googleLogin()
+    if (event.target.id === 'google') {
+      googleLogin();
+    } else {
+      createUserWithEmail(email, password);
     }
-    else{
-      createUserWithEmail(email, password)
-    }
-  }
+  };
 
   return (
     <div className="sign-in-container">
@@ -66,16 +63,18 @@ const SignUp = () => {
         <div className="hr-holder">
           <hr />
         </div>
-        <button id="google" className="google-sign-in btn btn-primary" onClick={submitHandler}></button>
+        <button id="google" className="google-sign-in btn btn-primary" onClick={submitHandler} />
         <div className="hr-holder">
           <hr />
         </div>
-        Have an account already? <Link to="/" className="sign-in-button">Sign in here!</Link>
+        Have an account already?
+        {' '}
+        <Link to="/" className="sign-in-button">Sign in here!</Link>
         <br />
         <Link to="/passwordReset" className="sign-in-button">Forgot Password?</Link>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUp;
