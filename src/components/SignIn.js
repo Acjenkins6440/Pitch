@@ -23,11 +23,11 @@ const SignIn = () => {
     event.preventDefault();
     const { name } = event.target;
     if (name === 'email') {
-      emailLogin(email, password);
+      emailLogin(email, password, setError);
     } else if (name === 'google') {
-      googleLogin();
+      googleLogin(setError);
     } else {
-      anonymousLogin();
+      anonymousLogin(setError);
     }
   };
 
@@ -37,6 +37,10 @@ const SignIn = () => {
       <br />
       <div className="sign-in-form-container">
         <Form className="sign-in-form" onSubmit={submitHandler} name="email">
+          { error
+            ? (<p className="error">{`${error.code}: ${error.message}`}</p>)
+            : ''
+          }
           <Form.Group controlId="email">
             <Form.Label>Email:</Form.Label>
             <Form.Control onChange={onChange} name="email" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
@@ -53,7 +57,7 @@ const SignIn = () => {
         <div className="hr-holder">
           <hr />
         </div>
-        <button onClick={submitHandler} name="google" className="google-sign-in btn btn-primary" />
+        <button type="submit" onClick={submitHandler} name="google" className="google-sign-in btn btn-primary" />
         <br />
         <br />
         <Button onClick={submitHandler} name="anonymous" className="sign-in-button">Sign in anonymously</Button>

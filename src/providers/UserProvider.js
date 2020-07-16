@@ -6,24 +6,19 @@ const emailLogin = (email, password) => {
   firebase.auth().signInWithEmailAndPassword(email, password);
 };
 
-const googleLogin = () => {
-  firebase.auth().signInWithPopup(googleProvider).then((result) => {
-    const token = result.credential.accessToken;
-    const { user } = result;
-  }).catch((error) => {
-    console.log(error);
-    return error;
+const googleLogin = (setError) => {
+  firebase.auth().signInWithPopup(googleProvider).catch((error) => {
+    setError(error);
   });
 };
 
-const anonymousLogin = () => {
+const anonymousLogin = (setError) => {
   firebase.auth().signInAnonymously().catch((error) => {
-    console.log(error);
-    return (error);
+    setError(error);
   });
 };
 
-const createUserWithEmail = (email, password, displayName) => {
+const createUserWithEmail = (email, password, displayName, setError) => {
   firebase.auth().createUserWithEmailAndPassword(email, password)
     .then(() => {
       const user = firebase.auth().currentUser;
@@ -31,21 +26,20 @@ const createUserWithEmail = (email, password, displayName) => {
         displayName,
       });
     }).catch((error) => {
-      console.log(error);
-      return error;
+      setError(error);
     });
 };
 
 const resetPassword = (email, setEmailHasBeenSent, setError) => {
-  firebase.auth().sendPasswordResetEmail(email).then((result) => {
+  firebase.auth().sendPasswordResetEmail(email).then(() => {
     setEmailHasBeenSent(true);
-  }).catch((error) =>{
-    setError(error)
+  }).catch((error) => {
+    setError(error);
   });
 };
 
 const logout = () => {
-  auth().signOut();
+  firebase.auth().signOut();
 };
 
 export {
