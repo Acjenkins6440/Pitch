@@ -1,6 +1,6 @@
 import firebase from 'firebase/app';
 // eslint-disable-next-line import/extensions
-import firebaseConfig from './firebaseConfig';
+import firebaseConfig from './firebaseConfig.js';
 import 'firebase/auth';
 import 'firebase/firestore';
 
