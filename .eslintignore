@@ -1,2 +1,2 @@
-dist
-/src/firebaseConfig.js
+firebaseConfig.js
+firebase.js
