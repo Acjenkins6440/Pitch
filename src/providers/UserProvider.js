@@ -48,6 +48,7 @@ const createUserWithEmail = (email, password, displayName, setError) => {
       const user = auth.currentUser;
       createUserPreferences(user, displayName);
     }).catch((error) => {
+      console.log(error);
       setError(error);
     });
 };
