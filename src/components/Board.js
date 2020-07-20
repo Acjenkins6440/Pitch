@@ -1,8 +1,6 @@
 import React from 'react';
-import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import Player from './Player';
-import { logout } from '../providers/UserProvider';
 
 const Board = ({ playerSeat }) => {
   const players = [];
@@ -13,7 +11,6 @@ const Board = ({ playerSeat }) => {
   }
   return (
     <div id="board">
-      <Button className="logout-button" onClick={logout}>Logout</Button>
       {players}
     </div>
   );
