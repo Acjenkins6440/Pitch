@@ -29,6 +29,7 @@ const createUserWithEmail = (email, password, displayName, setError) => {
         displayName,
       });
     }).catch((error) => {
+      console.log(error);
       setError(error);
     });
 };
@@ -45,6 +46,17 @@ const logout = () => {
   auth.signOut();
 };
 
+const updateUser = (props) => {
+  const user = auth.currentUser;
+  console.log(props)
+  console.log(...props)
+  user.updateProfile({
+    ...props,
+  }).catch((error) => {
+    setError(error);
+  });
+};
+
 export {
-  emailLogin, googleLogin, anonymousLogin, createUserWithEmail, logout, resetPassword,
+  emailLogin, googleLogin, anonymousLogin, createUserWithEmail, logout, resetPassword, updateUser,
 };

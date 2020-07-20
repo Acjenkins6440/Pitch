@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cardBack from '../assets/cardback.jpeg';
 
 const Card = ({ cardKey }) => {
-  if (cardKey === 'blank') {
+  if (cardKey.substr(0, 5) === 'blank') {
     return (
       <div className="card">
         <div className="card-back">

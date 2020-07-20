@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from '@reach/router';
+import { Link, navigate } from '@reach/router';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { googleLogin, createUserWithEmail } from '../providers/UserProvider';
@@ -26,10 +26,13 @@ const SignUp = () => {
     if (event.target.id === 'google') {
       googleLogin(setError);
     } else {
-      createUserWithEmail(email, password, setError);
+      createUserWithEmail(email, password, displayName, setError);
       setEmail('');
       setPassword('');
       setDisplayName('');
+      if (!error) {
+        navigate('/');
+      }
     }
   };
 
