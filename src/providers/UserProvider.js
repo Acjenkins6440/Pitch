@@ -71,8 +71,9 @@ const updateUser = (props, setUserPrefs, user, setError) => {
   db.ref().update(updates).then(() => {
     getUserPreferences(user, setUserPrefs);
   }).catch((error) => {
-    setError(error);
-  });
+    console.log(error)
+  })
+
 };
 
 export {

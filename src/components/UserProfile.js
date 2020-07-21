@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { updateUser } from '../providers/UserProvider';
+import { updateUser, getUserPreferences } from '../providers/UserProvider';
 
 const UserProfile = ({
   user, error, setError, userPrefs, setUserPrefs,
