@@ -5,11 +5,12 @@ import Form from 'react-bootstrap/Form';
 import { updateUser } from '../providers/UserProvider';
 
 const UserProfile = ({
-  user, error, setError, userPrefs, setUserPrefs,
+  user, userPrefs, setUserPrefs,
 }) => {
   const [email, setEmail] = useState(user.email);
   const [displayName, setDisplayName] = useState(userPrefs.displayName ? userPrefs.displayName : '');
   const [fooFooDealing, setFooFooDealing] = useState(userPrefs.fooFooDealing ? userPrefs.fooFooDealing : 'disabled');
+  const [error, setError] = useState(null);
 
   const onChange = (event) => {
     const { name, value } = event.currentTarget;
@@ -64,15 +65,20 @@ const UserProfile = ({
 };
 
 UserProfile.defaultProps = {
-  error: {},
+  userPrefs: {},
 };
 
 UserProfile.propTypes = {
-  user: PropTypes.objectOf(PropTypes.object()).isRequired,
-  error: PropTypes.objectOf(PropTypes.object()),
-  userPrefs: PropTypes.objectOf(PropTypes.object()).isRequired,
+  user: PropTypes.shape({
+    uid: PropTypes.string,
+    email: PropTypes.string,
+  }).isRequired,
+  userPrefs: PropTypes.shape({
+    displayName: PropTypes.string,
+    email: PropTypes.string,
+    fooFooDealing: PropTypes.string,
+  }),
   setUserPrefs: PropTypes.func.isRequired,
-  setError: PropTypes.func.isRequired,
 };
 
 export default UserProfile;
