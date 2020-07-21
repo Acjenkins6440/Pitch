@@ -64,7 +64,7 @@ const App = () => {
         {user
           ? (
             <Router>
-              <UserProfile error={error} user={user} path="profile" userPrefs={userPrefs} setUserPrefs={setUserPrefs} />
+              <UserProfile user={user} path="profile" userPrefs={userPrefs} setUserPrefs={setUserPrefs} />
               <Board path="/" playerSeat={0} />
             </Router>
           )
