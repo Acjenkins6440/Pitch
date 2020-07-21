@@ -3,23 +3,25 @@ import firebase, { auth, db } from '../firebase';
 // eslint-disable-next-line import/no-named-as-default-member
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-const getUserPreferences = (user, setUserPrefs) => {
-  db.ref(`userPrefs/${user.uid}`).once('value').then((snapshot) => {
-    const userPrefs = snapshot.val()
-    if(userPrefs){ setUserPrefs(userPrefs) }
-    else{ createUserPreferences(user, null, setUserPrefs) }
-  })
-  
-};
-
 const createUserPreferences = (user, displayName, setUserPrefs) => {
   const userPrefs = {
-    displayName: displayName ? displayName : user.email,
-    fooFooDealing: 'disabled'
-  }
+    displayName: displayName || user.email,
+    fooFooDealing: 'disabled',
+  };
   db.ref(`userPrefs/${user.uid}`).set(userPrefs).then(() => {
-    setUserPrefs(userPrefs)
-  })
+    setUserPrefs(userPrefs);
+  });
+};
+
+const getUserPreferences = (user, setUserPrefs) => {
+  db.ref(`userPrefs/${user.uid}`).once('value').then((snapshot) => {
+    const userPrefs = snapshot.val();
+    if (userPrefs) {
+      setUserPrefs(userPrefs);
+    } else {
+      createUserPreferences(user, null, setUserPrefs);
+    }
+  });
 };
 
 const emailLogin = (email, password, setError) => {
@@ -46,7 +48,6 @@ const createUserWithEmail = (email, password, displayName, setError) => {
       const user = auth.currentUser;
       createUserPreferences(user, displayName);
     }).catch((error) => {
-      console.log(error);
       setError(error);
     });
 };
@@ -63,19 +64,23 @@ const logout = () => {
   auth.signOut();
 };
 
-const updateUser = (props, setUserPrefs, user) => {
-  const updates = {}
-  updates[`/userPrefs/${user.uid}`] = props
-  console.log(updates)
-  db.ref().update(updates).then((response) => {
-    console.log(response)
-    getUserPreferences(user, setUserPrefs)
+const updateUser = (props, setUserPrefs, user, setError) => {
+  const updates = {};
+  updates[`/userPrefs/${user.uid}`] = props;
+  db.ref().update(updates).then(() => {
+    getUserPreferences(user, setUserPrefs);
   }).catch((error) => {
-    console.log(error)
-  })
-
+    setError(error);
+  });
 };
 
 export {
-  emailLogin, googleLogin, anonymousLogin, createUserWithEmail, logout, resetPassword, updateUser, getUserPreferences
+  emailLogin,
+  googleLogin,
+  anonymousLogin,
+  createUserWithEmail,
+  logout,
+  resetPassword,
+  updateUser,
+  getUserPreferences,
 };

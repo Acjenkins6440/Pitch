@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { updateUser, getUserPreferences } from '../providers/UserProvider';
+import { updateUser } from '../providers/UserProvider';
 
-const UserProfile = ({ user, error, userPrefs, setUserPrefs }) => {
+const UserProfile = ({
+  user, error, setError, userPrefs, setUserPrefs,
+}) => {
   const [email, setEmail] = useState(user.email);
   const [displayName, setDisplayName] = useState(userPrefs.displayName ? userPrefs.displayName : '');
   const [fooFooDealing, setFooFooDealing] = useState(userPrefs.fooFooDealing ? userPrefs.fooFooDealing : 'disabled');
@@ -21,8 +24,8 @@ const UserProfile = ({ user, error, userPrefs, setUserPrefs }) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    const props = {email, displayName, fooFooDealing}
-    updateUser(props, setUserPrefs, user);
+    const props = { email, displayName, fooFooDealing };
+    updateUser(props, setUserPrefs, user, setError);
   };
 
   return (
@@ -58,6 +61,18 @@ const UserProfile = ({ user, error, userPrefs, setUserPrefs }) => {
       </div>
     </div>
   );
+};
+
+UserProfile.defaultProps = {
+  error: {},
+};
+
+UserProfile.propTypes = {
+  user: PropTypes.objectOf(PropTypes.object()).isRequired,
+  error: PropTypes.objectOf(PropTypes.object()),
+  userPrefs: PropTypes.objectOf(PropTypes.object()).isRequired,
+  setUserPrefs: PropTypes.func.isRequired,
+  setError: PropTypes.func.isRequired,
 };
 
 export default UserProfile;

@@ -15,15 +15,14 @@ import { logout, getUserPreferences } from '../providers/UserProvider';
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
   const [userPrefs, setUserPrefs] = useState(null);
-  
+
   useEffect(() => {
-    if(!loading && user){
+    if (!loading && user) {
       getUserPreferences(user, setUserPrefs);
+    } else if (!user) {
+      navigate('/');
     }
-    else if(!user){
-      navigate('/')
-    }
-  }, [loading])
+  }, [loading]);
 
   const UserContext = createContext({ user, loading, error });
 
@@ -65,7 +64,7 @@ const App = () => {
         {user
           ? (
             <Router>
-              <UserProfile error={error} user={user} path="profile" userPrefs={userPrefs} setUserPrefs={setUserPrefs}/>
+              <UserProfile error={error} user={user} path="profile" userPrefs={userPrefs} setUserPrefs={setUserPrefs} />
               <Board path="/" playerSeat={0} />
             </Router>
           )
