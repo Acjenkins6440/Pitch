@@ -1,10 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-const Lobby = ({  }) => {
-  return (
-    <div id="board"></div>
-  )
-}
+const Lobby = () => (
+  <div id="board" />
+);
 
-export default Lobby
+export default Lobby;

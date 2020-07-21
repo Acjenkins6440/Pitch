@@ -2,12 +2,10 @@ import firebase, { auth, db } from '../firebase';
 
 // eslint-disable-next-line import/no-named-as-default-member
 const googleProvider = new firebase.auth.GoogleAuthProvider();
-const anonUser = false;
 
 const createUserPreferences = (user, displayName, setUserPrefs) => {
-  console.log(user)
   const userPrefs = {
-    displayName: (displayName) ? displayName : user.email,
+    displayName: (displayName) || user.email,
     fooFooDealing: 'disabled',
   };
   db.ref(`users/${user.uid}/preferences`).set(userPrefs).then(() => {
@@ -27,20 +25,20 @@ const getUserPreferences = (user, setUserPrefs) => {
 };
 
 const removeUserPrefs = (uid) => {
-  db.ref(`users/${uid}`).remove()
-}
+  db.ref(`users/${uid}`).remove();
+};
 
 const setOnline = (user) => {
-  db.ref(`users/${user.uid}/status`).set('online')
-}
+  db.ref(`users/${user.uid}/status`).set('online');
+};
 
 const setOffline = (uid) => {
-  if(typeof uid !== "string"){
+  if (typeof uid !== 'string') {
     const user = auth.currentUser;
-    db.ref(`users/${user.uid}/status`).set('offline')
+    db.ref(`users/${user.uid}/status`).set('offline');
   }
-  db.ref(`users/${uid}/status`).set('offline')
-}
+  db.ref(`users/${uid}/status`).set('offline');
+};
 
 const emailLogin = (email, password, setError) => {
   auth.signInWithEmailAndPassword(email, password).then(() => {
@@ -58,7 +56,6 @@ const googleLogin = (setError) => {
 
 const anonymousLogin = (setError) => {
   auth.signInAnonymously().then(() => {
-    anonUser = true;
   }).catch((error) => {
     setError(error);
   });
@@ -83,13 +80,12 @@ const resetPassword = (email, setEmailHasBeenSent, setError) => {
 };
 
 const logout = (uid, anon) => {
-  window.removeEventListener('beforeunload', setOffline)
+  window.removeEventListener('beforeunload', setOffline);
   auth.signOut();
-  if (anon){
+  if (anon) {
     removeUserPrefs(uid);
-  }
-  else{
-    setOffline(uid)
+  } else {
+    setOffline(uid);
   }
 };
 
@@ -113,5 +109,5 @@ export {
   updateUser,
   getUserPreferences,
   setOnline,
-  setOffline
+  setOffline,
 };
