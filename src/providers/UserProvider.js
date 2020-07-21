@@ -48,7 +48,6 @@ const createUserWithEmail = (email, password, displayName, setError) => {
       const user = auth.currentUser;
       createUserPreferences(user, displayName);
     }).catch((error) => {
-      console.log(error);
       setError(error);
     });
 };
@@ -71,9 +70,8 @@ const updateUser = (props, setUserPrefs, user, setError) => {
   db.ref().update(updates).then(() => {
     getUserPreferences(user, setUserPrefs);
   }).catch((error) => {
-    console.log(error)
-  })
-
+    setError(error);
+  });
 };
 
 export {
