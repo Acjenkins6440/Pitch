@@ -1,29 +1,28 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { updateUser } from '../providers/UserProvider';
+import { updateUser, getUserPreferences } from '../providers/UserProvider';
 
-const UserProfile = ({ user, error }) => {
+const UserProfile = ({ user, error, userPrefs, setUserPrefs }) => {
   const [email, setEmail] = useState(user.email);
-  const [displayName, setDisplayName] = useState(user.displayName ? user.displayName : '');
-  const [fooFooDealing, setFooFooDealing] = useState(user.fooFooDealing ? user.fooFooDealing : false);
+  const [displayName, setDisplayName] = useState(userPrefs.displayName ? userPrefs.displayName : '');
+  const [fooFooDealing, setFooFooDealing] = useState(userPrefs.fooFooDealing ? userPrefs.fooFooDealing : 'disabled');
 
   const onChange = (event) => {
     const { name, value } = event.currentTarget;
-
     if (name === 'email') {
       setEmail(value);
     } else if (name === 'displayName') {
       setDisplayName(value);
     } else {
-      setFooFooDealing(!fooFooDealing);
+      setFooFooDealing(fooFooDealing === 'disabled' ? 'enabled' : 'disabled');
     }
   };
 
   const submitHandler = (event) => {
     event.preventDefault();
     const props = {email, displayName, fooFooDealing}
-    updateUser(props);
+    updateUser(props, setUserPrefs, user);
   };
 
   return (
@@ -40,8 +39,12 @@ const UserProfile = ({ user, error }) => {
             <Form.Label>Display Name</Form.Label>
             <Form.Control onChange={onChange} name="displayName" value={displayName} type="text" placeholder="John The Baptist" />
           </Form.Group>
-          <Form.Group controlId="foofoo">
-            <Form.Check onChange={onChange} label="enable foofoo dealing?" type="checkbox" name="foofoo" value={fooFooDealing}></Form.Check>
+          <Form.Group>
+            <Form.Label>FooFoo Dealing</Form.Label>
+            <select className="form-control" onChange={onChange} value={fooFooDealing}>
+              <option>disabled</option>
+              <option>enabled</option>
+            </select>
           </Form.Group>
           <br />
           <div className="center">

@@ -24,7 +24,7 @@ body{
     padding: 10px;
     form{
       text-align: left;
-      input {
+      .form-control {
         width: 80%;
         margin: 0 auto;
         &.form-check-input{
