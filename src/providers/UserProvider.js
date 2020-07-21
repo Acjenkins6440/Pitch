@@ -5,16 +5,16 @@ const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 const createUserPreferences = (user, displayName, setUserPrefs) => {
   const userPrefs = {
-    displayName: displayName || user.email,
+    displayName: (displayName) || user.email,
     fooFooDealing: 'disabled',
   };
-  db.ref(`userPrefs/${user.uid}`).set(userPrefs).then(() => {
+  db.ref(`users/${user.uid}/preferences`).set(userPrefs).then(() => {
     setUserPrefs(userPrefs);
   });
 };
 
 const getUserPreferences = (user, setUserPrefs) => {
-  db.ref(`userPrefs/${user.uid}`).once('value').then((snapshot) => {
+  db.ref(`users/${user.uid}/preferences`).once('value').then((snapshot) => {
     const userPrefs = snapshot.val();
     if (userPrefs) {
       setUserPrefs(userPrefs);
@@ -24,8 +24,26 @@ const getUserPreferences = (user, setUserPrefs) => {
   });
 };
 
+const removeUserPrefs = (uid) => {
+  db.ref(`users/${uid}`).remove();
+};
+
+const setOnline = (user) => {
+  db.ref(`users/${user.uid}/status`).set('online');
+};
+
+const setOffline = (uid) => {
+  if (typeof uid !== 'string') {
+    const user = auth.currentUser;
+    db.ref(`users/${user.uid}/status`).set('offline');
+  }
+  db.ref(`users/${uid}/status`).set('offline');
+};
+
 const emailLogin = (email, password, setError) => {
-  auth.signInWithEmailAndPassword(email, password).catch((error) => {
+  auth.signInWithEmailAndPassword(email, password).then(() => {
+
+  }).catch((error) => {
     setError(error);
   });
 };
@@ -37,7 +55,8 @@ const googleLogin = (setError) => {
 };
 
 const anonymousLogin = (setError) => {
-  auth.signInAnonymously().catch((error) => {
+  auth.signInAnonymously().then(() => {
+  }).catch((error) => {
     setError(error);
   });
 };
@@ -60,13 +79,19 @@ const resetPassword = (email, setEmailHasBeenSent, setError) => {
   });
 };
 
-const logout = () => {
+const logout = (uid, anon) => {
+  window.removeEventListener('beforeunload', setOffline);
   auth.signOut();
+  if (anon) {
+    removeUserPrefs(uid);
+  } else {
+    setOffline(uid);
+  }
 };
 
 const updateUser = (props, setUserPrefs, user, setError) => {
   const updates = {};
-  updates[`/userPrefs/${user.uid}`] = props;
+  updates[`/users/${user.uid}/preferences`] = props;
   db.ref().update(updates).then(() => {
     getUserPreferences(user, setUserPrefs);
   }).catch((error) => {
@@ -83,4 +108,6 @@ export {
   resetPassword,
   updateUser,
   getUserPreferences,
+  setOnline,
+  setOffline,
 };
