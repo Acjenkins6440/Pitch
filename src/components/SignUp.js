@@ -26,10 +26,13 @@ const SignUp = () => {
     if (event.target.id === 'google') {
       googleLogin(setError);
     } else {
-      createUserWithEmail(email, password, setError);
-      setEmail('');
-      setPassword('');
-      setDisplayName('');
+      createUserWithEmail(email, password, displayName, setError);
+      // setEmail('');
+      // setPassword('');
+      // setDisplayName('');
+      // if (!error) {
+      //   navigate('/');
+      // }
     }
   };
 
