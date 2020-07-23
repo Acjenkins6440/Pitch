@@ -1,4 +1,5 @@
 body{
+  font-family: 'Heebo', sans-serif;
   background: radial-gradient(circle, rgba(9,121,55,1) 90%, rgba(2,0,36,1) 100%);
   .center{
     text-align: center;
@@ -68,6 +69,25 @@ body{
       border-radius: 3px;
       &:active{
         background-image: url('/src/assets/google/light_focus.png');
+      }
+    }
+  }
+  #lobby{
+    .button-container{
+      height: 80%;
+      width: 50%;
+      margin: auto;
+      display: grid;
+      margin-top: 10%;
+      .lobby-button{
+        font-size: 40px;
+        margin: auto;
+        width: 75%;
+        height: 75%;
+        &.sm{
+          height: 40%;
+          margin-top: 0;
+        }
       }
     }
   }

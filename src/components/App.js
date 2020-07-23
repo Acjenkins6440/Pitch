@@ -53,6 +53,8 @@ const App = () => {
     if (user) {
       return (
         <Nav className="ml-auto">
+          <a href="" className="nav-link">Pitch Rules</a>
+          <Button className="nav-link" style={{ cursor: 'pointer' }} onKeyPress={handleLogout} onClick={handleLogout}>Friends</Button>
           <NavLink to="profile">Your Profile</NavLink>
           <Button className="nav-link" style={{ cursor: 'pointer' }} onKeyPress={handleLogout} onClick={handleLogout}>Logout</Button>
         </Nav>
@@ -61,6 +63,7 @@ const App = () => {
 
     return (
       <Nav className="ml-auto">
+        <a href="" className="nav-link">Pitch Rules</a>
         <NavLink to="/">Sign In</NavLink>
         <NavLink to="signUp">Sign Up</NavLink>
       </Nav>
