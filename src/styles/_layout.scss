@@ -1,4 +1,5 @@
 body{
+  //base styles
   font-family: 'Heebo', sans-serif;
   background: radial-gradient(circle, rgba(9,121,55,1) 90%, rgba(2,0,36,1) 100%);
   .center{
@@ -15,6 +16,7 @@ body{
       box-shadow: none !important;
     }
   }
+  //general container styles
   .sign-in-container{
     background-color: #9c9c9c;
     width: 450px;
@@ -55,12 +57,12 @@ body{
           top: -15px;
         }
       }
-    margin: 10px 0;
-  }
-  .sign-in-button{
-    width: 185px;
-  }
-  .google-sign-in{
+      margin: 10px 0;
+    }
+    .sign-in-button{
+      width: 185px;
+    }
+    .google-sign-in{
       width: 185px;
       height: 40px;
       background-image: url('/src/assets/google/light_normal.png');
@@ -72,6 +74,7 @@ body{
       }
     }
   }
+  //lobby styles
   #lobby{
     .button-container{
       height: 80%;
@@ -90,5 +93,22 @@ body{
         }
       }
     }
+  }
+  //friends list styles
+  .friends-list{
+    tr{
+      td{
+        border-top: 1px solid #859cb3;
+      }
+    }
+    tr:nth-child(1){
+      td{
+        border-top: none;
+      }
+    }
+    .friend-status{
+      width: 10px;
+    }
+
   }
 }

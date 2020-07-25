@@ -1,0 +1,23 @@
+.navbar{
+  .nav-link{
+    border-radius: 5px;
+    margin: 0 5px;
+    background-color: #72907f8f;
+    &:hover{
+      background-color: #72907f;
+    }
+    &:active, &:focus{
+      background-color: #72907f !important;
+    }
+    &.notification{
+      &:after{
+        content: ".";
+        position: absolute;
+        font-size: 60px;
+        color: red;
+        margin-top: -65px;
+        margin-left: -4px;
+      }
+    }
+  }
+}
