@@ -5,11 +5,11 @@ import Form from 'react-bootstrap/Form';
 import { updateUser } from '../providers/UserProvider';
 
 const UserProfile = ({
-  user, userPrefs, setUserPrefs,
+  user, userData, setUserData,
 }) => {
   const [email, setEmail] = useState(user.email);
-  const [displayName, setDisplayName] = useState(userPrefs.displayName ? userPrefs.displayName : '');
-  const [fooFooDealing, setFooFooDealing] = useState(userPrefs.fooFooDealing ? userPrefs.fooFooDealing : 'disabled');
+  const [displayName, setDisplayName] = useState(userData.displayName ? userData.displayName : '');
+  const [fooFooDealing, setFooFooDealing] = useState(userData.preferences.fooFooDealing ? userData.preferences.fooFooDealing : 'disabled');
   const [error, setError] = useState(null);
 
   const onChange = (event) => {
@@ -25,8 +25,14 @@ const UserProfile = ({
 
   const submitHandler = (event) => {
     event.preventDefault();
-    const props = { email, displayName, fooFooDealing };
-    updateUser(props, setUserPrefs, user, setError);
+    const props = { 
+      email, 
+      displayName, 
+      preferences: {
+        fooFooDealing
+      }
+    };
+    updateUser(props, setUserData, user, setError);
   };
 
   return (
@@ -65,7 +71,7 @@ const UserProfile = ({
 };
 
 UserProfile.defaultProps = {
-  userPrefs: {},
+  userData: {},
 };
 
 UserProfile.propTypes = {
@@ -73,12 +79,12 @@ UserProfile.propTypes = {
     uid: PropTypes.string,
     email: PropTypes.string,
   }).isRequired,
-  userPrefs: PropTypes.shape({
+  userData: PropTypes.shape({
     displayName: PropTypes.string,
     email: PropTypes.string,
     fooFooDealing: PropTypes.string,
   }),
-  setUserPrefs: PropTypes.func.isRequired,
+  setUserData: PropTypes.func.isRequired,
 };
 
 export default UserProfile;
