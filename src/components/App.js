@@ -5,6 +5,7 @@ import { Nav } from 'react-bootstrap';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
 import { auth } from '../firebase';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
@@ -13,19 +14,21 @@ import Board from './Board';
 import Lobby from './Lobby';
 import UserProfile from './UserProfile';
 import FriendsList from './FriendsList';
+import FriendInvite from './FriendInvite';
 import {
-  logout, getUserPreferences, setOnline, setOffline,
+  logout, getUserData, setOnline, setOffline
 } from '../providers/UserProvider';
 
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
-  const [userPrefs, setUserPrefs] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  
   const UserContext = createContext({ user, loading, error });
 
   useEffect(() => {
     if (!loading && user) {
-      getUserPreferences(user, setUserPrefs);
+      getUserData(user, setUserData);
       setOnline(user);
       window.addEventListener('beforeunload', setOffline);
     } else if (!user) {
@@ -46,6 +49,7 @@ const App = () => {
   const toggleModal = () => {
     setModalOpen(!modalOpen);
   };
+
 
   const NavLink = props => (
     <Link
@@ -97,7 +101,7 @@ const App = () => {
 
     return (
       <Router>
-        <UserProfile user={user} path="profile" userPrefs={userPrefs} setUserPrefs={setUserPrefs} />
+        <UserProfile user={user} path="profile" userData={userData} setUserData={setUserData} />
         <Lobby path="/" />
         <Board path="/game" playerSeat={0} />
       </Router>
@@ -112,10 +116,7 @@ const App = () => {
       <Modal.Body>
         <FriendsList />
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="primary">Add Friend</Button>
-        <Button variant="secondary" onClick={toggleModal} onKeyPress={toggleModal}>Close</Button>
-      </Modal.Footer>
+      <FriendInvite />
     </Modal>
   );
 
