@@ -4,6 +4,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { Nav } from 'react-bootstrap';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import { auth } from '../firebase';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
@@ -12,9 +13,8 @@ import Board from './Board';
 import Lobby from './Lobby';
 import UserProfile from './UserProfile';
 import FriendsList from './FriendsList';
-import Modal from 'react-bootstrap/Modal';
 import {
-  logout, getUserPreferences, setOnline, setOffline, 
+  logout, getUserPreferences, setOnline, setOffline,
 } from '../providers/UserProvider';
 
 const App = () => {
@@ -41,13 +41,11 @@ const App = () => {
     logout(user.uid, user.isAnonymous);
   };
 
-  const friendNotifications = () => {
-    return false
-  }
+  const friendNotifications = () => false;
 
   const toggleModal = () => {
-    setModalOpen(!modalOpen)
-  }
+    setModalOpen(!modalOpen);
+  };
 
   const NavLink = props => (
     <Link
@@ -64,7 +62,7 @@ const App = () => {
     if (user) {
       return (
         <Nav className="ml-auto">
-          <a href="#" className="nav-link">Pitch Rules</a>
+          <a href="https://bicyclecards.com/how-to-play/pitch/" target="_blank" rel="noreferrer" className="nav-link">Pitch Rules</a>
           <Button className={`nav-link ${friendNotifications() ? 'notification' : ''}`} style={{ cursor: 'pointer' }} onClick={toggleModal}>Friends</Button>
           <NavLink to="profile">Your Profile</NavLink>
           <Button className="nav-link" style={{ cursor: 'pointer' }} onKeyPress={handleLogout} onClick={handleLogout}>Logout</Button>
@@ -74,7 +72,7 @@ const App = () => {
 
     return (
       <Nav className="ml-auto">
-        <NavLink to="#" target="_blank" rel="noreferrer" className="nav-link">Pitch Rules</NavLink>
+        <a href="https://bicyclecards.com/how-to-play/pitch/" target="_blank" rel="noreferrer" className="nav-link">Pitch Rules</a>
         <NavLink to="/">Sign In</NavLink>
         <NavLink to="signUp">Sign Up</NavLink>
       </Nav>
@@ -106,22 +104,20 @@ const App = () => {
     );
   };
 
-  const getModal = () => {
-    return (
-      <Modal show={modalOpen} onHide={toggleModal}>
-        <Modal.Header closeButton>
-          <h1>Your Friends</h1>
-        </Modal.Header>
-        <Modal.Body>
-          <FriendsList />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary">Add Friend</Button>
-          <Button variant="secondary" onClick={toggleModal} onKeyPress={toggleModal}>Close</Button>
-        </Modal.Footer>
-      </Modal>
-    )
-  }
+  const getModal = () => (
+    <Modal show={modalOpen} onHide={toggleModal}>
+      <Modal.Header closeButton>
+        <h1>Your Friends</h1>
+      </Modal.Header>
+      <Modal.Body>
+        <FriendsList />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="primary">Add Friend</Button>
+        <Button variant="secondary" onClick={toggleModal} onKeyPress={toggleModal}>Close</Button>
+      </Modal.Footer>
+    </Modal>
+  );
 
   return (
     <UserContext.Provider>
