@@ -5,6 +5,7 @@ import { Nav } from 'react-bootstrap';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
 import { auth } from '../firebase';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
@@ -46,6 +47,15 @@ const App = () => {
   const toggleModal = () => {
     setModalOpen(!modalOpen);
   };
+
+  const onChange = (event) => {
+    const { value } = event.currentTarget;
+    setFriendInvite(value)
+  }
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+  }
 
   const NavLink = props => (
     <Link
@@ -113,7 +123,14 @@ const App = () => {
         <FriendsList />
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary">Add Friend</Button>
+        <span>
+          <Form onSubmit={onSubmit}>
+            <Form.Group controlId="friendInvite">
+              <Form.Control required onChange={handleFriendInvite} type="text" placeholder="Player to invite"></Form.Control>
+              <Button variant="primary" type="submit">Send Invite</Button>
+            </Form.Group>
+          </Form>
+        </span>
         <Button variant="secondary" onClick={toggleModal} onKeyPress={toggleModal}>Close</Button>
       </Modal.Footer>
     </Modal>
