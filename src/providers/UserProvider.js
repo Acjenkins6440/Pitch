@@ -109,10 +109,6 @@ const updateUser = (props, setUserData, user, setError) => {
   })
 };
 
-const sendFriendInvite = (displayName) => {
-  console.log(displayName)
-}
-
 export {
   emailLogin,
   googleLogin,
@@ -124,5 +120,4 @@ export {
   getUserData,
   setOnline,
   setOffline,
-  sendFriendInvite
 };
