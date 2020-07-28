@@ -4,8 +4,6 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { Nav } from 'react-bootstrap';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
 import { auth } from '../firebase';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
@@ -13,8 +11,6 @@ import PasswordReset from './PasswordReset';
 import Board from './Board';
 import Lobby from './Lobby';
 import UserProfile from './UserProfile';
-import FriendsList from './FriendsList';
-import FriendInvite from './FriendInvite';
 import {
   logout, getUserData, setOnline, setOffline
 } from '../providers/UserProvider';
@@ -22,7 +18,6 @@ import {
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
   const [userData, setUserData] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
   
   const UserContext = createContext({ user, loading, error });
 
@@ -44,13 +39,6 @@ const App = () => {
     logout(user.uid, user.isAnonymous);
   };
 
-  const friendNotifications = () => false;
-
-  const toggleModal = () => {
-    setModalOpen(!modalOpen);
-  };
-
-
   const NavLink = props => (
     <Link
       className="nav-link"
@@ -67,7 +55,6 @@ const App = () => {
       return (
         <Nav className="ml-auto">
           <a href="https://bicyclecards.com/how-to-play/pitch/" target="_blank" rel="noreferrer" className="nav-link">Pitch Rules</a>
-          <Button className={`nav-link ${friendNotifications() ? 'notification' : ''}`} style={{ cursor: 'pointer' }} onClick={toggleModal}>Friends</Button>
           <NavLink to="profile">Your Profile</NavLink>
           <Button className="nav-link" style={{ cursor: 'pointer' }} onKeyPress={handleLogout} onClick={handleLogout}>Logout</Button>
         </Nav>
@@ -108,18 +95,6 @@ const App = () => {
     );
   };
 
-  const getModal = () => (
-    <Modal show={modalOpen} onHide={toggleModal}>
-      <Modal.Header closeButton>
-        <h1>Your Friends</h1>
-      </Modal.Header>
-      <Modal.Body>
-        <FriendsList />
-      </Modal.Body>
-      <FriendInvite />
-    </Modal>
-  );
-
   return (
     <UserContext.Provider>
       <div>
@@ -130,7 +105,6 @@ const App = () => {
           </Nav>
           {getRightNav()}
         </Navbar>
-        {getModal()}
         {getRouter()}
       </div>
     </UserContext.Provider>
