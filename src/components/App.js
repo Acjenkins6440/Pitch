@@ -26,6 +26,7 @@ const App = () => {
       getUserData(user, setUserData);
       setOnline(user);
       window.addEventListener('beforeunload', setOffline);
+      navigate('/')
     } else if (!user) {
       navigate('/');
     }
