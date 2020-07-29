@@ -10,7 +10,8 @@ const createUserData = (user, displayName, setUserData) => {
     preferences: {
       fooFooDealing: 'disabled',
     },
-    displayName: name
+    displayName: name,
+    uid: user.uid
   };
   
   userRef.set(userData).then(() => {

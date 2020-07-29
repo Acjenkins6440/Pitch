@@ -17,7 +17,7 @@ import {
 
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState({});
   
   const UserContext = createContext({ user, loading, error });
 
@@ -90,7 +90,7 @@ const App = () => {
     return (
       <Router>
         <UserProfile user={user} path="profile" userData={userData} setUserData={setUserData} />
-        <Lobby path="/" />
+        <Lobby path="/" userData={userData}/>
         <Board path="/game" playerSeat={0} />
       </Router>
     );
