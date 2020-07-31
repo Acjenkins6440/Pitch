@@ -18,6 +18,7 @@ import {
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
   const [userData, setUserData] = useState({});
+  const [lobbyState, setLobbyState] = useState('lobby');
   
   const UserContext = createContext({ user, loading, error });
 
@@ -46,6 +47,11 @@ const App = () => {
       {...props}
     />
   );
+
+  const lobbyNav = () => {
+    setLobbyState('lobby')
+    navigate('/')
+  }
 
   const getRightNav = () => {
     if (loading && !user) {
@@ -90,7 +96,7 @@ const App = () => {
     return (
       <Router>
         <UserProfile user={user} path="profile" userData={userData} setUserData={setUserData} />
-        <Lobby path="/" userData={userData}/>
+        <Lobby path="/" userData={userData} lobbyState={lobbyState} setLobbyState={setLobbyState} />
         <Board path="/game" playerSeat={0} />
       </Router>
     );
@@ -102,7 +108,7 @@ const App = () => {
         <Navbar bg="dark" variant="dark">
           <Navbar.Brand>The most card game</Navbar.Brand>
           <Nav>
-            <NavLink to="/">Lobby</NavLink>
+            <Button className="nav-link" onClick={lobbyNav} onKeyPress={lobbyNav}>Lobby</Button>
           </Nav>
           {getRightNav()}
         </Navbar>

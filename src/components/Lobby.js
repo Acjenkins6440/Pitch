@@ -3,9 +3,7 @@ import Button from 'react-bootstrap/Button';
 import CreateGame from './CreateGame';
 import JoinGame from './JoinGame'
 
-const Lobby = ({ user, userData }) => {
-  const [lobbyState, setLobbyState] = useState('lobby')
-
+const Lobby = ({ userData, lobbyState, setLobbyState }) => {
   const getLobbyComponent = () => {
     if(lobbyState === 'lobby'){
       return (
@@ -24,7 +22,7 @@ const Lobby = ({ user, userData }) => {
     }
     else if(lobbyState === 'joinGame'){
       return(
-        <JoinGame backToLobby={onClick}/>
+        <JoinGame userDate={userData} backToLobby={onClick}/>
       )
     }
   }

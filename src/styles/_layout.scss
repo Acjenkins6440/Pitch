@@ -42,16 +42,16 @@ body{
         text-align: center;
       }
     }
-    &.join-create-container{
-        .form-check-input{
-          margin-left: 6%;
-        }
-        .form-placeholder{
-          height: 86px;
-        }
-        button{
-          margin: 0 5px;
-        }
+    &.create-container{
+      .form-check-input{
+        margin-left: 6%;
+      }
+      .form-placeholder{
+        height: 86px;
+      }
+      button{
+        margin: 0 5px;
+      }
     }
     .hr-holder{
       hr{
@@ -90,21 +90,21 @@ body{
   #lobby{
     margin-top: -10%;
     height: 80%;
-    .button-container{
-      height: 100%;
-      width: 50%;
+  }
+  .button-container{
+    height: 100%;
+    width: 50%;
+    margin: auto;
+    display: grid;
+    margin-top: 15%;
+    .lobby-button{
+      font-size: 40px;
       margin: auto;
-      display: grid;
-      margin-top: 15%;
-      .lobby-button{
-        font-size: 40px;
-        margin: auto;
-        width: 75%;
-        height: 75%;
-        &.sm{
-          height: 40%;
-          margin-top: 0;
-        }
+      width: 75%;
+      height: 75%;
+      &.sm{
+        height: 40%;
+        margin-top: 0;
       }
     }
   }

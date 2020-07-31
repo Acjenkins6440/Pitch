@@ -1,0 +1,15 @@
+.join-game-table-container{
+    margin-top: -10%;
+    height: 80%;
+    width: 60% !important;
+    .join-game-table{
+      width: 80%;
+      margin: 5% auto;
+      tr{
+        height: 50px;
+      }
+      .status{
+        width: 10%;
+      }
+    }
+}
