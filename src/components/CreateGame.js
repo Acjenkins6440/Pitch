@@ -41,7 +41,7 @@ const CreateGame = ({ userData, backToLobby }) => {
   }
 
   return (
-    <div className="generic-container join-create-container">
+    <div className="generic-container create-container">
       <h1 className="center">Create a New Game</h1>
       <br />
       <Form onSubmit={handleSubmit} >

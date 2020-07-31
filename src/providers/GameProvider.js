@@ -22,7 +22,7 @@ const getActiveGames = (setActiveGames) => {
   const gamesRef = db.ref('games/active/');
   gamesRef.once('value').then((snapshot) => {
     const games = snapshot.val();
-    console.log(games)
+    setActiveGames(games)
   })
 }
 
