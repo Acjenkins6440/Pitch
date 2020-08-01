@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Player from './Player';
 
-const Board = ({ playerSeat }) => {
+const Board = ({ gameData }) => {
   const players = [];
+  const playerSeat = 0;
 
   for (let i = 0; i < 4; i += 1) {
     const player = <Player key={i} playerNum={i} playerSeat={playerSeat} />;
@@ -17,7 +18,9 @@ const Board = ({ playerSeat }) => {
 };
 
 Board.propTypes = {
-  playerSeat: PropTypes.number.isRequired,
+  gameData: PropTypes.shape({
+    
+  }).isRequired,
 };
 
 export default Board;

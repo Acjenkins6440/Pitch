@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import { getActiveGames, joinGame } from '../providers/GameProvider';
 
-const JoinGame = ({ userData, backToLobby }) => {
+const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   const [activeGames, setActiveGames] = useState([]);
 
   const initGames = () => {
@@ -22,7 +22,8 @@ const JoinGame = ({ userData, backToLobby }) => {
     const minutes = Math.floor(timeDiff / 1000 / 60);
     const hours = Math.floor(minutes / 60);
     const minutesLeft = Math.floor(minutes - (hours * 60));
-    return `${hours}:${minutesLeft}`;
+    
+    return `${hours < 10 ? '0' : ''}${hours}:${minutesLeft < 10 ? '0' : ''}${minutesLeft}`;
   };
 
   const promptPassword = gameData => (!!(gameData.password));
@@ -32,7 +33,7 @@ const JoinGame = ({ userData, backToLobby }) => {
     if (gameData.passwordEnabled) {
       promptPassword(gameData);
     }
-    joinGame(userData, gameData, navigate);
+    joinGame(userData, gameData, setActiveGame, navigate);
   };
 
   const getJoinLink = (gameKey) => {

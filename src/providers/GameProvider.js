@@ -26,7 +26,9 @@ const getActiveGames = (setActiveGames) => {
   });
 };
 
-const joinGame = () => true;
+const joinGame = (userData, gameData, setActiveGame, navigate) => {
+  gameRef = db.ref(`games/active/${gameData.id}`)
+};
 
 export {
   createGame,
