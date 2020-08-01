@@ -17,7 +17,7 @@ body{
     }
   }
   //general container styles
-  .sign-in-container{
+  .sign-in-container, .generic-container{
     background-color: #9c9c9c;
     width: 450px;
     text-align: center;
@@ -33,12 +33,24 @@ body{
         &.form-check-input{
           margin-left: 10%;
         }
+
       }
       label{
         margin-left: 10%;
       }
       button{
         text-align: center;
+      }
+    }
+    &.create-container{
+      .form-check-input{
+        margin-left: 6%;
+      }
+      .form-placeholder{
+        height: 86px;
+      }
+      button{
+        margin: 0 5px;
       }
     }
     .hr-holder{
@@ -76,21 +88,23 @@ body{
   }
   //lobby styles
   #lobby{
-    .button-container{
-      height: 80%;
-      width: 50%;
+    margin-top: -10%;
+    height: 80%;
+  }
+  .button-container{
+    height: 100%;
+    width: 50%;
+    margin: auto;
+    display: grid;
+    margin-top: 15%;
+    .lobby-button{
+      font-size: 40px;
       margin: auto;
-      display: grid;
-      margin-top: 10%;
-      .lobby-button{
-        font-size: 40px;
-        margin: auto;
-        width: 75%;
-        height: 75%;
-        &.sm{
-          height: 40%;
-          margin-top: 0;
-        }
+      width: 75%;
+      height: 75%;
+      &.sm{
+        height: 40%;
+        margin-top: 0;
       }
     }
   }

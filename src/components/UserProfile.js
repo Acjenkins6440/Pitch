@@ -5,11 +5,11 @@ import Form from 'react-bootstrap/Form';
 import { updateUser } from '../providers/UserProvider';
 
 const UserProfile = ({
-  user, userPrefs, setUserPrefs,
+  user, userData, setUserData,
 }) => {
   const [email, setEmail] = useState(user.email);
-  const [displayName, setDisplayName] = useState(userPrefs.displayName ? userPrefs.displayName : '');
-  const [fooFooDealing, setFooFooDealing] = useState(userPrefs.fooFooDealing ? userPrefs.fooFooDealing : 'disabled');
+  const [displayName, setDisplayName] = useState(userData.displayName ? userData.displayName : '');
+  const [fooFooDealing, setFooFooDealing] = useState(userData.preferences.fooFooDealing ? userData.preferences.fooFooDealing : 'disabled');
   const [error, setError] = useState(null);
 
   const onChange = (event) => {
@@ -25,47 +25,51 @@ const UserProfile = ({
 
   const submitHandler = (event) => {
     event.preventDefault();
-    const props = { email, displayName, fooFooDealing };
-    updateUser(props, setUserPrefs, user, setError);
+    const props = {
+      email,
+      displayName,
+      preferences: {
+        fooFooDealing,
+      },
+    };
+    updateUser(props, setUserData, user, setError);
   };
 
   return (
-    <div className="sign-in-container">
+    <div className="generic-container">
       <h1 className="center">Your Profile</h1>
       <br />
-      <div className="sign-in-form-container">
-        <Form className="sign-in-form" onSubmit={submitHandler} name="email">
-          <Form.Group controlId="email">
-            <Form.Label>Email:</Form.Label>
-            <Form.Control onChange={onChange} name="email" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
-          </Form.Group>
-          <Form.Group controlId="password">
-            <Form.Label>Display Name</Form.Label>
-            <Form.Control onChange={onChange} name="displayName" value={displayName} type="text" placeholder="John The Baptist" />
-          </Form.Group>
-          <Form.Group>
-            <Form.Label>FooFoo Dealing</Form.Label>
-            <select className="form-control" onChange={onChange} value={fooFooDealing}>
-              <option>disabled</option>
-              <option>enabled</option>
-            </select>
-          </Form.Group>
-          <br />
-          <div className="center">
-            {error
-              ? (<p className="error">{`${error.code}: ${error.message}`}</p>)
-              : ''
-            }
-            <Button className="sign-in-button" type="submit">Update Profile</Button>
-          </div>
-        </Form>
-      </div>
+      <Form onSubmit={submitHandler} name="email">
+        <Form.Group controlId="email">
+          <Form.Label>Email:</Form.Label>
+          <Form.Control onChange={onChange} name="email" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
+        </Form.Group>
+        <Form.Group controlId="password">
+          <Form.Label>Display Name</Form.Label>
+          <Form.Control onChange={onChange} name="displayName" value={displayName} type="text" placeholder="John The Baptist" />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>FooFoo Dealing</Form.Label>
+          <select className="form-control" onChange={onChange} value={fooFooDealing}>
+            <option>disabled</option>
+            <option>enabled</option>
+          </select>
+        </Form.Group>
+        <br />
+        <div className="center">
+          {error
+            ? (<p className="error">{`${error.code}: ${error.message}`}</p>)
+            : ''
+          }
+          <Button className="sign-in-button" type="submit">Update Profile</Button>
+        </div>
+      </Form>
     </div>
   );
 };
 
 UserProfile.defaultProps = {
-  userPrefs: {},
+  userData: {},
 };
 
 UserProfile.propTypes = {
@@ -73,12 +77,15 @@ UserProfile.propTypes = {
     uid: PropTypes.string,
     email: PropTypes.string,
   }).isRequired,
-  userPrefs: PropTypes.shape({
+  userData: PropTypes.shape({
     displayName: PropTypes.string,
     email: PropTypes.string,
     fooFooDealing: PropTypes.string,
+    preferences: PropTypes.shape({
+      fooFooDealing: PropTypes.string.isRequired,
+    }),
   }),
-  setUserPrefs: PropTypes.func.isRequired,
+  setUserData: PropTypes.func.isRequired,
 };
 
 export default UserProfile;
