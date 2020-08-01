@@ -25,11 +25,11 @@ const UserProfile = ({
 
   const submitHandler = (event) => {
     event.preventDefault();
-    const props = { 
-      email, 
-      displayName, 
+    const props = {
+      email,
+      displayName,
       preferences: {
-        fooFooDealing
+        fooFooDealing,
       },
     };
     updateUser(props, setUserData, user, setError);
@@ -81,6 +81,9 @@ UserProfile.propTypes = {
     displayName: PropTypes.string,
     email: PropTypes.string,
     fooFooDealing: PropTypes.string,
+    preferences: PropTypes.shape({
+      fooFooDealing: PropTypes.string.isRequired,
+    }),
   }),
   setUserData: PropTypes.func.isRequired,
 };

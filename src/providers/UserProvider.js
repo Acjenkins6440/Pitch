@@ -5,22 +5,20 @@ const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 const createUserData = (user, displayName, setUserData) => {
   const userRef = db.ref(`users/${user.uid}`);
-  const name = displayName || user.email
+  const name = displayName || user.email;
   const userData = {
     preferences: {
       fooFooDealing: 'disabled',
     },
     displayName: name,
-    uid: user.uid
+    uid: user.uid,
   };
-  
+
   userRef.set(userData).then(() => {
-    if(setUserData){
+    if (setUserData) {
       setUserData(userData);
     }
-  }).catch((err) => {
-    console.log(err)
-  })
+  });
 };
 
 const getUserData = (user, setUserData) => {
@@ -103,11 +101,11 @@ const updateUser = (props, setUserData, user, setError) => {
   const updates = {};
   updates[`/users/${user.uid}`] = props;
   db.ref().update(updates)
-  .then(() => {
-    getUserData(user, setUserData);
-  }).catch((error) => {
-    setError(error);
-  })
+    .then(() => {
+      getUserData(user, setUserData);
+    }).catch((error) => {
+      setError(error);
+    });
 };
 
 export {

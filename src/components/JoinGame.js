@@ -1,35 +1,54 @@
 import React, { useState, useEffect } from 'react';
+import { navigate } from '@reach/router';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-import { getActiveGames } from '../providers/GameProvider';
+import PropTypes from 'prop-types';
+import { getActiveGames, joinGame } from '../providers/GameProvider';
 
 const JoinGame = ({ userData, backToLobby }) => {
-  const [activeGames, setActiveGames] = useState([])
+  const [activeGames, setActiveGames] = useState([]);
 
   const initGames = () => {
-    getActiveGames(setActiveGames)
-  }
-  
+    getActiveGames(setActiveGames);
+  };
+
   useEffect(() => {
-    initGames()
+    initGames();
   }, []);
 
   const getTimeDiff = (gameKey) => {
-    const timeInMs = parseInt(gameKey.slice(-13))
-    const timeDiff = new Date().getTime() - timeInMs
-    const minutes = Math.floor(timeDiff / 1000 / 60)
-    const hours = Math.floor(minutes / 60 )
-    const minutesLeft = Math.floor(minutes - (hours * 60))
-    return `${hours}:${minutesLeft}`
-  }
+    const timeInMs = parseInt(gameKey.slice(-13), 10);
+    const timeDiff = new Date().getTime() - timeInMs;
+    const minutes = Math.floor(timeDiff / 1000 / 60);
+    const hours = Math.floor(minutes / 60);
+    const minutesLeft = Math.floor(minutes - (hours * 60));
+    return `${hours}:${minutesLeft}`;
+  };
 
-  const getJoinLink = () => {
-    return <a>Join</a>
-  }
+  const promptPassword = gameData => (!!(gameData.password));
+  // put a modal here
+
+  const handleClick = (gameData) => {
+    if (gameData.passwordEnabled) {
+      promptPassword(gameData);
+    }
+    joinGame(userData, gameData, navigate);
+  };
+
+  const getJoinLink = (gameKey) => {
+    const gameData = activeGames[gameKey];
+    if (Object.keys(gameData.users).length < 4) {
+      return (
+        <Button onClick={handleClick(gameData)} onKeyPress={handleClick(gameData)}>Join</Button>
+      );
+    }
+
+    return <p>Join</p>;
+  };
 
   const getRow = (gameKey) => {
-    const gameData = activeGames[gameKey]
-    const padlockSrc = `/public/images/${!gameData.passwordEnabled ? 'un' : '' }locked_game.svg`
+    const gameData = activeGames[gameKey];
+    const padlockSrc = `/public/images/${!gameData.passwordEnabled ? 'un' : ''}locked_game.svg`;
     return (
       <tr key={gameKey}>
         <td className="status">{gameData.status}</td>
@@ -38,10 +57,10 @@ const JoinGame = ({ userData, backToLobby }) => {
         <td>{gameData.botsEnabled ? 'Yes' : 'No'}</td>
         <td>{getTimeDiff(gameKey)}</td>
         <td>{getJoinLink(gameKey)}</td>
-        <td><img src={padlockSrc} /></td>
+        <td><img src={padlockSrc} alt={gameData.passwordEnabled ? 'locked game' : 'unlocked game'} /></td>
       </tr>
-    )
-  }
+    );
+  };
 
   return (
     <div>
@@ -60,15 +79,26 @@ const JoinGame = ({ userData, backToLobby }) => {
             </tr>
           </thead>
           <tbody>
-            {Object.keys(activeGames).map((key) => (
-              getRow(key)  
+            {Object.keys(activeGames).map(key => (
+              getRow(key)
             ))}
           </tbody>
         </Table>
         <Button onClick={backToLobby} onKeyPress={backToLobby}>Back to Lobby</Button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default JoinGame
+JoinGame.propTypes = {
+  userData: PropTypes.shape({
+    displayName: PropTypes.string.isRequired,
+    uid: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
+JoinGame.propTypes = {
+  backToLobby: PropTypes.func.isRequired,
+};
+
+export default JoinGame;
