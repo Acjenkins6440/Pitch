@@ -3,28 +3,36 @@ import firebase, { auth, db } from '../firebase';
 // eslint-disable-next-line import/no-named-as-default-member
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-const createUserPreferences = (user, displayName, setUserPrefs) => {
-  const userPrefs = {
-    displayName: (displayName) || user.email,
-    fooFooDealing: 'disabled',
+const createUserData = (user, displayName, setUserData) => {
+  const userRef = db.ref(`users/${user.uid}`);
+  const name = displayName || user.email;
+  const userData = {
+    preferences: {
+      fooFooDealing: 'disabled',
+    },
+    displayName: name,
+    uid: user.uid,
   };
-  db.ref(`users/${user.uid}/preferences`).set(userPrefs).then(() => {
-    setUserPrefs(userPrefs);
-  });
-};
 
-const getUserPreferences = (user, setUserPrefs) => {
-  db.ref(`users/${user.uid}/preferences`).once('value').then((snapshot) => {
-    const userPrefs = snapshot.val();
-    if (userPrefs) {
-      setUserPrefs(userPrefs);
-    } else {
-      createUserPreferences(user, null, setUserPrefs);
+  userRef.set(userData).then(() => {
+    if (setUserData) {
+      setUserData(userData);
     }
   });
 };
 
-const removeUserPrefs = (uid) => {
+const getUserData = (user, setUserData) => {
+  db.ref(`users/${user.uid}`).once('value').then((snapshot) => {
+    const userData = snapshot.val();
+    if (userData) {
+      setUserData(userData);
+    } else {
+      createUserData(user, null, setUserData);
+    }
+  });
+};
+
+const removeUser = (uid) => {
   db.ref(`users/${uid}`).remove();
 };
 
@@ -65,7 +73,7 @@ const createUserWithEmail = (email, password, displayName, setError) => {
   auth.createUserWithEmailAndPassword(email, password)
     .then(() => {
       const user = auth.currentUser;
-      createUserPreferences(user, displayName);
+      createUserData(user, displayName);
     }).catch((error) => {
       setError(error);
     });
@@ -83,20 +91,21 @@ const logout = (uid, anon) => {
   window.removeEventListener('beforeunload', setOffline);
   auth.signOut();
   if (anon) {
-    removeUserPrefs(uid);
+    removeUser(uid);
   } else {
     setOffline(uid);
   }
 };
 
-const updateUser = (props, setUserPrefs, user, setError) => {
+const updateUser = (props, setUserData, user, setError) => {
   const updates = {};
-  updates[`/users/${user.uid}/preferences`] = props;
-  db.ref().update(updates).then(() => {
-    getUserPreferences(user, setUserPrefs);
-  }).catch((error) => {
-    setError(error);
-  });
+  updates[`/users/${user.uid}`] = props;
+  db.ref().update(updates)
+    .then(() => {
+      getUserData(user, setUserData);
+    }).catch((error) => {
+      setError(error);
+    });
 };
 
 export {
@@ -107,7 +116,7 @@ export {
   logout,
   resetPassword,
   updateUser,
-  getUserPreferences,
+  getUserData,
   setOnline,
   setOffline,
 };

@@ -6,6 +6,21 @@
     }
     .modal-footer{
       border: none;
+      form{
+        width: 100%;
+        text-align: right;
+      }
+      .inline-form{
+        input, button{
+          display: inline-block;
+        }
+        button{
+          margin-top: -5px;
+        }
+        input{
+          width: 50%;
+        }
+      }
     }
   }
 }

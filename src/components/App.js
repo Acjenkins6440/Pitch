@@ -4,7 +4,6 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { Nav } from 'react-bootstrap';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
 import { auth } from '../firebase';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
@@ -12,22 +11,23 @@ import PasswordReset from './PasswordReset';
 import Board from './Board';
 import Lobby from './Lobby';
 import UserProfile from './UserProfile';
-import FriendsList from './FriendsList';
 import {
-  logout, getUserPreferences, setOnline, setOffline,
+  logout, getUserData, setOnline, setOffline,
 } from '../providers/UserProvider';
 
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
-  const [userPrefs, setUserPrefs] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [userData, setUserData] = useState({});
+  const [lobbyState, setLobbyState] = useState('lobby');
+
   const UserContext = createContext({ user, loading, error });
 
   useEffect(() => {
     if (!loading && user) {
-      getUserPreferences(user, setUserPrefs);
+      getUserData(user, setUserData);
       setOnline(user);
       window.addEventListener('beforeunload', setOffline);
+      navigate('/');
     } else if (!user) {
       navigate('/');
     }
@@ -41,18 +41,17 @@ const App = () => {
     logout(user.uid, user.isAnonymous);
   };
 
-  const friendNotifications = () => false;
-
-  const toggleModal = () => {
-    setModalOpen(!modalOpen);
-  };
-
   const NavLink = props => (
     <Link
       className="nav-link"
       {...props}
     />
   );
+
+  const lobbyNav = () => {
+    setLobbyState('lobby');
+    navigate('/');
+  };
 
   const getRightNav = () => {
     if (loading && !user) {
@@ -63,7 +62,6 @@ const App = () => {
       return (
         <Nav className="ml-auto">
           <a href="https://bicyclecards.com/how-to-play/pitch/" target="_blank" rel="noreferrer" className="nav-link">Pitch Rules</a>
-          <Button className={`nav-link ${friendNotifications() ? 'notification' : ''}`} style={{ cursor: 'pointer' }} onClick={toggleModal}>Friends</Button>
           <NavLink to="profile">Your Profile</NavLink>
           <Button className="nav-link" style={{ cursor: 'pointer' }} onKeyPress={handleLogout} onClick={handleLogout}>Logout</Button>
         </Nav>
@@ -97,27 +95,12 @@ const App = () => {
 
     return (
       <Router>
-        <UserProfile user={user} path="profile" userPrefs={userPrefs} setUserPrefs={setUserPrefs} />
-        <Lobby path="/" />
+        <UserProfile user={user} path="profile" userData={userData} setUserData={setUserData} />
+        <Lobby path="/" userData={userData} lobbyState={lobbyState} setLobbyState={setLobbyState} />
         <Board path="/game" playerSeat={0} />
       </Router>
     );
   };
-
-  const getModal = () => (
-    <Modal show={modalOpen} onHide={toggleModal}>
-      <Modal.Header closeButton>
-        <h1>Your Friends</h1>
-      </Modal.Header>
-      <Modal.Body>
-        <FriendsList />
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="primary">Add Friend</Button>
-        <Button variant="secondary" onClick={toggleModal} onKeyPress={toggleModal}>Close</Button>
-      </Modal.Footer>
-    </Modal>
-  );
 
   return (
     <UserContext.Provider>
@@ -125,11 +108,10 @@ const App = () => {
         <Navbar bg="dark" variant="dark">
           <Navbar.Brand>The most card game</Navbar.Brand>
           <Nav>
-            <NavLink to="/">Lobby</NavLink>
+            <Button className="nav-link" onClick={lobbyNav} onKeyPress={lobbyNav}>Lobby</Button>
           </Nav>
           {getRightNav()}
         </Navbar>
-        {getModal()}
         {getRouter()}
       </div>
     </UserContext.Provider>
