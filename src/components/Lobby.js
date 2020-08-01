@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import CreateGame from './CreateGame';
 import JoinGame from './JoinGame';
 
-const Lobby = ({ userData, lobbyState, setLobbyState }) => {
+const Lobby = ({ userData, lobbyState, setLobbyState, setActiveGame }) => {
   const onClick = (event) => {
     const { name } = event.currentTarget;
     let newState = '';
@@ -31,11 +31,11 @@ const Lobby = ({ userData, lobbyState, setLobbyState }) => {
     }
     if (lobbyState === 'createGame') {
       return (
-        <CreateGame userData={userData} backToLobby={onClick} />
+        <CreateGame userData={userData} backToLobby={onClick} setActiveGame={setActiveGame}/>
       );
     }
     return (
-      <JoinGame userDate={userData} backToLobby={onClick} />
+      <JoinGame userDate={userData} backToLobby={onClick} setActiveGame={setActiveGame}/>
     );
   };
 

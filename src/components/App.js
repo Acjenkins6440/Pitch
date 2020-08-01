@@ -19,6 +19,7 @@ const App = () => {
   const [user, loading, error] = useAuthState(auth);
   const [userData, setUserData] = useState({});
   const [lobbyState, setLobbyState] = useState('lobby');
+  const [activeGame, setActiveGame] = useState(null)
 
   const UserContext = createContext({ user, loading, error });
 
@@ -96,8 +97,8 @@ const App = () => {
     return (
       <Router>
         <UserProfile user={user} path="profile" userData={userData} setUserData={setUserData} />
-        <Lobby path="/" userData={userData} lobbyState={lobbyState} setLobbyState={setLobbyState} />
-        <Board path="/game" playerSeat={0} />
+        <Lobby path="/" userData={userData} lobbyState={lobbyState} setLobbyState={setLobbyState} setActiveGame={setActiveGame}/>
+        <Board path="/game" gameData={activeGame} />
       </Router>
     );
   };
