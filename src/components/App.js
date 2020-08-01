@@ -12,14 +12,14 @@ import Board from './Board';
 import Lobby from './Lobby';
 import UserProfile from './UserProfile';
 import {
-  logout, getUserData, setOnline, setOffline
+  logout, getUserData, setOnline, setOffline,
 } from '../providers/UserProvider';
 
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
   const [userData, setUserData] = useState({});
   const [lobbyState, setLobbyState] = useState('lobby');
-  
+
   const UserContext = createContext({ user, loading, error });
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const App = () => {
       getUserData(user, setUserData);
       setOnline(user);
       window.addEventListener('beforeunload', setOffline);
-      navigate('/')
+      navigate('/');
     } else if (!user) {
       navigate('/');
     }
@@ -49,9 +49,9 @@ const App = () => {
   );
 
   const lobbyNav = () => {
-    setLobbyState('lobby')
-    navigate('/')
-  }
+    setLobbyState('lobby');
+    navigate('/');
+  };
 
   const getRightNav = () => {
     if (loading && !user) {

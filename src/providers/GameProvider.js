@@ -1,32 +1,35 @@
-import firebase, { auth, db } from '../firebase';
+import { db } from '../firebase';
 
 const createGame = (gameProps, userData, setLoading, setError) => {
-  setLoading(true)
-  const newGameId = `${userData.uid}${new Date().getTime()}`
+  setLoading(true);
+  const newGameId = `${userData.uid}${new Date().getTime()}`;
   const gameRef = db.ref(`games/active/${newGameId}`);
   const gameData = {
     status: 'lobby',
     users: {
-      owner: userData.uid
+      owner: userData.uid,
     },
-    ...gameProps
-  }
+    ...gameProps,
+  };
   gameRef.set(gameData).then(() => {
-    setLoading(false)
+    setLoading(false);
   }).catch((error) => {
-    setError(error)
-  })
-}
+    setError(error);
+  });
+};
 
 const getActiveGames = (setActiveGames) => {
   const gamesRef = db.ref('games/active/');
   gamesRef.once('value').then((snapshot) => {
     const games = snapshot.val();
-    setActiveGames(games)
-  })
-}
+    setActiveGames(games);
+  });
+};
+
+const joinGame = () => true;
 
 export {
   createGame,
   getActiveGames,
-}
+  joinGame,
+};
