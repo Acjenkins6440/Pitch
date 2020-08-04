@@ -12,6 +12,8 @@ const createUserData = (user, displayName, setUserData) => {
     },
     displayName: name,
     uid: user.uid,
+    status: 'online',
+    email: user.email || ''
   };
 
   userRef.set(userData).then(() => {
@@ -64,6 +66,8 @@ const googleLogin = (setError) => {
 
 const anonymousLogin = (setError) => {
   auth.signInAnonymously().then(() => {
+    const user = auth.currentUser;
+    createUserData(user)
   }).catch((error) => {
     setError(error);
   });

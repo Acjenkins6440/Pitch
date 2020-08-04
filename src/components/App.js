@@ -19,7 +19,7 @@ const App = () => {
   const [user, loading, error] = useAuthState(auth);
   const [userData, setUserData] = useState({});
   const [lobbyState, setLobbyState] = useState('lobby');
-  const [activeGame, setActiveGame] = useState(null)
+  const [activeGame, setActiveGame] = useState({})
 
   const UserContext = createContext({ user, loading, error });
 

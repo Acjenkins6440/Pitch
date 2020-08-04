@@ -15,6 +15,7 @@ const createGame = (gameProps, userData, setLoading, setError) => {
     setLoading(false);
   }).catch((error) => {
     setError(error);
+    setLoading(false)
   });
 };
 
@@ -26,12 +27,22 @@ const getActiveGames = (setActiveGames) => {
   });
 };
 
-const joinGame = (userData, gameData, setActiveGame, navigate) => {
-  gameRef = db.ref(`games/active/${gameData.id}`)
+const joinGame = (userData, gameData, gameKey, setActiveGame, navigate) => {
+  const gameRef = db.ref(`games/active/${gameKey}`)
 };
+
+const deleteGame = (gameKey) => {
+  const gameRef = db.ref(`games/active/${gameKey}`)
+  gameRef.remove()
+}
+
+const archiveGame = (gameData) => {
+
+}
 
 export {
   createGame,
   getActiveGames,
   joinGame,
+  deleteGame
 };
