@@ -29,6 +29,11 @@ const getActiveGames = (setActiveGames) => {
 
 const joinGame = (userData, gameData, gameKey, setActiveGame, navigate) => {
   const gameRef = db.ref(`games/active/${gameKey}`)
+  console.log(gameData)
+  gameData.players.push({
+    uid: userData.uid,
+    displayName: userData.displayName
+  })
 };
 
 const deleteGame = (gameKey) => {
