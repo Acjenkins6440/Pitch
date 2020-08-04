@@ -5,7 +5,7 @@ const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 const createUserData = (user, displayName, setUserData) => {
   const userRef = db.ref(`users/${user.uid}`);
-  const name = displayName || user.email;
+  const name = displayName || user.email || 'anon';
   const userData = {
     preferences: {
       fooFooDealing: 'disabled',
@@ -26,7 +26,7 @@ const createUserData = (user, displayName, setUserData) => {
 const getUserData = (user, setUserData) => {
   db.ref(`users/${user.uid}`).once('value').then((snapshot) => {
     const userData = snapshot.val();
-    if (userData) {
+    if (userData && userData.preferences) {
       setUserData(userData);
     } else {
       createUserData(user, null, setUserData);
@@ -59,7 +59,8 @@ const emailLogin = (email, password, setError) => {
 };
 
 const googleLogin = (setError) => {
-  auth.signInWithPopup(googleProvider).catch((error) => {
+  auth.signInWithPopup(googleProvider).then(() => {
+  }).catch((error) => {
     setError(error);
   });
 };

@@ -7,7 +7,7 @@ import { updateUser } from '../providers/UserProvider';
 const UserProfile = ({
   user, userData, setUserData,
 }) => {
-  const [email, setEmail] = useState(user.email);
+  const [email, setEmail] = useState(user.email || '');
   const [displayName, setDisplayName] = useState(userData.displayName ? userData.displayName : '');
   const [fooFooDealing, setFooFooDealing] = useState(userData.preferences.fooFooDealing ? userData.preferences.fooFooDealing : 'disabled');
   const [error, setError] = useState(null);
@@ -30,9 +30,9 @@ const UserProfile = ({
       displayName,
       preferences: {
         fooFooDealing,
-      },
+      }
     };
-    updateUser(props, setUserData, user, setError);
+    updateUser({...userData, ...props}, setUserData, user, setError);
   };
 
   return (
@@ -42,7 +42,7 @@ const UserProfile = ({
       <Form onSubmit={submitHandler} name="email">
         <Form.Group controlId="email">
           <Form.Label>Email:</Form.Label>
-          <Form.Control onChange={onChange} name="email" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
+          <Form.Control disabled={user.isAnonymous} onChange={onChange} name="email" value={email} type="email" placeholder="E.g: RustyShackleford@gmail.com" />
         </Form.Group>
         <Form.Group controlId="password">
           <Form.Label>Display Name</Form.Label>
