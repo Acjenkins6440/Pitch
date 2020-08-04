@@ -3,7 +3,7 @@ import { navigate } from '@reach/router';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
-import { getActiveGames, joinGame } from '../providers/GameProvider';
+import { getActiveGames, joinGame, deleteGame } from '../providers/GameProvider';
 
 const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   const [activeGames, setActiveGames] = useState([]);
@@ -14,7 +14,7 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
 
   useEffect(() => {
     initGames();
-  }, []);
+  }, [activeGames]);
 
   const getTimeDiff = (gameKey) => {
     const timeInMs = parseInt(gameKey.slice(-13), 10);
@@ -29,18 +29,18 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   const promptPassword = gameData => (!!(gameData.password));
   // put a modal here
 
-  const handleClick = (gameData) => {
+  const handleClick = (gameKey, gameData) => {
     if (gameData.passwordEnabled) {
       promptPassword(gameData);
     }
-    joinGame(userData, gameData, setActiveGame, navigate);
+    joinGame(userData, gameData, gameKey, setActiveGame, navigate);
   };
 
   const getJoinLink = (gameKey) => {
     const gameData = activeGames[gameKey];
     if (Object.keys(gameData.users).length < 4) {
       return (
-        <Button onClick={handleClick(gameData)} onKeyPress={handleClick(gameData)}>Join</Button>
+        <Button onClick={() => handleClick(gameKey, gameData)} onKeyPress={() => handleClick(gameKey, gameData)}>Join</Button>
       );
     }
 
@@ -59,6 +59,7 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
         <td>{getTimeDiff(gameKey)}</td>
         <td>{getJoinLink(gameKey)}</td>
         <td><img src={padlockSrc} alt={gameData.passwordEnabled ? 'locked game' : 'unlocked game'} /></td>
+        <td><Button onClick={() => deleteGame(gameKey)} onKeyPress={() => deleteGame(gameKey)}>Delete</Button></td>
       </tr>
     );
   };
@@ -77,6 +78,7 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
               <th>Active time</th>
               <th>Join</th>
               <th>Private</th>
+              <th>Delete</th>
             </tr>
           </thead>
           <tbody>
