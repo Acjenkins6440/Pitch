@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import Player from './Player';
 
 const Board = ({ gameData }) => {
+  const [phase, setPhase] = useState('lobby')
+  console.log(gameData)
   const players = [];
   const playerSeat = 0;
 

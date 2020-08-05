@@ -38,6 +38,12 @@ const App = () => {
     });
   }, [loading, user]);
 
+  useEffect(() => {
+    if(activeGame && activeGame.status !== 'closed') {
+      navigate('/game')
+    }
+  }, [activeGame])
+
   const handleLogout = () => {
     logout(user.uid, user.isAnonymous);
   };

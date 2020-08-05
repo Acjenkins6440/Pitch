@@ -1,17 +1,21 @@
 import { db } from '../firebase';
 
-const createGame = (gameProps, userData, setLoading, setError) => {
+const createGame = (gameProps, userData, setLoading, setError, setActiveGame) => {
   setLoading(true);
   const newGameId = `${userData.uid}${new Date().getTime()}`;
   const gameRef = db.ref(`games/active/${newGameId}`);
+  const user = {
+    uid: userData.uid,
+    displayName: userData.displayName
+  }
   const gameData = {
     status: 'lobby',
-    users: {
-      owner: userData.uid,
-    },
+    owner: user,
+    users: [user],
     ...gameProps,
   };
   gameRef.set(gameData).then(() => {
+    setActiveGame(gameData)
     setLoading(false);
   }).catch((error) => {
     setError(error);
@@ -39,10 +43,6 @@ const joinGame = (userData, gameData, gameKey, setActiveGame, navigate) => {
 const deleteGame = (gameKey) => {
   const gameRef = db.ref(`games/active/${gameKey}`)
   gameRef.remove()
-}
-
-const archiveGame = (gameData) => {
-
 }
 
 export {

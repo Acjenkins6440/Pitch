@@ -82,9 +82,11 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
             </tr>
           </thead>
           <tbody>
-            {Object.keys(activeGames).map(key => (
-              getRow(key)
-            ))}
+            {activeGames ? 
+              Object.keys(activeGames).map(key => (
+                getRow(key)
+              ))
+              : <tr></tr>}
           </tbody>
         </Table>
         <Button onClick={backToLobby} onKeyPress={backToLobby}>Back to Lobby</Button>

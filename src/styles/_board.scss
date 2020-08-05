@@ -34,6 +34,29 @@
       transform: translate(-30%, 260%) rotate(90deg);
       margin: 0 auto;
     }
+    .card{
+      width: 16%;
+      height: 90%;
+      margin: 0 auto;
+      position: relative;
+      perspective: 1000px;
+      float: left;
+      background-color: transparent;
+      border: none;
+      .front{
+        img{
+          &:hover{
+              border: 1px solid black;
+          }
+        }
+      }
+      .back{
+
+      }
+      img{
+        width: 85%;
+      }
+    }
     
   }
 
