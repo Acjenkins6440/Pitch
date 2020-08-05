@@ -26,7 +26,11 @@ const createGame = (gameProps, userData, setLoading, setError, setActiveGame) =>
 const getActiveGames = (setActiveGames) => {
   const gamesRef = db.ref('games/active/');
   gamesRef.once('value').then((snapshot) => {
-    const games = snapshot.val();
+    const gameObject = snapshot.val()
+    const games = []
+    Object.keys(gameObject).forEach((key) => {
+      games.push({...gameObject[key], key})
+    })
     setActiveGames(games);
   });
 };
