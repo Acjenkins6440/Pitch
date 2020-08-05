@@ -98,6 +98,7 @@ CreateGame.propTypes = {
     displayName: PropTypes.string.isRequired,
   }).isRequired,
   backToLobby: PropTypes.func.isRequired,
+  setActiveGame: PropTypes.func.isRequired,
 };
 
 export default CreateGame;

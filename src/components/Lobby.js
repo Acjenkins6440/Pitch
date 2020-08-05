@@ -4,7 +4,9 @@ import PropTypes from 'prop-types';
 import CreateGame from './CreateGame';
 import JoinGame from './JoinGame';
 
-const Lobby = ({ userData, lobbyState, setLobbyState, setActiveGame }) => {
+const Lobby = ({
+  userData, lobbyState, setLobbyState, setActiveGame,
+}) => {
   const onClick = (event) => {
     const { name } = event.currentTarget;
     let newState = '';
@@ -31,11 +33,11 @@ const Lobby = ({ userData, lobbyState, setLobbyState, setActiveGame }) => {
     }
     if (lobbyState === 'createGame') {
       return (
-        <CreateGame userData={userData} backToLobby={onClick} setActiveGame={setActiveGame}/>
+        <CreateGame userData={userData} backToLobby={onClick} setActiveGame={setActiveGame} />
       );
     }
     return (
-      <JoinGame userDate={userData} backToLobby={onClick} setActiveGame={setActiveGame}/>
+      <JoinGame userDate={userData} backToLobby={onClick} setActiveGame={setActiveGame} />
     );
   };
 
@@ -50,6 +52,7 @@ Lobby.propTypes = {
   userData: PropTypes.shape({}).isRequired,
   lobbyState: PropTypes.string.isRequired,
   setLobbyState: PropTypes.func.isRequired,
+  setActiveGame: PropTypes.func.isRequired,
 };
 
 export default Lobby;

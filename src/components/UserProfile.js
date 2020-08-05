@@ -30,9 +30,9 @@ const UserProfile = ({
       displayName,
       preferences: {
         fooFooDealing,
-      }
+      },
     };
-    updateUser({...userData, ...props}, setUserData, user, setError);
+    updateUser({ ...userData, ...props }, setUserData, user, setError);
   };
 
   return (
@@ -76,6 +76,7 @@ UserProfile.propTypes = {
   user: PropTypes.shape({
     uid: PropTypes.string,
     email: PropTypes.string,
+    isAnonymous: PropTypes.bool,
   }).isRequired,
   userData: PropTypes.shape({
     displayName: PropTypes.string,
