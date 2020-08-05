@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { navigate } from '@reach/router';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-import Pagination from 'react-bootstrap/Pagination'
+import Pagination from 'react-bootstrap/Pagination';
 import PropTypes from 'prop-types';
 import { getActiveGames, joinGame, deleteGame } from '../providers/GameProvider';
 
@@ -11,32 +11,37 @@ const numberOnPage = 5;
 const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   const [activeGames, setActiveGames] = useState([]);
   const [paginatedGames, setPaginatedGames] = useState([]);
-  const [pageNumber, setPageNumber] = useState(1)
+  const [pageNumber, setPageNumber] = useState(1);
 
-  const paginationItems = []
-  for(let i = 1; i <= (Math.ceil(activeGames.length / numberOnPage)); i++){
+  const paginationItems = [];
+  for (let i = 1; i <= (Math.ceil(activeGames.length / numberOnPage)); i += 1) {
     paginationItems.push(
-      <Pagination.Item key={i} active={i === pageNumber} onClick={() => setPageNumber(i)} onKeyPress={() => setPageNumber(i)}>
+      <Pagination.Item
+        key={i}
+        active={i === pageNumber}
+        onClick={() => setPageNumber(i)}
+        onKeyPress={() => setPageNumber(i)}
+      >
         {i}
-      </Pagination.Item>
-    )
+      </Pagination.Item>,
+    );
   }
-  
+
   const initGames = () => {
     getActiveGames(setActiveGames);
   };
 
   useEffect(() => {
-    if(!activeGames.length){
+    if (!activeGames.length) {
       initGames();
     }
   }, [activeGames]);
 
   useEffect(() => {
-    const begin = (pageNumber - 1) * numberOnPage
-    const end = begin + numberOnPage
-    setPaginatedGames(activeGames.slice(begin, end))
-  }, [pageNumber, activeGames])
+    const begin = (pageNumber - 1) * numberOnPage;
+    const end = begin + numberOnPage;
+    setPaginatedGames(activeGames.slice(begin, end));
+  }, [pageNumber, activeGames]);
 
   const getTimeDiff = (gameKey) => {
     const timeInMs = parseInt(gameKey.slice(-13), 10);
@@ -44,14 +49,15 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
     const minutes = Math.floor(timeDiff / 1000 / 60);
     const hours = Math.floor(minutes / 60);
     const minutesLeft = Math.floor(minutes - (hours * 60));
-    
+
     return `${hours < 10 ? '0' : ''}${hours}:${minutesLeft < 10 ? '0' : ''}${minutesLeft}`;
   };
 
   const promptPassword = gameData => (!!(gameData.password));
   // put a modal here
 
-  const handleClick = (gameKey, gameData) => {
+  const handleClick = (gameData) => {
+    const gameKey = gameData.key;
     if (gameData.passwordEnabled) {
       promptPassword(gameData);
     }
@@ -61,7 +67,12 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   const getJoinLink = (gameData) => {
     if (Object.keys(gameData.users).length < 4) {
       return (
-        <Button onClick={() => handleClick(gameKey, gameData)} onKeyPress={() => handleClick(gameKey, gameData)}>Join</Button>
+        <Button
+          onClick={() => handleClick(gameData)}
+          onKeyPress={() => handleClick(gameData)}
+        >
+          Join
+        </Button>
       );
     }
 
@@ -69,11 +80,11 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   };
 
   const removeGame = (gameData) => {
-    deleteGame(gameData.key)
-  }
+    deleteGame(gameData.key);
+  };
 
-  const getRow = (gameData, pagination) => {
-    const gameKey = gameData.key
+  const getRow = (gameData) => {
+    const gameKey = gameData.key;
     const padlockSrc = `/public/images/${!gameData.passwordEnabled ? 'un' : ''}locked_game.svg`;
     return (
       <tr key={gameKey}>
@@ -86,16 +97,14 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
         <td><img src={padlockSrc} alt={gameData.passwordEnabled ? 'locked game' : 'unlocked game'} /></td>
         <td><Button onClick={() => removeGame(gameData)} onKeyPress={() => removeGame(gameData)}>Delete</Button></td>
       </tr>
-    )
+    );
   };
 
-  const getRows = () => {
-    return (
-      paginatedGames.map(gameData => (
-        getRow(gameData)
-      ))
-    )
-  }
+  const getRows = () => (
+    paginatedGames.map(gameData => (
+      getRow(gameData)
+    ))
+  );
 
   return (
     <div>
@@ -115,9 +124,9 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
             </tr>
           </thead>
           <tbody>
-            {activeGames ? 
-              getRows()
-              : <tr></tr>}
+            {activeGames
+              ? getRows()
+              : <tr />}
           </tbody>
         </Table>
         <div className="center">
@@ -136,10 +145,8 @@ JoinGame.propTypes = {
     displayName: PropTypes.string.isRequired,
     uid: PropTypes.string.isRequired,
   }).isRequired,
-};
-
-JoinGame.propTypes = {
   backToLobby: PropTypes.func.isRequired,
+  setActiveGame: PropTypes.func.isRequired,
 };
 
 export default JoinGame;

@@ -19,7 +19,7 @@ const App = () => {
   const [user, loading, error] = useAuthState(auth);
   const [userData, setUserData] = useState({});
   const [lobbyState, setLobbyState] = useState('lobby');
-  const [activeGame, setActiveGame] = useState({})
+  const [activeGame, setActiveGame] = useState({});
 
   const UserContext = createContext({ user, loading, error });
 
@@ -39,10 +39,10 @@ const App = () => {
   }, [loading, user]);
 
   useEffect(() => {
-    if(activeGame && activeGame.status !== 'closed') {
-      navigate('/game')
+    if (activeGame && activeGame.status !== 'closed') {
+      navigate('/game');
     }
-  }, [activeGame])
+  }, [activeGame]);
 
   const handleLogout = () => {
     logout(user.uid, user.isAnonymous);
@@ -103,7 +103,7 @@ const App = () => {
     return (
       <Router>
         <UserProfile user={user} path="profile" userData={userData} setUserData={setUserData} />
-        <Lobby path="/" userData={userData} lobbyState={lobbyState} setLobbyState={setLobbyState} setActiveGame={setActiveGame}/>
+        <Lobby path="/" userData={userData} lobbyState={lobbyState} setLobbyState={setLobbyState} setActiveGame={setActiveGame} />
         <Board path="/game" gameData={activeGame} />
       </Router>
     );
