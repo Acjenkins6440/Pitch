@@ -4,6 +4,7 @@
     width: 60% !important;
     .join-game-table{
       width: 80%;
+      height: 60%;
       margin: 5% auto;
       tr{
         height: 50px;
@@ -11,5 +12,9 @@
       .status{
         width: 10%;
       }
+    }
+    .center{
+      display: table;
+      margin: 0 auto;
     }
 }
