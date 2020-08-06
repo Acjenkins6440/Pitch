@@ -12,8 +12,9 @@ import Board from './Board';
 import Lobby from './Lobby';
 import UserProfile from './UserProfile';
 import {
-  logout, getUserData, setOnline, setOffline,
+  logout, getUserData, setOnline, setOffline
 } from '../providers/UserProvider';
+import { leaveGame } from '../providers/GameProvider'
 
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
@@ -22,12 +23,12 @@ const App = () => {
   const [activeGame, setActiveGame] = useState({});
 
   const UserContext = createContext({ user, loading, error });
-
+  console.log(activeGame)
   useEffect(() => {
     if (!loading && user) {
       getUserData(user, setUserData);
       setOnline(user);
-      window.addEventListener('beforeunload', setOffline);
+      window.addEventListener('beforeunload', handleDisconnect);
       navigate('/');
     } else if (!user) {
       navigate('/');
@@ -47,6 +48,13 @@ const App = () => {
   const handleLogout = () => {
     logout(user.uid, user.isAnonymous);
   };
+
+  const handleDisconnect = () => {
+    setOffline()
+    if(activeGame && activeGame.status) {
+      leaveGame(userData, activeGame, setActiveGame, navigate)
+    }
+  }
 
   const NavLink = props => (
     <Link

@@ -15,6 +15,9 @@ const Board = ({ gameData }) => {
   return (
     <div id="board">
       {players}
+      <div className="generic-container ">
+        <p>Hey dawg what up</p>
+      </div>
     </div>
   );
 };
