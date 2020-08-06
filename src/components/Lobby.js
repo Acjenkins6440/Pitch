@@ -37,7 +37,7 @@ const Lobby = ({
       );
     }
     return (
-      <JoinGame userDate={userData} backToLobby={onClick} setActiveGame={setActiveGame} />
+      <JoinGame userData={userData} backToLobby={onClick} setActiveGame={setActiveGame} />
     );
   };
 

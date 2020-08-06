@@ -15,7 +15,7 @@ const createGame = (gameProps, userData, setLoading, setError, setActiveGame) =>
     ...gameProps,
   };
   gameRef.set(gameData).then(() => {
-    setActiveGame(gameData);
+    setActiveGame({ ...gameData, gameKey: newGameId });
     setLoading(false);
   }).catch((error) => {
     setError(error);
@@ -35,14 +35,59 @@ const getActiveGames = (setActiveGames) => {
   });
 };
 
-const joinGame = (userData, gameData, gameKey, setActiveGame, navigate) => {
+const joinGame = (userData, gameKey, setActiveGame, navigate, setError) => {
   const gameRef = db.ref(`games/active/${gameKey}`);
-  console.log(gameData);
-  gameData.players.push({
-    uid: userData.uid,
-    displayName: userData.displayName,
-  });
+  const playersRef = db.ref(`games/active/${gameKey}/users`)
+  gameRef.once('value').then((snapshot) => {
+    const gameData = snapshot.val();
+    const players = gameData.users
+    const error = {
+      code: '',
+      message: ''
+    }
+    if(players.length < 4 && gameData.status == 'lobby'){
+      return gameData
+    }
+    else if(players.length >= 4){
+      error.code = 'number of players'
+      error.message = 'That game has already been filled'
+    }
+    else if(gameData.status == 'in progress'){
+      error.code = 'game state'
+      error.message = 'That game has already started'
+    }
+    else{
+      error.code = "misc."
+      error.message = "Something went wrong, the game probably closed"
+    }
+    throw error
+  }).then((gameData) => {
+    console.log(gameData)
+    const players = gameData.users
+    players[players.length] = {
+      uid: userData.uid,
+      displayName: userData.displayName
+    }
+    playersRef.set(players)
+    return (gameData)
+  }).then((gameData) => {
+    setActiveGame({ ...gameData, gameKey })
+    navigate('/')
+  }).catch((error) => {setError(error)})
 };
+
+const leaveGame = (userData, gameKey, setActiveGame, navigate) => {
+  const gameRef = db.ref(`games/active/${gameKey}`);
+  const playersRef = db.ref(`games/active/${gameKey}/users`)
+  gameRef.once('value').then((snapshot) => {
+    const gameData = snapshot.val();
+    const players = gameData.users
+    const index = gameData.users.indexOf({ uid: userData.uid, displayName: userData.displayName })
+    players[index] = {uid: null, displayName: 'Some bot'}
+  }).then(() => {
+    playersRef.set(players)
+  })
+}
 
 const deleteGame = (gameKey) => {
   const gameRef = db.ref(`games/active/${gameKey}`);
@@ -54,4 +99,5 @@ export {
   getActiveGames,
   joinGame,
   deleteGame,
+  leaveGame
 };

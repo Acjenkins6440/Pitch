@@ -12,6 +12,7 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   const [activeGames, setActiveGames] = useState([]);
   const [paginatedGames, setPaginatedGames] = useState([]);
   const [pageNumber, setPageNumber] = useState(1);
+  const [error, setError] = useState(null)
 
   const paginationItems = [];
   for (let i = 1; i <= (Math.ceil(activeGames.length / numberOnPage)); i += 1) {
@@ -61,7 +62,7 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
     if (gameData.passwordEnabled) {
       promptPassword(gameData);
     }
-    joinGame(userData, gameData, gameKey, setActiveGame, navigate);
+    joinGame(userData, gameKey, setActiveGame, navigate, setError);
   };
 
   const getJoinLink = (gameData) => {
@@ -135,6 +136,10 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
           </Pagination>
         </div>
         <Button onClick={backToLobby} onKeyPress={backToLobby}>Back to Lobby</Button>
+          {error
+            ? (<p className="error">{`${error.code}: ${error.message}`}</p>)
+            : ''
+          }
       </div>
     </div>
   );
