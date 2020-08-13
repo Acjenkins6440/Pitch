@@ -12,6 +12,14 @@ const setOwner = (ownerBool) => {
   isOwner = ownerBool;
 };
 
+const getOwner = () => {
+  return isOwner
+}
+
+const gameExists = () => {
+  return !!(activeGameKey)
+}
+
 const createGame = (gameProps, userData, setLoading, setError, setActiveGame) => {
   setLoading(true);
   const newGameId = `${userData.uid}${new Date().getTime()}`;
@@ -46,11 +54,13 @@ const getActiveGames = (setActiveGames) => {
   const gamesRef = db.ref('games/active/');
   gamesRef.once('value').then((snapshot) => {
     const gameObject = snapshot.val();
-    const games = [];
-    Object.keys(gameObject).forEach((key) => {
-      games.push({ ...gameObject[key], key });
-    });
-    setActiveGames(games);
+    if(gameObject){
+      const games = [];
+      Object.keys(gameObject).forEach((key) => {
+        games.push({ ...gameObject[key], key });
+      });
+      setActiveGames(games);
+    }
   });
 };
 
@@ -173,10 +183,17 @@ const initPlayerListenValues = (setActiveGame) => {
   });
   gameRef.on('value', (snapshot) => {
     if (!snapshot.val()) {
+      setActiveGameKey('')
+      console.log('set active game key to blank')
+      setActiveGame({})
       navigate('/');
     }
   });
 };
+
+const startGame = () => {
+  
+}
 
 export {
   createGame,
@@ -187,4 +204,7 @@ export {
   leaveGame,
   initOwnerListenValues,
   initPlayerListenValues,
+  startGame,
+  getOwner,
+  gameExists
 };

@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { navigate } from '@reach/router';
 import Player from './Player';
+import BoardMessages from './BoardMessages';
 import {
-  leaveGame, initOwnerListenValues, initPlayerListenValues,
+  leaveGame, initOwnerListenValues, initPlayerListenValues, gameExists
 } from '../providers/GameProvider';
 
 const Board = ({ userData, activeGame, setActiveGame }) => {
@@ -20,8 +21,15 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
 
   useEffect(() => {
     initListeners();
+    if(!activeGame.gameKey){
+      navigate('/')
+      return
+    }
     return (() => {
-      leaveGame(userData, activeGame, setActiveGame);
+      if(gameExists){
+        debugger
+        leaveGame(userData, activeGame, setActiveGame);
+      }
     });
   }, [activeGame.gameKey]);
 
@@ -29,30 +37,21 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
     const player = <Player key={i} playerNum={i} playerSeat={playerSeat} />;
     players.push(player);
   }
+
   return (
     <div id="board">
-      {players}
-      <div className="board-messages">
-        <div className="generic-container">
-          {activeGame.users.map((user, index) => (
-            <div key={user.uid}>
-              <p>
-                Player
-                {index + 1}
-                :
-                {user.displayName}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+      {activeGame.status === 'in progress' ?
+      players :
+      <div></div>
+      }
+      <BoardMessages activeGame={activeGame} />
     </div>
   );
 };
 
 Board.propTypes = {
   userData: PropTypes.shape({
-    uid: PropTypes.string.isRequired,
+    uid: PropTypes.string
   }).isRequired,
   activeGame: PropTypes.shape({
     gameKey: PropTypes.string,
@@ -60,7 +59,7 @@ Board.propTypes = {
     status: PropTypes.string,
     owner: PropTypes.shape({
       uid: PropTypes.string.isRequired,
-    }).isRequired,
+    }),
   }).isRequired,
   setActiveGame: PropTypes.func.isRequired,
 };
