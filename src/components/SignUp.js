@@ -27,12 +27,6 @@ const SignUp = () => {
       googleLogin(setError);
     } else {
       createUserWithEmail(email, password, displayName, setError);
-      // setEmail('');
-      // setPassword('');
-      // setDisplayName('');
-      // if (!error) {
-      //   navigate('/');
-      // }
     }
   };
 

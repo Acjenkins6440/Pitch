@@ -12,7 +12,7 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   const [activeGames, setActiveGames] = useState([]);
   const [paginatedGames, setPaginatedGames] = useState([]);
   const [pageNumber, setPageNumber] = useState(1);
-  const [error, setError] = useState(null)
+  const [error, setError] = useState(null);
 
   const paginationItems = [];
   for (let i = 1; i <= (Math.ceil(activeGames.length / numberOnPage)); i += 1) {
@@ -96,7 +96,14 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
         <td>{getTimeDiff(gameKey)}</td>
         <td>{getJoinLink(gameData)}</td>
         <td><img src={padlockSrc} alt={gameData.passwordEnabled ? 'locked game' : 'unlocked game'} /></td>
-        <td><Button onClick={() => removeGame(gameData)} onKeyPress={() => removeGame(gameData)}>Delete</Button></td>
+        <td>
+          <Button
+            onClick={() => removeGame(gameData)}
+            onKeyPress={() => removeGame(gameData)}
+          >
+            Delete
+          </Button>
+        </td>
       </tr>
     );
   };
@@ -136,9 +143,9 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
           </Pagination>
         </div>
         <Button onClick={backToLobby} onKeyPress={backToLobby}>Back to Lobby</Button>
-          {error
-            ? (<p className="error">{`${error.code}: ${error.message}`}</p>)
-            : ''
+        {error
+          ? (<p className="error">{`${error.code}: ${error.message}`}</p>)
+          : ''
           }
       </div>
     </div>
