@@ -3,13 +3,19 @@
     height: 80%;
     width: 60% !important;
     .join-game-table{
-      width: 80%;
+      width: 90%;
+      height: 60%;
       margin: 5% auto;
-      tr{
+      table-layout: fixed;
+      td{
         height: 50px;
       }
       .status{
         width: 10%;
       }
+    }
+    .center{
+      display: table;
+      margin: 0 auto;
     }
 }

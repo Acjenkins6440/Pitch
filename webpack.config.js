@@ -9,6 +9,7 @@ module.exports = (env) => {
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: 'bundle.development.js',
+      publicPath: '/'
     },
     module: {
       rules: [
@@ -39,5 +40,8 @@ module.exports = (env) => {
         }
       ],
     },
+    devServer: {
+      historyApiFallback: true
+    }
   };
 };

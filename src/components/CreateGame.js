@@ -5,7 +5,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import PropTypes from 'prop-types';
 import { createGame } from '../providers/GameProvider';
 
-const CreateGame = ({ userData, backToLobby }) => {
+const CreateGame = ({ userData, backToLobby, setActiveGame }) => {
   const [name, setName] = useState(`${userData.displayName}'s game`);
   const [botsEnabled, setBotsEnabled] = useState(true);
   const [passwordEnabled, setPasswordEnabled] = useState(false);
@@ -35,7 +35,7 @@ const CreateGame = ({ userData, backToLobby }) => {
       passwordEnabled,
       password,
     };
-    createGame(gameProps, userData, setLoading, setError);
+    createGame(gameProps, userData, setLoading, setError, setActiveGame);
   };
 
   return (
@@ -98,6 +98,7 @@ CreateGame.propTypes = {
     displayName: PropTypes.string.isRequired,
   }).isRequired,
   backToLobby: PropTypes.func.isRequired,
+  setActiveGame: PropTypes.func.isRequired,
 };
 
 export default CreateGame;

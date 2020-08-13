@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Router, Link, navigate } from '@reach/router';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { Nav } from 'react-bootstrap';
@@ -14,19 +14,24 @@ import UserProfile from './UserProfile';
 import {
   logout, getUserData, setOnline, setOffline,
 } from '../providers/UserProvider';
+import { leaveGame } from '../providers/GameProvider';
 
 const App = () => {
-  const [user, loading, error] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
   const [userData, setUserData] = useState({});
   const [lobbyState, setLobbyState] = useState('lobby');
+  const [activeGame, setActiveGame] = useState({});
 
-  const UserContext = createContext({ user, loading, error });
+  const handleDisconnect = () => {
+    setOffline();
+    leaveGame();
+  };
 
   useEffect(() => {
     if (!loading && user) {
       getUserData(user, setUserData);
       setOnline(user);
-      window.addEventListener('beforeunload', setOffline);
+      window.addEventListener('beforeunload', handleDisconnect);
       navigate('/');
     } else if (!user) {
       navigate('/');
@@ -37,9 +42,16 @@ const App = () => {
     });
   }, [loading, user]);
 
+  useEffect(() => {
+    if (activeGame && activeGame.status) {
+      navigate('/game');
+    }
+  }, [activeGame]);
+
   const handleLogout = () => {
     logout(user.uid, user.isAnonymous);
   };
+
 
   const NavLink = props => (
     <Link
@@ -96,25 +108,23 @@ const App = () => {
     return (
       <Router>
         <UserProfile user={user} path="profile" userData={userData} setUserData={setUserData} />
-        <Lobby path="/" userData={userData} lobbyState={lobbyState} setLobbyState={setLobbyState} />
-        <Board path="/game" playerSeat={0} />
+        <Lobby path="/" userData={userData} lobbyState={lobbyState} setLobbyState={setLobbyState} setActiveGame={setActiveGame} />
+        <Board path="/game" userData={userData} activeGame={activeGame} setActiveGame={setActiveGame} />
       </Router>
     );
   };
 
   return (
-    <UserContext.Provider>
-      <div>
-        <Navbar bg="dark" variant="dark">
-          <Navbar.Brand>The most card game</Navbar.Brand>
-          <Nav>
-            <Button className="nav-link" onClick={lobbyNav} onKeyPress={lobbyNav}>Lobby</Button>
-          </Nav>
-          {getRightNav()}
-        </Navbar>
-        {getRouter()}
-      </div>
-    </UserContext.Provider>
+    <div>
+      <Navbar bg="dark" variant="dark">
+        <Navbar.Brand>The most card game</Navbar.Brand>
+        <Nav>
+          <Button className="nav-link" onClick={lobbyNav} onKeyPress={lobbyNav}>Lobby</Button>
+        </Nav>
+        {getRightNav()}
+      </Navbar>
+      {getRouter()}
+    </div>
   );
 };
 
