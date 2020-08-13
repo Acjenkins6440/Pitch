@@ -12,17 +12,20 @@ import Board from './Board';
 import Lobby from './Lobby';
 import UserProfile from './UserProfile';
 import {
-  logout, getUserData, setOnline, setOffline
+  logout, getUserData, setOnline, setOffline,
 } from '../providers/UserProvider';
-import { leaveGame } from '../providers/GameProvider'
+import { leaveGame } from '../providers/GameProvider';
 
 const App = () => {
-  const [user, loading, error] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
   const [userData, setUserData] = useState({});
   const [lobbyState, setLobbyState] = useState('lobby');
   const [activeGame, setActiveGame] = useState({});
 
-  console.log(activeGame)
+  const handleDisconnect = () => {
+    setOffline();
+    leaveGame();
+  };
 
   useEffect(() => {
     if (!loading && user) {
@@ -49,10 +52,6 @@ const App = () => {
     logout(user.uid, user.isAnonymous);
   };
 
-  const handleDisconnect = () => {
-    setOffline()
-    leaveGame()
-  }
 
   const NavLink = props => (
     <Link
@@ -110,22 +109,22 @@ const App = () => {
       <Router>
         <UserProfile user={user} path="profile" userData={userData} setUserData={setUserData} />
         <Lobby path="/" userData={userData} lobbyState={lobbyState} setLobbyState={setLobbyState} setActiveGame={setActiveGame} />
-        <Board path="/game" userData={userData} activeGame={activeGame} setActiveGame={setActiveGame}/>
+        <Board path="/game" userData={userData} activeGame={activeGame} setActiveGame={setActiveGame} />
       </Router>
     );
   };
 
   return (
-      <div>
-        <Navbar bg="dark" variant="dark">
-          <Navbar.Brand>The most card game</Navbar.Brand>
-          <Nav>
-            <Button className="nav-link" onClick={lobbyNav} onKeyPress={lobbyNav}>Lobby</Button>
-          </Nav>
-          {getRightNav()}
-        </Navbar>
-        {getRouter()}
-      </div>
+    <div>
+      <Navbar bg="dark" variant="dark">
+        <Navbar.Brand>The most card game</Navbar.Brand>
+        <Nav>
+          <Button className="nav-link" onClick={lobbyNav} onKeyPress={lobbyNav}>Lobby</Button>
+        </Nav>
+        {getRightNav()}
+      </Navbar>
+      {getRouter()}
+    </div>
   );
 };
 
