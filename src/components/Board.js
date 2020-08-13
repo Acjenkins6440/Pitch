@@ -6,9 +6,10 @@ import { getActiveGame, leaveGame, initOwnerListenValues, initPlayerListenValues
 
 const Board = ({ userData, activeGame, setActiveGame }) => {
   const [phase, setPhase] = useState('lobby');
+  const [listenersActive, setListenersActive] = useState(false)
   const players = [];
   const playerSeat = 0;
-
+  console.log(activeGame)
 
   const initListeners = () => {
     if (userData.uid === activeGame.owner.uid) {
@@ -16,14 +17,17 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
     }
     else {
       initPlayerListenValues(setActiveGame, navigate)
-      setActiveGame(getActiveGame)
     }
+    setListenersActive(true)
   }
 
   useEffect(() => {
     initListeners()
-    return(() => leaveGame(userData, activeGame))
-  }, [])
+    return(() => {
+      leaveGame(userData, activeGame, setActiveGame)
+      setListenersActive(false)
+    })
+  }, [activeGame.gameKey])
 
   for (let i = 0; i < 4; i += 1) {
     const player = <Player key={i} playerNum={i} playerSeat={playerSeat} />;

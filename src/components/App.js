@@ -22,6 +22,7 @@ const App = () => {
   const [lobbyState, setLobbyState] = useState('lobby');
   const [activeGame, setActiveGame] = useState({});
 
+  console.log(activeGame)
 
   useEffect(() => {
     if (!loading && user) {

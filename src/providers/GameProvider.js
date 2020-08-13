@@ -94,6 +94,7 @@ const joinGame = (userData, gameKey, setActiveGame, navigate, setError) => {
 
 const leaveGame = (userData, gameData, setActiveGame, navigate) => {
   if(!isOwner){
+    detatchPlayerListeners()
     const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`)
     playerLeftRef.set({uid: userData.uid}).then(() => {
       if(navigate){
@@ -102,10 +103,28 @@ const leaveGame = (userData, gameData, setActiveGame, navigate) => {
     })
   }
   else{
+    detatchOwnerListeners()
     deleteGame(activeGameKey)
+  }
+  if(setActiveGame){
+    setActiveGame({})
   }
   setActiveGameKey('')
   setOwner(false)
+}
+
+const detatchPlayerListeners = () => {
+  const playersRef = db.ref(`games/active/${activeGameKey}/users`)
+  const gameRef = db.ref(`games/active/${activeGameKey}`)
+  playersRef.off()
+  gameRef.off()
+}
+
+const detatchOwnerListeners = () => {
+  const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`)
+  const playerJoinedRef = db.ref(`games/active/${activeGameKey}/playerJoined`)
+  playerLeftRef.off()
+  playerJoinedRef.off()
 }
 
 const initOwnerListenValues = (gameData, setActiveGame) => {
@@ -116,6 +135,7 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
     if(playerToRemove && playerToRemove.uid){
       const action = "remove"
       addOrRemovePlayer(playerToRemove, gameData, action, setActiveGame)
+      playerLeftRef.set({})
     }
   })
   playerJoinedRef.on('value', (snapshot) => {
@@ -123,22 +143,23 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
     if(playerToAdd && playerToAdd.uid){
       const action = "add"
       addOrRemovePlayer(playerToAdd, gameData, action, setActiveGame)
+      playerJoinedRef.set({})
     }
   })
 }
 
 const initPlayerListenValues = (setActiveGame) => {
   const playersRef = db.ref(`games/active/${activeGameKey}/users`)
-  const gameRef = db.ref(`games/active/${activeGameKey}/status`)
-  playersRef.on('value', (snapshot)  => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`)
+  playersRef.on('value', ()  => {
     gameRef.once('value').then((snapshot) => {
       const gameData = snapshot.val()
-      setActiveGame(gameData)
+      setActiveGame({ ...gameData, gameKey: activeGameKey })
     })
   })
   gameRef.on('value', (snapshot) => {
     if(!snapshot.val()){
-
+      navigate('/')
     }
   })
 }
