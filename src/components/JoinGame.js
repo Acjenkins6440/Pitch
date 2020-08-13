@@ -91,7 +91,7 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
       <tr key={gameKey}>
         <td className="status">{gameData.status}</td>
         <td>{gameData.name}</td>
-        <td>{`${Object.keys(gameData.users).length} / 4`}</td>
+        <td>{`${gameData.users.length} / 4`}</td>
         <td>{gameData.botsEnabled ? 'Yes' : 'No'}</td>
         <td>{getTimeDiff(gameKey)}</td>
         <td>{getJoinLink(gameData)}</td>

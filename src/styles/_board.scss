@@ -7,8 +7,12 @@
     position: absolute;
   }
 
+  .board-messages{
+    padding-top: 10%;
+  }
+
   .player{
-    position: fixed;
+    position: absolute;
     padding: 10px;
     width: 550px;
     height: 140px;
