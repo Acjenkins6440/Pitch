@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Router, Link, navigate } from '@reach/router';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { Nav } from 'react-bootstrap';
@@ -22,8 +22,7 @@ const App = () => {
   const [lobbyState, setLobbyState] = useState('lobby');
   const [activeGame, setActiveGame] = useState({});
 
-  const UserContext = createContext({ user, loading, error });
-  console.log(activeGame)
+
   useEffect(() => {
     if (!loading && user) {
       getUserData(user, setUserData);
@@ -40,7 +39,7 @@ const App = () => {
   }, [loading, user]);
 
   useEffect(() => {
-    if (activeGame && activeGame.status !== 'closed') {
+    if (activeGame && activeGame.status) {
       navigate('/game');
     }
   }, [activeGame]);
@@ -51,9 +50,7 @@ const App = () => {
 
   const handleDisconnect = () => {
     setOffline()
-    if(activeGame && activeGame.status) {
-      leaveGame(userData, activeGame, setActiveGame, navigate)
-    }
+    leaveGame()
   }
 
   const NavLink = props => (
@@ -112,13 +109,12 @@ const App = () => {
       <Router>
         <UserProfile user={user} path="profile" userData={userData} setUserData={setUserData} />
         <Lobby path="/" userData={userData} lobbyState={lobbyState} setLobbyState={setLobbyState} setActiveGame={setActiveGame} />
-        <Board path="/game" gameData={activeGame} />
+        <Board path="/game" userData={userData} activeGame={activeGame} setActiveGame={setActiveGame}/>
       </Router>
     );
   };
 
   return (
-    <UserContext.Provider>
       <div>
         <Navbar bg="dark" variant="dark">
           <Navbar.Brand>The most card game</Navbar.Brand>
@@ -129,7 +125,6 @@ const App = () => {
         </Navbar>
         {getRouter()}
       </div>
-    </UserContext.Provider>
   );
 };
 

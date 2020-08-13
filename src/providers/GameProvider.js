@@ -1,5 +1,17 @@
 import { db } from '../firebase';
+import { navigate } from '@reach/router';
 
+let activeGameKey = ''
+let isOwner = false
+
+const setActiveGameKey = (newKey) => {
+  activeGameKey = newKey
+}
+
+const setOwner = (ownerBool) => {
+  isOwner = ownerBool
+}
+ 
 const createGame = (gameProps, userData, setLoading, setError, setActiveGame) => {
   setLoading(true);
   const newGameId = `${userData.uid}${new Date().getTime()}`;
@@ -15,6 +27,8 @@ const createGame = (gameProps, userData, setLoading, setError, setActiveGame) =>
     ...gameProps,
   };
   gameRef.set(gameData).then(() => {
+    setActiveGameKey(newGameId)
+    setOwner(true)
     setActiveGame({ ...gameData, gameKey: newGameId });
     setLoading(false);
   }).catch((error) => {
@@ -22,6 +36,13 @@ const createGame = (gameProps, userData, setLoading, setError, setActiveGame) =>
     setLoading(false);
   });
 };
+
+const getActiveGame = () => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`)
+  gameRef.once('value', (snapshot) => {
+    return snapshot.val()
+  })
+}
 
 const getActiveGames = (setActiveGames) => {
   const gamesRef = db.ref('games/active/');
@@ -36,17 +57,18 @@ const getActiveGames = (setActiveGames) => {
 };
 
 const joinGame = (userData, gameKey, setActiveGame, navigate, setError) => {
-  const gameRef = db.ref(`games/active/${gameKey}`);
-  const playersRef = db.ref(`games/active/${gameKey}/users`)
+  const gameRef = db.ref(`games/active/${gameKey}`)
+  const playerJoinedRef = db.ref(`games/active/${gameKey}/playerJoined`)
+  const gameData = { gameKey }
   gameRef.once('value').then((snapshot) => {
-    const gameData = snapshot.val();
+    Object.assign(gameData, snapshot.val())
     const players = gameData.users
     const error = {
       code: '',
       message: ''
     }
     if(players.length < 4 && gameData.status == 'lobby'){
-      return gameData
+      return 
     }
     else if(players.length >= 4){
       error.code = 'number of players'
@@ -61,32 +83,79 @@ const joinGame = (userData, gameKey, setActiveGame, navigate, setError) => {
       error.message = "Something went wrong, the game probably closed"
     }
     throw error
-  }).then((gameData) => {
-    console.log(gameData)
-    const players = gameData.users
-    players[players.length] = {
-      uid: userData.uid,
-      displayName: userData.displayName
-    }
-    playersRef.set(players)
-    return (gameData)
-  }).then((gameData) => {
-    setActiveGame({ ...gameData, gameKey })
-    navigate('/')
+  }).then(() => {
+    playerJoinedRef.set({ uid: userData.uid, displayName: userData.displayName })
+  }).then(() => {
+    setActiveGameKey(gameKey)
+    setActiveGame(gameData)
+    navigate('/game')
   }).catch((error) => {setError(error)})
 };
 
-const leaveGame = (userData, gameKey, setActiveGame, navigate) => {
-  const gameRef = db.ref(`games/active/${gameKey}`);
-  const playersRef = db.ref(`games/active/${gameKey}/users`)
-  gameRef.once('value').then((snapshot) => {
-    const gameData = snapshot.val();
-    const players = gameData.users
-    const index = gameData.users.indexOf({ uid: userData.uid, displayName: userData.displayName })
-    players[index] = {uid: null, displayName: 'Some bot'}
-  }).then(() => {
-    playersRef.set(players)
+const leaveGame = (userData, gameData, setActiveGame, navigate) => {
+  if(!isOwner){
+    const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`)
+    playerLeftRef.set({uid: userData.uid}).then(() => {
+      if(navigate){
+        navigate('/')
+      }
+    })
+  }
+  else{
+    deleteGame(activeGameKey)
+  }
+  setActiveGameKey('')
+  setOwner(false)
+}
+
+const initOwnerListenValues = (gameData, setActiveGame) => {
+  const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`)
+  const playerJoinedRef = db.ref(`games/active/${activeGameKey}/playerJoined`)
+  playerLeftRef.on('value', (snapshot) => {
+    const playerToRemove = snapshot.val()
+    if(playerToRemove && playerToRemove.uid){
+      const action = "remove"
+      addOrRemovePlayer(playerToRemove, gameData, action, setActiveGame)
+    }
   })
+  playerJoinedRef.on('value', (snapshot) => {
+    const playerToAdd = snapshot.val()
+    if(playerToAdd && playerToAdd.uid){
+      const action = "add"
+      addOrRemovePlayer(playerToAdd, gameData, action, setActiveGame)
+    }
+  })
+}
+
+const initPlayerListenValues = (setActiveGame) => {
+  const playersRef = db.ref(`games/active/${activeGameKey}/users`)
+  const gameRef = db.ref(`games/active/${activeGameKey}/status`)
+  playersRef.on('value', (snapshot)  => {
+    gameRef.once('value').then((snapshot) => {
+      const gameData = snapshot.val()
+      setActiveGame(gameData)
+    })
+  })
+  gameRef.on('value', (snapshot) => {
+    if(!snapshot.val()){
+
+    }
+  })
+}
+
+const addOrRemovePlayer = (playerData, gameData, action, setActiveGame) => {
+  const playersRef = db.ref(`games/active/${activeGameKey}/users`)
+  const players = gameData.users
+  if(action === 'remove'){
+    const playerIndex = players.findIndex((user) => user.uid === playerData.uid)
+    players.splice(playerIndex, 1)
+  }
+  else{
+    players.push(playerData)
+  }
+  console.log(action)
+  setActiveGame({ ...gameData, users: players})
+  playersRef.set(players)
 }
 
 const deleteGame = (gameKey) => {
@@ -97,7 +166,10 @@ const deleteGame = (gameKey) => {
 export {
   createGame,
   getActiveGames,
+  getActiveGame,
   joinGame,
   deleteGame,
-  leaveGame
+  leaveGame,
+  initOwnerListenValues,
+  initPlayerListenValues
 };
