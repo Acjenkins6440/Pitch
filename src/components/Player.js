@@ -2,34 +2,39 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Hand from './Hand';
 
-
-const getPlayerPos = (playerNum) => {
-  if (playerNum === 0) {
-    return 'bottom';
+const getPlayerPos = (playerIndex, mainPlayerIndex) => {
+  const offset = mainPlayerIndex - playerIndex
+  
+  if(offset === 0){
+    return 'bottom'
   }
-  if (playerNum === 1) {
-    return 'left';
+  else if(offset === 1 || offset === -3){
+    return 'right'
   }
-  if (playerNum === 2) {
-    return 'top';
+  else if(Math.abs(offset) === 2){
+    return 'top'
   }
+  else{
+    return 'left'
+  }
+}
 
-  return 'right';
-};
-
-const Player = ({ playerNum, playerSeat }) => {
-  const className = `player ${getPlayerPos(playerNum)}`;
+const Player = ({ displayName, playerIndex, mainPlayerIndex }) => {
+  const isPlayer = playerIndex === mainPlayerIndex
+  const className = `player ${getPlayerPos(playerIndex, mainPlayerIndex)}`;
 
   return (
     <div className={className}>
-      <Hand playerSeat={playerSeat} playerNum={playerNum} />
+      <p>{displayName}</p>
+      <Hand playerIndex={playerIndex} isPlayer={mainPlayerIndex === playerIndex} />
     </div>
   );
 };
 
 Player.propTypes = {
-  playerNum: PropTypes.number.isRequired,
-  playerSeat: PropTypes.number.isRequired,
+  playerIndex: PropTypes.number.isRequired,
+  mainPlayerIndex: PropTypes.number.isRequired,
+  displayName: PropTypes.string.isRequired,
 };
 
 export default Player;

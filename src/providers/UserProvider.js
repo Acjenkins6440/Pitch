@@ -43,11 +43,13 @@ const setOnline = (user) => {
 };
 
 const setOffline = (uid) => {
-  if (typeof uid !== 'string') {
+  if (uid && typeof uid !== 'string') {
     const user = auth.currentUser;
     db.ref(`users/${user.uid}/status`).set('offline');
   }
-  db.ref(`users/${uid}/status`).set('offline');
+  else if(uid){
+    db.ref(`users/${uid}/status`).set('offline');
+  }
 };
 
 const emailLogin = (email, password, setError) => {
