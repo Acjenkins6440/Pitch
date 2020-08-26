@@ -9,7 +9,6 @@ import {
 
 const Board = ({ userData, activeGame, setActiveGame }) => {
   const players = [];
-  const playerSeat = 0;
 
   const initListeners = () => {
     if (userData.uid === activeGame.owner.uid) {
@@ -26,23 +25,32 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
       return
     }
     return (() => {
-      if(gameExists){
-        debugger
+      if(gameExists()){
         leaveGame(userData, activeGame, setActiveGame);
       }
     });
   }, [activeGame.gameKey]);
 
-  for (let i = 0; i < 4; i += 1) {
-    const player = <Player key={i} playerNum={i} playerSeat={playerSeat} />;
-    players.push(player);
-  }
+  const mainPlayerIndex = activeGame.users.findIndex((user) => user.uid === userData.uid)
+
+  activeGame.users.forEach((user, index) => {
+    players.push(<Player 
+      key={user.displayName}
+      playerIndex={index}
+      mainPlayerIndex={mainPlayerIndex}
+      displayName={user.displayName}
+      activeGame={activeGame}
+    />)
+  })
 
   return (
     <div id="board">
       {activeGame.status === 'in progress' ?
       players :
       <div></div>
+      }
+      {
+        activeGame.phase !== 'throw'
       }
       <BoardMessages activeGame={activeGame} />
     </div>

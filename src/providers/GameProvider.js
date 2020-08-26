@@ -1,5 +1,6 @@
 import { navigate } from '@reach/router';
 import { db } from '../firebase';
+import { generateBotName } from '../providers/AIProvider'
 
 let activeGameKey = '';
 let isOwner = false;
@@ -20,6 +21,8 @@ const gameExists = () => {
   return !!(activeGameKey)
 }
 
+
+
 const createGame = (gameProps, userData, setLoading, setError, setActiveGame) => {
   setLoading(true);
   const newGameId = `${userData.uid}${new Date().getTime()}`;
@@ -27,11 +30,13 @@ const createGame = (gameProps, userData, setLoading, setError, setActiveGame) =>
   const user = {
     uid: userData.uid,
     displayName: userData.displayName,
+    hand: ''
   };
   const gameData = {
     status: 'lobby',
     owner: user,
     users: [user],
+
     ...gameProps,
   };
   gameRef.set(gameData).then(() => {
@@ -141,6 +146,7 @@ const leaveGame = (userData, gameData, setActiveGame, navigate) => {
 const addOrRemovePlayer = (playerData, gameData, action, setActiveGame) => {
   const playersRef = db.ref(`games/active/${activeGameKey}/users`);
   const players = gameData.users;
+  const playerObject = { ...playerData, hand: ''}
   if (action === 'remove') {
     const playerIndex = players.findIndex(user => user.uid === playerData.uid);
     players.splice(playerIndex, 1);
@@ -152,8 +158,11 @@ const addOrRemovePlayer = (playerData, gameData, action, setActiveGame) => {
 };
 
 const initOwnerListenValues = (gameData, setActiveGame) => {
-  const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`);
-  const playerJoinedRef = db.ref(`games/active/${activeGameKey}/playerJoined`);
+  const endpoint = `games/active/${activeGameKey}`
+  const playerLeftRef = db.ref(`${endpoint}/playerLeft`);
+  const playerJoinedRef = db.ref(`${endpoint}/playerJoined`);
+  const statusRef = db.ref(`${endpoint}/status`);
+  const phaseRef = db.ref(`${endpoint}/phase`);
   playerLeftRef.on('value', (snapshot) => {
     const playerToRemove = snapshot.val();
     if (playerToRemove && playerToRemove.uid) {
@@ -170,6 +179,14 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
       playerJoinedRef.set({});
     }
   });
+  phaseRef.on('value', (snapshot) => {
+    const newPhase = snapshot.val();
+    setActiveGame({ ...gameData, phase: newPhase })
+  });
+  statusRef.on('value', (snapshot) => {
+    const newStatus = snapshot.val();
+    setActiveGame({ ...gameData, status: newStatus })
+  })
 };
 
 const initPlayerListenValues = (setActiveGame) => {
@@ -184,14 +201,59 @@ const initPlayerListenValues = (setActiveGame) => {
   gameRef.on('value', (snapshot) => {
     if (!snapshot.val()) {
       setActiveGameKey('')
-      console.log('set active game key to blank')
       setActiveGame({})
       navigate('/');
     }
   });
 };
 
-const startGame = () => {
+const startGame = (gameData) => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`)
+  const updates = inProgressGameData(gameData)
+  gameRef.update(updates)
+}
+
+const inProgressGameData = (gameData) => {
+  const deck = []
+  const numbers = [2,3,4,5,6,7,8,9,10,'j','q','k','a']
+  numbers.forEach((number) => {
+    deck.push(`h${number}`)
+    deck.push(`d${number}`)
+    deck.push(`s${number}`)
+    deck.push(`c${number}`)
+  })
+  const botNames = []
+  for(let i = 0; i < 4; i++){
+    if(!gameData.users[i]){
+      gameData.users[i] = { uid: `bot${i}`, isBot: true, displayName: generateBotName(botNames)}
+    }
+  }
+  return {
+    '/status': "in progress",
+    '/phase': 'deal',
+    '/deck': deck,
+    '/inPlay': '',
+    '/trump': '',
+    '/dealerIndex': 0,
+    '/scorePiles': {
+      team1: '',
+      team2: ''
+    },
+    '/users': gameData.users
+  }
+}
+
+const shuffleDeck = (deck) => {
+  //Fisher Yates shuffle algorithm 
+  let i = 52
+  while(i--){
+    const ri = Math.floor(Math.random() * (i+1))
+    [deck[i], deck[ri]] = [deck[ri], deck[i]]
+  }
+  return deck
+}
+
+const deal = () => {
   
 }
 
