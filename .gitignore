@@ -9,7 +9,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Sensitive data
-config
+firebaseConfig.js
 
 # Runtime data
 pids
