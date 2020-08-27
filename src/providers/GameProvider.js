@@ -1,6 +1,5 @@
-import { navigate } from '@reach/router';
 import { db } from '../firebase';
-import { generateBotName } from '../providers/AIProvider'
+import { generateBotName } from './AIProvider';
 
 let activeGameKey = '';
 let isOwner = false;
@@ -13,13 +12,9 @@ const setOwner = (ownerBool) => {
   isOwner = ownerBool;
 };
 
-const getOwner = () => {
-  return isOwner
-}
+const getOwner = () => isOwner;
 
-const gameExists = () => {
-  return !!(activeGameKey)
-}
+const gameExists = () => !!(activeGameKey);
 
 const createGame = (gameProps, userData, setLoading, setError, setActiveGame) => {
   setLoading(true);
@@ -28,20 +23,20 @@ const createGame = (gameProps, userData, setLoading, setError, setActiveGame) =>
   const user = {
     uid: userData.uid,
     displayName: userData.displayName,
-    hand: ''
+    hand: '',
   };
   const gameData = {
     status: 'lobby',
     owner: user,
     users: [user],
     ...gameProps,
-    gameKey: newGameId
+    gameKey: newGameId,
   };
 
   gameRef.set(gameData).then(() => {
     setActiveGameKey(newGameId);
     setOwner(true);
-    setActiveGame({ ...gameData, gameKey: newGameId });
+    setActiveGame(gameData);
     setLoading(false);
   }).catch((error) => {
     setError(error);
@@ -58,7 +53,7 @@ const getActiveGames = (setActiveGames) => {
   const gamesRef = db.ref('games/active/');
   gamesRef.once('value').then((snapshot) => {
     const gameObject = snapshot.val();
-    if(gameObject){
+    if (gameObject) {
       const games = [];
       Object.keys(gameObject).forEach((key) => {
         games.push({ ...gameObject[key], key });
@@ -99,7 +94,8 @@ const joinGame = (userData, gameKey, setActiveGame, navigate, setError) => {
     setActiveGameKey(gameKey);
     setActiveGame(gameData);
     navigate('/game');
-  }).catch((error) => { setError(error); });
+  })
+    .catch((error) => { setError(error); });
 };
 
 const detatchPlayerListeners = () => {
@@ -117,16 +113,16 @@ const detatchOwnerListeners = () => {
 };
 
 const detatchUniversalListeners = () => {
-  const endpoint = `games/active/${activeGameKey}`
+  const endpoint = `games/active/${activeGameKey}`;
   const statusRef = db.ref(`${endpoint}/status`);
   const phaseRef = db.ref(`${endpoint}/phase`);
   const currentBidRef = db.ref(`${endpoint}/currentBid`);
-  const playerRef = db.ref(`${endpoint}/users`)
-  statusRef.off()
-  phaseRef.off()
-  currentBidRef.off()
-  playerRef.off()
-}
+  const playerRef = db.ref(`${endpoint}/users`);
+  statusRef.off();
+  phaseRef.off();
+  currentBidRef.off();
+  playerRef.off();
+};
 
 const deleteGame = (gameKey) => {
   const gameRef = db.ref(`games/active/${gameKey}`);
@@ -134,7 +130,7 @@ const deleteGame = (gameKey) => {
 };
 
 const leaveGame = (userData, gameData, setActiveGame, navigate) => {
-  detatchUniversalListeners()
+  detatchUniversalListeners();
   if (!isOwner) {
     detatchPlayerListeners();
     const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`);
@@ -152,6 +148,7 @@ const leaveGame = (userData, gameData, setActiveGame, navigate) => {
   }
   setActiveGameKey('');
   setOwner(false);
+  return null;
 };
 
 const addOrRemovePlayer = (playerData, gameData, action, setActiveGame) => {
@@ -167,8 +164,41 @@ const addOrRemovePlayer = (playerData, gameData, action, setActiveGame) => {
   playersRef.set(players);
 };
 
+const getFreshGameData = () => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`);
+  return gameRef.once('value').then(snapshot => snapshot.val());
+};
+
+const initUniversalListenValues = (setActiveGame) => {
+  const endpoint = `games/active/${activeGameKey}`;
+  const statusRef = db.ref(`${endpoint}/status`);
+  const phaseRef = db.ref(`${endpoint}/phase`);
+  const currentBidRef = db.ref(`${endpoint}/currentBid`);
+  const playerRef = db.ref(`${endpoint}/users`);
+  playerRef.on('value', () => {
+    getFreshGameData().then((gameData) => {
+      setActiveGame(gameData);
+    });
+  });
+  phaseRef.on('value', () => {
+    getFreshGameData().then((gameData) => {
+      setActiveGame(gameData);
+    });
+  });
+  statusRef.on('value', () => {
+    getFreshGameData().then((gameData) => {
+      setActiveGame(gameData);
+    });
+  });
+  currentBidRef.on('value', () => {
+    getFreshGameData().then((gameData) => {
+      setActiveGame(gameData);
+    });
+  });
+};
+
 const initOwnerListenValues = (gameData, setActiveGame) => {
-  const endpoint = `games/active/${activeGameKey}`
+  const endpoint = `games/active/${activeGameKey}`;
   const playerLeftRef = db.ref(`${endpoint}/playerLeft`);
   const playerJoinedRef = db.ref(`${endpoint}/playerJoined`);
 
@@ -188,139 +218,106 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
       playerJoinedRef.set({});
     }
   });
-  initUniversalListenValues(setActiveGame)
+  initUniversalListenValues(setActiveGame);
 };
 
 const initPlayerListenValues = (setActiveGame, navigate) => {
-  const endpoint = `games/active/${activeGameKey}`
+  const endpoint = `games/active/${activeGameKey}`;
   const gameRef = db.ref(`${endpoint}`);
   gameRef.on('value', (snapshot) => {
     if (!snapshot.val()) {
-      setActiveGameKey('')
-      setActiveGame({})
+      setActiveGameKey('');
+      setActiveGame({});
       navigate('/');
     }
   });
-  initUniversalListenValues(setActiveGame)
+  initUniversalListenValues(setActiveGame);
 };
 
-const initUniversalListenValues = (setActiveGame) => {
-  const endpoint = `games/active/${activeGameKey}`
-  const statusRef = db.ref(`${endpoint}/status`);
-  const phaseRef = db.ref(`${endpoint}/phase`);
-  const currentBidRef = db.ref(`${endpoint}/currentBid`);
-  const playerRef = db.ref(`${endpoint}/users`)
-  playerRef.on('value', (snapshot) => {
-    getFreshGameData().then((gameData) => {
-      setActiveGame(gameData)
-    })
-  })
-  // phaseRef.on('value', (snapshot) => {
-  //   const newPhase = snapshot.val();
-  //   getFreshGameData().then((gameData) => {
-  //     setActiveGame({ ...gameData, phase: newPhase })
-  //   })
-  // });
-  // statusRef.on('value', (snapshot) => {
-  //   const newStatus = snapshot.val();
-  //   getFreshGameData().then((gameData) => {
-  //     setActiveGame({ ...gameData, status: newStatus })
-  //   })
-  // })
-  // currentBidRef.on('value', (snapshot) => {
-  //   const newBid = snapshot.val();
-  //   getFreshGameData().then((gameData) => {
-  //     setActiveGame({ ...gameData, currentBid: newBid })
-  //   })
-  // })
-}
-
-const getFreshGameData = () => {
-  const gameRef = db.ref(`games/active/${activeGameKey}`)
-  return gameRef.once('value').then((snapshot) => snapshot.val())
-}
-
-const startGame = (gameData, setActiveGame) => {
-  const gameRef = db.ref(`games/active/${activeGameKey}`)
-  const updates = inProgressGameData(gameData)
-  gameRef.set(updates)
-  gameRef.once('value').then((snapshot) => {
-    const activeGame = snapshot.val()
-    setActiveGame(activeGame)
-  })
-}
-
 const inProgressGameData = (gameData) => {
-  const deck = []
-  const numbers = [2,3,4,5,6,7,8,9,10,'J','Q','K','A']
+  const deck = [];
+  const numbers = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
   numbers.forEach((number) => {
-    deck.push(`${number}H`)
-    deck.push(`${number}D`)
-    deck.push(`${number}S`)
-    deck.push(`${number}C`)
-  })
-  const botNames = []
-  for(let i = 0; i < 4; i++){
-    if(!gameData.users[i]){
-      gameData.users[i] = { uid: `bot${i}`, isBot: true, displayName: generateBotName(botNames)}
+    deck.push(`${number}H`);
+    deck.push(`${number}D`);
+    deck.push(`${number}S`);
+    deck.push(`${number}C`);
+  });
+  const botNames = [];
+  for (let i = 0; i < 4; i += 1) {
+    if (!gameData.users[i]) {
+      gameData.users.push({ uid: `bot${i}`, isBot: true, displayName: generateBotName(botNames) });
     }
   }
-  gameData.users.forEach((user) => {
-    user.hand = []
-  })
-  return { 
+  return {
     ...gameData,
     status: 'in progress',
     phase: 'deal',
-    deck: deck,
+    deck,
     inPlay: '',
     trump: '',
     dealerIndex: 0,
     scorePiles: {
       team1: '',
-      team2: ''
+      team2: '',
     },
     currentBid: {
       bid: 0,
-      player: ''
+      player: '',
     },
-    playersTurn: gameData.owner.uid
-  }
-}
+    playersTurn: gameData.owner.uid,
+  };
+};
+
+const startGame = (gameData, setActiveGame) => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`);
+  const updates = inProgressGameData(gameData);
+  gameRef.set(updates);
+  gameRef.once('value').then((snapshot) => {
+    const activeGame = snapshot.val();
+    setActiveGame(activeGame);
+  });
+};
+
+/* eslint-disable */
 
 const shuffleDeck = (deck) => {
-  //Fisher Yates shuffle algorithm 
-  let i = 52
-  while(i--){
-    let ri = Math.floor(Math.random() * (i+1))
-    const temp = deck[i]
-    deck[i] = deck[ri]
-    deck[ri] = temp
+  // Fisher Yates shuffle algorithm
+  let i = 52;
+  while (i -= 1) {
+    const ri = Math.floor(Math.random() * (i + 1));
+    const temp = deck[i];
+    deck[i] = deck[ri];
+    deck[ri] = temp;
   }
-  return deck
-}
+  return deck;
+};
+
+/* eslint-disable */ 
 
 const setBid = (bid) => {
-  const bidRef = db.ref(`games/active/${activeGameKey}/currentBid`)
-  bidRef.set(bid).then(() => nextTurn())
-}
+  const bidRef = db.ref(`games/active/${activeGameKey}/currentBid`);
+  bidRef.set(bid);
+  // .then(() => nextTurn());
+};
+
+const nextPhase = () => {
+
+};
 
 const deal = (gameData, setActiveGame) => {
-  const deck = shuffleDeck(gameData.deck)
-  const playerRef = db.ref(`games/active/${activeGameKey}/users`)
+  const deck = shuffleDeck(gameData.deck);
+  const playerRef = db.ref(`games/active/${activeGameKey}/users`);
   gameData.users.forEach((player, index) => {
-    const offset = index * 6
-    const begin = offset
-    const end = offset + 6
-    player.hand = deck.slice(begin, end)
-  })
-  playerRef.set(gameData.users)
-  nextPhase(setActiveGame)
-}
+    const offset = index * 6;
+    const begin = offset;
+    const end = offset + 6;
+    player.hand = deck.slice(begin, end);
+  });
+  playerRef.set(gameData.users);
+  nextPhase(setActiveGame);
+};
 
-const nextPhase = (setActiveGame) => {
-
-}
 
 export {
   createGame,
