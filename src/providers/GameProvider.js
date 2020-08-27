@@ -21,14 +21,6 @@ const gameExists = () => {
   return !!(activeGameKey)
 }
 
-const differentGame = (gameKey) => {
-  return activeGameKey !== gameKey
-}
-
-const isMyTurn = (playerIndex) => {
-
-}
-
 const createGame = (gameProps, userData, setLoading, setError, setActiveGame) => {
   setLoading(true);
   const newGameId = `${userData.uid}${new Date().getTime()}`;
@@ -42,9 +34,10 @@ const createGame = (gameProps, userData, setLoading, setError, setActiveGame) =>
     status: 'lobby',
     owner: user,
     users: [user],
-
     ...gameProps,
+    gameKey: newGameId
   };
+
   gameRef.set(gameData).then(() => {
     setActiveGameKey(newGameId);
     setOwner(true);
@@ -106,8 +99,7 @@ const joinGame = (userData, gameKey, setActiveGame, navigate, setError) => {
     setActiveGameKey(gameKey);
     setActiveGame(gameData);
     navigate('/game');
-  })
-    .catch((error) => { setError(error); });
+  }).catch((error) => { setError(error); });
 };
 
 const detatchPlayerListeners = () => {
@@ -124,12 +116,25 @@ const detatchOwnerListeners = () => {
   playerJoinedRef.off();
 };
 
+const detatchUniversalListeners = () => {
+  const endpoint = `games/active/${activeGameKey}`
+  const statusRef = db.ref(`${endpoint}/status`);
+  const phaseRef = db.ref(`${endpoint}/phase`);
+  const currentBidRef = db.ref(`${endpoint}/currentBid`);
+  const playerRef = db.ref(`${endpoint}/users`)
+  statusRef.off()
+  phaseRef.off()
+  currentBidRef.off()
+  playerRef.off()
+}
+
 const deleteGame = (gameKey) => {
   const gameRef = db.ref(`games/active/${gameKey}`);
   gameRef.remove();
 };
 
 const leaveGame = (userData, gameData, setActiveGame, navigate) => {
+  detatchUniversalListeners()
   if (!isOwner) {
     detatchPlayerListeners();
     const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`);
@@ -183,19 +188,12 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
       playerJoinedRef.set({});
     }
   });
-  initUniversalListenValues(gameData, setActiveGame)
+  initUniversalListenValues(setActiveGame)
 };
 
-const initPlayerListenValues = (gameData, setActiveGame) => {
+const initPlayerListenValues = (setActiveGame, navigate) => {
   const endpoint = `games/active/${activeGameKey}`
-  const playersRef = db.ref(`${endpoint}/users`);
   const gameRef = db.ref(`${endpoint}`);
-  playersRef.on('value', () => {
-    gameRef.once('value').then((snapshot) => {
-      const newgameData = snapshot.val();
-      setActiveGame({ ...newGameData, gameKey: activeGameKey });
-    });
-  });
   gameRef.on('value', (snapshot) => {
     if (!snapshot.val()) {
       setActiveGameKey('')
@@ -203,48 +201,58 @@ const initPlayerListenValues = (gameData, setActiveGame) => {
       navigate('/');
     }
   });
-  initUniversalListenValues(gameData, setActiveGame)
+  initUniversalListenValues(setActiveGame)
 };
 
-const initUniversalListenValues = (gameData, setActiveGame) => {
+const initUniversalListenValues = (setActiveGame) => {
   const endpoint = `games/active/${activeGameKey}`
   const statusRef = db.ref(`${endpoint}/status`);
   const phaseRef = db.ref(`${endpoint}/phase`);
   const currentBidRef = db.ref(`${endpoint}/currentBid`);
   const playerRef = db.ref(`${endpoint}/users`)
-  const gameRef = db.ref(`${endpoint}`)
-  phaseRef.on('value', (snapshot) => {
-    const newPhase = snapshot.val();
-    setActiveGame({ ...gameData, phase: newPhase })
-  });
-  statusRef.on('value', (snapshot) => {
-    const newStatus = snapshot.val();
-    setActiveGame({ ...gameData, status: newStatus })
-  })
-  currentBidRef.on('value', (snapshot) => {
-    const newBid = snapshot.val();
-    setActiveGame({ ...gameData, currentBid: newBid })
-  })
   playerRef.on('value', (snapshot) => {
-    const newPlayers = snapshot.val();
-    setActiveGame({ ...gameData, users: newPlayers})
+    getFreshGameData().then((gameData) => {
+      setActiveGame(gameData)
+    })
   })
+  // phaseRef.on('value', (snapshot) => {
+  //   const newPhase = snapshot.val();
+  //   getFreshGameData().then((gameData) => {
+  //     setActiveGame({ ...gameData, phase: newPhase })
+  //   })
+  // });
+  // statusRef.on('value', (snapshot) => {
+  //   const newStatus = snapshot.val();
+  //   getFreshGameData().then((gameData) => {
+  //     setActiveGame({ ...gameData, status: newStatus })
+  //   })
+  // })
+  // currentBidRef.on('value', (snapshot) => {
+  //   const newBid = snapshot.val();
+  //   getFreshGameData().then((gameData) => {
+  //     setActiveGame({ ...gameData, currentBid: newBid })
+  //   })
+  // })
+}
+
+const getFreshGameData = () => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`)
+  return gameRef.once('value').then((snapshot) => snapshot.val())
 }
 
 const startGame = (gameData, setActiveGame) => {
   const gameRef = db.ref(`games/active/${activeGameKey}`)
   const updates = inProgressGameData(gameData)
-  gameRef.update(updates)
+  gameRef.set(updates)
   gameRef.once('value').then((snapshot) => {
     const activeGame = snapshot.val()
     setActiveGame(activeGame)
   })
-
 }
 
 const inProgressGameData = (gameData) => {
   const deck = []
-  const numbers = [2,3,4,5,6,7,8,9,10,'j','q','k','a']
+  const numbers = [2,3,4,5,6,7,8,9,10,'J','Q','K','A']
   numbers.forEach((number) => {
     deck.push(`${number}H`)
     deck.push(`${number}D`)
@@ -260,30 +268,23 @@ const inProgressGameData = (gameData) => {
   gameData.users.forEach((user) => {
     user.hand = []
   })
-  const defaultOrder = {
-    0: 0,
-    1: 1,
-    2: 2,
-    3: 3
-  }
-  return {
-    '/status': "in progress",
-    '/phase': 'deal',
-    '/deck': deck,
-    '/inPlay': '',
-    '/trump': '',
-    '/dealerIndex': 0,
-    '/scorePiles': {
+  return { 
+    ...gameData,
+    status: 'in progress',
+    phase: 'deal',
+    deck: deck,
+    inPlay: '',
+    trump: '',
+    dealerIndex: 0,
+    scorePiles: {
       team1: '',
       team2: ''
     },
-    '/users': gameData.users,
-    '/currentBid': {
+    currentBid: {
       bid: 0,
       player: ''
     },
-    '/currentBidder': 0,
-    '/playersTurn': gameData.owner.uid
+    playersTurn: gameData.owner.uid
   }
 }
 
@@ -318,7 +319,7 @@ const deal = (gameData, setActiveGame) => {
 }
 
 const nextPhase = (setActiveGame) => {
-  
+
 }
 
 export {
@@ -335,5 +336,4 @@ export {
   gameExists,
   setBid,
   deal,
-  differentGame
 };
