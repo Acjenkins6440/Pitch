@@ -4,11 +4,13 @@ import { navigate } from '@reach/router';
 import Player from './Player';
 import BoardMessages from './BoardMessages';
 import {
-  leaveGame, initOwnerListenValues, initPlayerListenValues, gameExists
+  leaveGame, initOwnerListenValues, initPlayerListenValues, gameExists, differentGame
 } from '../providers/GameProvider';
 
 const Board = ({ userData, activeGame, setActiveGame }) => {
   const players = [];
+
+  const isMyTurn = userData.uid === activeGame.playersTurn
 
   const initListeners = () => {
     if (userData.uid === activeGame.owner.uid) {
@@ -25,7 +27,7 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
       return
     }
     return (() => {
-      if(gameExists()){
+      if(gameExists() && differentGame(activeGame.gameKey) ){
         leaveGame(userData, activeGame, setActiveGame);
       }
     });
@@ -52,7 +54,7 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
       {
         activeGame.phase !== 'throw'
       }
-      <BoardMessages activeGame={activeGame} />
+      <BoardMessages activeGame={activeGame} myTurn={isMyTurn} setActiveGame={setActiveGame} />
     </div>
   );
 };

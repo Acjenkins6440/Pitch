@@ -21,7 +21,13 @@ const gameExists = () => {
   return !!(activeGameKey)
 }
 
+const differentGame = (gameKey) => {
+  return activeGameKey !== gameKey
+}
 
+const isMyTurn = (playerIndex) => {
+
+}
 
 const createGame = (gameProps, userData, setLoading, setError, setActiveGame) => {
   setLoading(true);
@@ -146,7 +152,6 @@ const leaveGame = (userData, gameData, setActiveGame, navigate) => {
 const addOrRemovePlayer = (playerData, gameData, action, setActiveGame) => {
   const playersRef = db.ref(`games/active/${activeGameKey}/users`);
   const players = gameData.users;
-  const playerObject = { ...playerData, hand: ''}
   if (action === 'remove') {
     const playerIndex = players.findIndex(user => user.uid === playerData.uid);
     players.splice(playerIndex, 1);
@@ -161,8 +166,7 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
   const endpoint = `games/active/${activeGameKey}`
   const playerLeftRef = db.ref(`${endpoint}/playerLeft`);
   const playerJoinedRef = db.ref(`${endpoint}/playerJoined`);
-  const statusRef = db.ref(`${endpoint}/status`);
-  const phaseRef = db.ref(`${endpoint}/phase`);
+
   playerLeftRef.on('value', (snapshot) => {
     const playerToRemove = snapshot.val();
     if (playerToRemove && playerToRemove.uid) {
@@ -179,23 +183,17 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
       playerJoinedRef.set({});
     }
   });
-  phaseRef.on('value', (snapshot) => {
-    const newPhase = snapshot.val();
-    setActiveGame({ ...gameData, phase: newPhase })
-  });
-  statusRef.on('value', (snapshot) => {
-    const newStatus = snapshot.val();
-    setActiveGame({ ...gameData, status: newStatus })
-  })
+  initUniversalListenValues(gameData, setActiveGame)
 };
 
-const initPlayerListenValues = (setActiveGame) => {
-  const playersRef = db.ref(`games/active/${activeGameKey}/users`);
-  const gameRef = db.ref(`games/active/${activeGameKey}`);
+const initPlayerListenValues = (gameData, setActiveGame) => {
+  const endpoint = `games/active/${activeGameKey}`
+  const playersRef = db.ref(`${endpoint}/users`);
+  const gameRef = db.ref(`${endpoint}`);
   playersRef.on('value', () => {
     gameRef.once('value').then((snapshot) => {
-      const gameData = snapshot.val();
-      setActiveGame({ ...gameData, gameKey: activeGameKey });
+      const newgameData = snapshot.val();
+      setActiveGame({ ...newGameData, gameKey: activeGameKey });
     });
   });
   gameRef.on('value', (snapshot) => {
@@ -205,28 +203,68 @@ const initPlayerListenValues = (setActiveGame) => {
       navigate('/');
     }
   });
+  initUniversalListenValues(gameData, setActiveGame)
 };
 
-const startGame = (gameData) => {
+const initUniversalListenValues = (gameData, setActiveGame) => {
+  const endpoint = `games/active/${activeGameKey}`
+  const statusRef = db.ref(`${endpoint}/status`);
+  const phaseRef = db.ref(`${endpoint}/phase`);
+  const currentBidRef = db.ref(`${endpoint}/currentBid`);
+  const playerRef = db.ref(`${endpoint}/users`)
+  const gameRef = db.ref(`${endpoint}`)
+  phaseRef.on('value', (snapshot) => {
+    const newPhase = snapshot.val();
+    setActiveGame({ ...gameData, phase: newPhase })
+  });
+  statusRef.on('value', (snapshot) => {
+    const newStatus = snapshot.val();
+    setActiveGame({ ...gameData, status: newStatus })
+  })
+  currentBidRef.on('value', (snapshot) => {
+    const newBid = snapshot.val();
+    setActiveGame({ ...gameData, currentBid: newBid })
+  })
+  playerRef.on('value', (snapshot) => {
+    const newPlayers = snapshot.val();
+    setActiveGame({ ...gameData, users: newPlayers})
+  })
+}
+
+const startGame = (gameData, setActiveGame) => {
   const gameRef = db.ref(`games/active/${activeGameKey}`)
   const updates = inProgressGameData(gameData)
   gameRef.update(updates)
+  gameRef.once('value').then((snapshot) => {
+    const activeGame = snapshot.val()
+    setActiveGame(activeGame)
+  })
+
 }
 
 const inProgressGameData = (gameData) => {
   const deck = []
   const numbers = [2,3,4,5,6,7,8,9,10,'j','q','k','a']
   numbers.forEach((number) => {
-    deck.push(`h${number}`)
-    deck.push(`d${number}`)
-    deck.push(`s${number}`)
-    deck.push(`c${number}`)
+    deck.push(`${number}H`)
+    deck.push(`${number}D`)
+    deck.push(`${number}S`)
+    deck.push(`${number}C`)
   })
   const botNames = []
   for(let i = 0; i < 4; i++){
     if(!gameData.users[i]){
       gameData.users[i] = { uid: `bot${i}`, isBot: true, displayName: generateBotName(botNames)}
     }
+  }
+  gameData.users.forEach((user) => {
+    user.hand = []
+  })
+  const defaultOrder = {
+    0: 0,
+    1: 1,
+    2: 2,
+    3: 3
   }
   return {
     '/status': "in progress",
@@ -239,7 +277,13 @@ const inProgressGameData = (gameData) => {
       team1: '',
       team2: ''
     },
-    '/users': gameData.users
+    '/users': gameData.users,
+    '/currentBid': {
+      bid: 0,
+      player: ''
+    },
+    '/currentBidder': 0,
+    '/playersTurn': gameData.owner.uid
   }
 }
 
@@ -247,13 +291,33 @@ const shuffleDeck = (deck) => {
   //Fisher Yates shuffle algorithm 
   let i = 52
   while(i--){
-    const ri = Math.floor(Math.random() * (i+1))
-    [deck[i], deck[ri]] = [deck[ri], deck[i]]
+    let ri = Math.floor(Math.random() * (i+1))
+    const temp = deck[i]
+    deck[i] = deck[ri]
+    deck[ri] = temp
   }
   return deck
 }
 
-const deal = () => {
+const setBid = (bid) => {
+  const bidRef = db.ref(`games/active/${activeGameKey}/currentBid`)
+  bidRef.set(bid).then(() => nextTurn())
+}
+
+const deal = (gameData, setActiveGame) => {
+  const deck = shuffleDeck(gameData.deck)
+  const playerRef = db.ref(`games/active/${activeGameKey}/users`)
+  gameData.users.forEach((player, index) => {
+    const offset = index * 6
+    const begin = offset
+    const end = offset + 6
+    player.hand = deck.slice(begin, end)
+  })
+  playerRef.set(gameData.users)
+  nextPhase(setActiveGame)
+}
+
+const nextPhase = (setActiveGame) => {
   
 }
 
@@ -268,5 +332,8 @@ export {
   initPlayerListenValues,
   startGame,
   getOwner,
-  gameExists
+  gameExists,
+  setBid,
+  deal,
+  differentGame
 };

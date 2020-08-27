@@ -19,14 +19,14 @@ const getPlayerPos = (playerIndex, mainPlayerIndex) => {
   }
 }
 
-const Player = ({ displayName, playerIndex, mainPlayerIndex }) => {
+const Player = ({ displayName, playerIndex, mainPlayerIndex, activeGame }) => {
   const isPlayer = playerIndex === mainPlayerIndex
   const className = `player ${getPlayerPos(playerIndex, mainPlayerIndex)}`;
 
   return (
     <div className={className}>
       <p>{displayName}</p>
-      <Hand playerIndex={playerIndex} isPlayer={mainPlayerIndex === playerIndex} />
+      <Hand playerIndex={playerIndex} isPlayer={mainPlayerIndex === playerIndex} activeGame={activeGame} />
     </div>
   );
 };
