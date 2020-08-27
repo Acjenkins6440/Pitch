@@ -55,7 +55,7 @@ const CreateGame = ({ userData, backToLobby, setActiveGame }) => {
         </Form.Group>
         <Form.Group controlId="botsEnabled">
           <Form.Label>Enable Bots?</Form.Label>
-          <Form.Check type="checkbox" name="bots" onChange={onChange} checked={botsEnabled}/>
+          <Form.Check type="checkbox" name="bots" onChange={onChange} checked={botsEnabled} />
         </Form.Group>
         <Form.Group controlId="passwordEnabled">
           <Form.Label>Enable Password?</Form.Label>

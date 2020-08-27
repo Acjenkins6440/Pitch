@@ -1,5 +1,3 @@
-import { deal, playCard, pickTrump } from './GameProvider'
-
 const botNames = [
   'Janet Jackson',
   'Spiderman',
@@ -7,7 +5,7 @@ const botNames = [
   'Chance the Rapper',
   'Rap the Chancer',
   'THE Jimmy John',
-]
+];
 
 const firstNames = [
   'Jim',
@@ -27,8 +25,8 @@ const firstNames = [
   'Some Guy',
   'Some Lady',
   'Carl',
-  'Doug'
-]
+  'Doug',
+];
 
 const lastNames = [
   'Brown',
@@ -39,31 +37,28 @@ const lastNames = [
   'Jimmy Johns',
   'Hertzberg',
   'Last Name',
-  'Dimmadome'
-]
+  'Dimmadome',
+];
 
-const getRandomArrayElement = (array) => {
-  return array[Math.floor(Math.random() * array.length)]
-}
+const getRandomArrayElement = array => array[Math.floor(Math.random() * array.length)];
 
 const generateBotName = (currentBotNames) => {
-  const firstRoll = Math.floor(Math.random() * 100) <= 15
-  let name = ""
-  if(firstRoll){
-    name = `${getRandomArrayElement(botNames)}`
+  const firstRoll = Math.floor(Math.random() * 100) <= 15;
+  let name = '';
+  if (firstRoll) {
+    name = `${getRandomArrayElement(botNames)}`;
+  } else {
+    name = `${getRandomArrayElement(firstNames)} ${getRandomArrayElement(lastNames)}`;
   }
-  else{
-    name = `${getRandomArrayElement(firstNames)} ${getRandomArrayElement(lastNames)}`
+  if (currentBotNames.includes(name)) {
+    return generateBotName(currentBotNames);
   }
-  if(currentBotNames.includes(name)){
-    return generateBotName(currentBotNames)
-  }
-  else{
-    currentBotNames.push(name)
-    return name + ' (Bot)'
-  }
-}
 
+  currentBotNames.push(name);
+  return `${name} (Bot)`;
+};
+/* eslint-disable */ 
 export {
-  generateBotName
-}
+  generateBotName,
+};
+/* eslint-disable */
