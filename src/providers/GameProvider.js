@@ -1,5 +1,5 @@
-import { navigate } from '@reach/router';
 import { db } from '../firebase';
+import { generateBotName } from './AIProvider';
 
 let activeGameKey = '';
 let isOwner = false;
@@ -12,6 +12,10 @@ const setOwner = (ownerBool) => {
   isOwner = ownerBool;
 };
 
+const getOwner = () => isOwner;
+
+const gameExists = () => !!(activeGameKey);
+
 const createGame = (gameProps, userData, setLoading, setError, setActiveGame) => {
   setLoading(true);
   const newGameId = `${userData.uid}${new Date().getTime()}`;
@@ -19,17 +23,20 @@ const createGame = (gameProps, userData, setLoading, setError, setActiveGame) =>
   const user = {
     uid: userData.uid,
     displayName: userData.displayName,
+    hand: '',
   };
   const gameData = {
     status: 'lobby',
     owner: user,
     users: [user],
     ...gameProps,
+    gameKey: newGameId,
   };
+
   gameRef.set(gameData).then(() => {
     setActiveGameKey(newGameId);
     setOwner(true);
-    setActiveGame({ ...gameData, gameKey: newGameId });
+    setActiveGame(gameData);
     setLoading(false);
   }).catch((error) => {
     setError(error);
@@ -46,11 +53,13 @@ const getActiveGames = (setActiveGames) => {
   const gamesRef = db.ref('games/active/');
   gamesRef.once('value').then((snapshot) => {
     const gameObject = snapshot.val();
-    const games = [];
-    Object.keys(gameObject).forEach((key) => {
-      games.push({ ...gameObject[key], key });
-    });
-    setActiveGames(games);
+    if (gameObject) {
+      const games = [];
+      Object.keys(gameObject).forEach((key) => {
+        games.push({ ...gameObject[key], key });
+      });
+      setActiveGames(games);
+    }
   });
 };
 
@@ -103,12 +112,25 @@ const detatchOwnerListeners = () => {
   playerJoinedRef.off();
 };
 
+const detatchUniversalListeners = () => {
+  const endpoint = `games/active/${activeGameKey}`;
+  const statusRef = db.ref(`${endpoint}/status`);
+  const phaseRef = db.ref(`${endpoint}/phase`);
+  const currentBidRef = db.ref(`${endpoint}/currentBid`);
+  const playerRef = db.ref(`${endpoint}/users`);
+  statusRef.off();
+  phaseRef.off();
+  currentBidRef.off();
+  playerRef.off();
+};
+
 const deleteGame = (gameKey) => {
   const gameRef = db.ref(`games/active/${gameKey}`);
   gameRef.remove();
 };
 
 const leaveGame = (userData, gameData, setActiveGame, navigate) => {
+  detatchUniversalListeners();
   if (!isOwner) {
     detatchPlayerListeners();
     const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`);
@@ -126,6 +148,7 @@ const leaveGame = (userData, gameData, setActiveGame, navigate) => {
   }
   setActiveGameKey('');
   setOwner(false);
+  return null;
 };
 
 const addOrRemovePlayer = (playerData, gameData, action, setActiveGame) => {
@@ -141,9 +164,44 @@ const addOrRemovePlayer = (playerData, gameData, action, setActiveGame) => {
   playersRef.set(players);
 };
 
+const getFreshGameData = () => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`);
+  return gameRef.once('value').then(snapshot => snapshot.val());
+};
+
+const initUniversalListenValues = (setActiveGame) => {
+  const endpoint = `games/active/${activeGameKey}`;
+  const statusRef = db.ref(`${endpoint}/status`);
+  const phaseRef = db.ref(`${endpoint}/phase`);
+  const currentBidRef = db.ref(`${endpoint}/currentBid`);
+  const playerRef = db.ref(`${endpoint}/users`);
+  playerRef.on('value', () => {
+    getFreshGameData().then((gameData) => {
+      setActiveGame(gameData);
+    });
+  });
+  phaseRef.on('value', () => {
+    getFreshGameData().then((gameData) => {
+      setActiveGame(gameData);
+    });
+  });
+  statusRef.on('value', () => {
+    getFreshGameData().then((gameData) => {
+      setActiveGame(gameData);
+    });
+  });
+  currentBidRef.on('value', () => {
+    getFreshGameData().then((gameData) => {
+      setActiveGame(gameData);
+    });
+  });
+};
+
 const initOwnerListenValues = (gameData, setActiveGame) => {
-  const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`);
-  const playerJoinedRef = db.ref(`games/active/${activeGameKey}/playerJoined`);
+  const endpoint = `games/active/${activeGameKey}`;
+  const playerLeftRef = db.ref(`${endpoint}/playerLeft`);
+  const playerJoinedRef = db.ref(`${endpoint}/playerJoined`);
+
   playerLeftRef.on('value', (snapshot) => {
     const playerToRemove = snapshot.val();
     if (playerToRemove && playerToRemove.uid) {
@@ -160,23 +218,106 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
       playerJoinedRef.set({});
     }
   });
+  initUniversalListenValues(setActiveGame);
 };
 
-const initPlayerListenValues = (setActiveGame) => {
-  const playersRef = db.ref(`games/active/${activeGameKey}/users`);
-  const gameRef = db.ref(`games/active/${activeGameKey}`);
-  playersRef.on('value', () => {
-    gameRef.once('value').then((snapshot) => {
-      const gameData = snapshot.val();
-      setActiveGame({ ...gameData, gameKey: activeGameKey });
-    });
-  });
+const initPlayerListenValues = (setActiveGame, navigate) => {
+  const endpoint = `games/active/${activeGameKey}`;
+  const gameRef = db.ref(`${endpoint}`);
   gameRef.on('value', (snapshot) => {
     if (!snapshot.val()) {
+      setActiveGameKey('');
+      setActiveGame({});
       navigate('/');
     }
   });
+  initUniversalListenValues(setActiveGame);
 };
+
+const inProgressGameData = (gameData) => {
+  const deck = [];
+  const numbers = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
+  numbers.forEach((number) => {
+    deck.push(`${number}H`);
+    deck.push(`${number}D`);
+    deck.push(`${number}S`);
+    deck.push(`${number}C`);
+  });
+  const botNames = [];
+  for (let i = 0; i < 4; i += 1) {
+    if (!gameData.users[i]) {
+      gameData.users.push({ uid: `bot${i}`, isBot: true, displayName: generateBotName(botNames) });
+    }
+  }
+  return {
+    ...gameData,
+    status: 'in progress',
+    phase: 'deal',
+    deck,
+    inPlay: '',
+    trump: '',
+    dealerIndex: 0,
+    scorePiles: {
+      team1: '',
+      team2: '',
+    },
+    currentBid: {
+      bid: 0,
+      player: '',
+    },
+    playersTurn: gameData.owner.uid,
+  };
+};
+
+const startGame = (gameData, setActiveGame) => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`);
+  const updates = inProgressGameData(gameData);
+  gameRef.set(updates);
+  gameRef.once('value').then((snapshot) => {
+    const activeGame = snapshot.val();
+    setActiveGame(activeGame);
+  });
+};
+
+/* eslint-disable */
+
+const shuffleDeck = (deck) => {
+  // Fisher Yates shuffle algorithm
+  let i = 52;
+  while (i -= 1) {
+    const ri = Math.floor(Math.random() * (i + 1));
+    const temp = deck[i];
+    deck[i] = deck[ri];
+    deck[ri] = temp;
+  }
+  return deck;
+};
+
+/* eslint-disable */ 
+
+const setBid = (bid) => {
+  const bidRef = db.ref(`games/active/${activeGameKey}/currentBid`);
+  bidRef.set(bid);
+  // .then(() => nextTurn());
+};
+
+const nextPhase = () => {
+
+};
+
+const deal = (gameData, setActiveGame) => {
+  const deck = shuffleDeck(gameData.deck);
+  const playerRef = db.ref(`games/active/${activeGameKey}/users`);
+  gameData.users.forEach((player, index) => {
+    const offset = index * 6;
+    const begin = offset;
+    const end = offset + 6;
+    player.hand = deck.slice(begin, end);
+  });
+  playerRef.set(gameData.users);
+  nextPhase(setActiveGame);
+};
+
 
 export {
   createGame,
@@ -187,4 +328,9 @@ export {
   leaveGame,
   initOwnerListenValues,
   initPlayerListenValues,
+  startGame,
+  getOwner,
+  gameExists,
+  setBid,
+  deal,
 };
