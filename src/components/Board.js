@@ -4,7 +4,7 @@ import { navigate } from '@reach/router';
 import Player from './Player';
 import BoardMessages from './BoardMessages';
 import {
-  leaveGame, initOwnerListenValues, initPlayerListenValues, gameExists, differentGame
+  leaveGame, initOwnerListenValues, initPlayerListenValues, gameExists
 } from '../providers/GameProvider';
 
 const Board = ({ userData, activeGame, setActiveGame }) => {
@@ -20,6 +20,8 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
     }
   };
 
+  console.log(activeGame)
+
   useEffect(() => {
     initListeners();
     if(!activeGame.gameKey){
@@ -27,7 +29,8 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
       return
     }
     return (() => {
-      if(gameExists() && differentGame(activeGame.gameKey) ){
+      if(gameExists()){
+        console.log('left')
         leaveGame(userData, activeGame, setActiveGame);
       }
     });
