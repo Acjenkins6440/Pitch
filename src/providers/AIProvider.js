@@ -60,7 +60,7 @@ const generateBotName = (currentBotNames) => {
   }
   else{
     currentBotNames.push(name)
-    return name + '(Bot)'
+    return name + ' (Bot)'
   }
 }
 
