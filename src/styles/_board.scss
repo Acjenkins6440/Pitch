@@ -9,6 +9,12 @@
 
   .board-messages{
     padding-top: 10%;
+    .player-wrapper{
+      background-color: rgba(0,13,255,0.28);
+      width: 100%;
+      border-radius: 10px;
+
+    }
   }
 
   .player{

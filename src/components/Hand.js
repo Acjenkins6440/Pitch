@@ -1,15 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Card from './Card';
 
 
-const Hand = ({ playerNum, playerSeat }) => {
-  const defaultState = (playerNum === playerSeat) ? ['3H', 'KD', '3C', 'JH', '2D', '9D'] : ['blank_0', 'blank_1', 'blank_2', 'blank_3', 'blank_4', 'blank_5'];
-  const [playerHand] = useState(defaultState);
+const Hand = ({ playerIndex, isPlayer, activeGame }) => {
   const cards = [];
-  playerHand.forEach((card) => {
-    cards.push(<Card cardKey={card} key={`${card}-${playerNum}`} />);
-  });
+  const playerHand = activeGame.users[playerIndex].hand;
+  const handLength = playerHand && activeGame.users[playerIndex].hand.length;
+
+
+  if (handLength) {
+    if (!isPlayer) {
+      playerHand.length = 0;
+      for (let i = 0; i < handLength; i += 1) {
+        playerHand.push(`blank${i}`);
+      }
+    }
+    playerHand.forEach((card) => {
+      cards.push(<Card cardKey={card} key={`${card} - ${playerIndex}`} />);
+    });
+  }
+
   return (
     <div>
       {cards}
@@ -18,8 +29,11 @@ const Hand = ({ playerNum, playerSeat }) => {
 };
 
 Hand.propTypes = {
-  playerNum: PropTypes.number.isRequired,
-  playerSeat: PropTypes.number.isRequired,
+  playerIndex: PropTypes.number.isRequired,
+  isPlayer: PropTypes.bool.isRequired,
+  activeGame: PropTypes.shape({
+    users: PropTypes.array,
+  }).isRequired,
 };
 
 export default Hand;
