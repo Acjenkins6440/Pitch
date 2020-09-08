@@ -1,5 +1,6 @@
 import { db } from '../firebase';
-import { generateBotName } from './AIProvider';
+import { generateBotName, takeBotsTurn } from './AIProvider';
+import { userUid } from './UserProvider';
 
 let activeGameKey = '';
 let isOwner = false;
@@ -169,30 +170,38 @@ const getFreshGameData = () => {
   return gameRef.once('value').then(snapshot => snapshot.val());
 };
 
+const getGameLocalPhase = (gameData) => {
+  let localPhase = gameData.phase;
+  if (gameData.status === 'in progress') {
+    const isMyTurn = gameData.playersTurn.uid === userUid();
+    const isWaitPhase = gameData.phase === 'bid' || gameData.phase === 'play card';
+    if (isWaitPhase && !isMyTurn) {
+      localPhase = 'wait';
+    }
+  }
+
+  return localPhase;
+};
+
 const initUniversalListenValues = (setActiveGame) => {
   const endpoint = `games/active/${activeGameKey}`;
   const statusRef = db.ref(`${endpoint}/status`);
   const phaseRef = db.ref(`${endpoint}/phase`);
   const currentBidRef = db.ref(`${endpoint}/currentBid`);
   const playerRef = db.ref(`${endpoint}/users`);
-  playerRef.on('value', () => {
-    getFreshGameData().then((gameData) => {
-      setActiveGame(gameData);
+  const turnRef = db.ref(`${endpoint}/playersTurn`);
+  [statusRef, currentBidRef, playerRef, turnRef].forEach((ref) => {
+    ref.on('value', () => {
+      getFreshGameData().then((gameData) => {
+        setActiveGame(gameData);
+      });
     });
   });
   phaseRef.on('value', () => {
     getFreshGameData().then((gameData) => {
-      setActiveGame(gameData);
-    });
-  });
-  statusRef.on('value', () => {
-    getFreshGameData().then((gameData) => {
-      setActiveGame(gameData);
-    });
-  });
-  currentBidRef.on('value', () => {
-    getFreshGameData().then((gameData) => {
-      setActiveGame(gameData);
+      const localPhase = getGameLocalPhase(gameData);
+      const gameWithLocalPhase = { ...gameData, phase: localPhase };
+      setActiveGame(gameWithLocalPhase);
     });
   });
 };
@@ -201,6 +210,7 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
   const endpoint = `games/active/${activeGameKey}`;
   const playerLeftRef = db.ref(`${endpoint}/playerLeft`);
   const playerJoinedRef = db.ref(`${endpoint}/playerJoined`);
+  const nextTurnRef = db.ref(`${endpoint}/playersTurn`);
 
   playerLeftRef.on('value', (snapshot) => {
     const playerToRemove = snapshot.val();
@@ -218,12 +228,20 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
       playerJoinedRef.set({});
     }
   });
+  nextTurnRef.on('value', (snapshot) => {
+    if (snapshot.exists() && snapshot.val().isBot) {
+      getFreshGameData().then((gameData) => {
+        takeBotsTurn(gameData, setBid, pass);
+      });
+    }
+  });
   initUniversalListenValues(setActiveGame);
 };
 
 const initPlayerListenValues = (setActiveGame, navigate) => {
   const endpoint = `games/active/${activeGameKey}`;
   const gameRef = db.ref(`${endpoint}`);
+  // On game deletion, send back to Lobby
   gameRef.on('value', (snapshot) => {
     if (!snapshot.val()) {
       setActiveGameKey('');
@@ -254,18 +272,25 @@ const inProgressGameData = (gameData) => {
     status: 'in progress',
     phase: 'deal',
     deck,
-    inPlay: '',
+    inPlay: [],
     trump: '',
-    dealerIndex: 0,
     scorePiles: {
-      team1: '',
-      team2: '',
+      team1: [],
+      team2: [],
     },
     currentBid: {
       bid: 0,
-      player: '',
+      player: gameData.users[1],
     },
-    playersTurn: gameData.owner.uid,
+    playersTurn: gameData.users[1],
+    playerThrewFirst: {
+      uid: '',
+      displayName: '',
+    },
+    dealer: {
+      uid: gameData.owner.uid,
+      displayName: gameData.owner.displayName,
+    },
   };
 };
 
@@ -295,14 +320,73 @@ const shuffleDeck = (deck) => {
 
 /* eslint-disable */ 
 
-const setBid = (bid) => {
+const getNextPlayerIndex = (gameData) => {
+  let nextPlayerIndex = 0
+  const currPlayerIndex = gameData.users.findIndex((user) => user.uid === gameData.playersTurn.uid)
+  if (currPlayerIndex !== 3) {
+    nextPlayerIndex = currPlayerIndex + 1
+  }
+  return nextPlayerIndex
+}
+
+const nextTurn = (gameData) => {
+  console.log(gameData)
+  const turnRef = db.ref(`games/active/${activeGameKey}/playersTurn`)
+  if(gameData.phase === 'bid'){
+    if (gameData.dealer.uid !== gameData.playersTurn.uid){
+      const nextPlayerIndex = getNextPlayerIndex(gameData)
+      turnRef.set(gameData.users[nextPlayerIndex])
+    }
+    else {
+      setNextPhase(gameData)
+    }
+  }
+  else if(gameData.phase === 'play card'){
+    const cardCount = gameData.inPlay.length
+    if(cardCount < 4){
+      const nextPlayerIndex = getNextPlayerIndex(gameData)  
+      turnRef.set(gameData.users[nextPlayerIndex])    
+    }
+    else {
+      setNextPhase(gameData)
+    }
+  }
+}
+
+const setBid = (bid, gameData) => {
   const bidRef = db.ref(`games/active/${activeGameKey}/currentBid`);
-  bidRef.set(bid);
-  // .then(() => nextTurn());
+  bidRef.set(bid).then(() => nextTurn({ ...gameData, bid }))
 };
 
-const nextPhase = () => {
+const pass = (gameData) => {
+  nextTurn(gameData)
+}
 
+const setNextPhase = (gameData) => {
+  const phaseRef = db.ref(`games/active/${activeGameKey}/phase`)
+  let newPhase = ''
+  switch (gameData.phase) {
+    case 'deal': 
+      newPhase = 'bid'
+      break;
+    case 'bid':
+      newPhase = 'play card'
+      break;
+    case 'play card':
+      if(gameData.bidCount === 4){
+        newPhase = 'score'
+        break;
+      }
+      else newPhase = 'play card'
+      break;
+    case 'score': 
+      newPhase = 'show score'
+      break;
+    case 'show score': 
+      newPhase = 'deal'
+      break;
+  }
+  phaseRef.set(newPhase)
 };
 
 const deal = (gameData, setActiveGame) => {
@@ -315,7 +399,7 @@ const deal = (gameData, setActiveGame) => {
     player.hand = deck.slice(begin, end);
   });
   playerRef.set(gameData.users);
-  nextPhase(setActiveGame);
+  setNextPhase(gameData);
 };
 
 
@@ -333,4 +417,5 @@ export {
   gameExists,
   setBid,
   deal,
+  pass
 };
