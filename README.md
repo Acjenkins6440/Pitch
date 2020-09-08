@@ -7,13 +7,20 @@ This is a work in progress multiplayer Pitch game.
 ## Roadmap
 
 [x] - Set up users an user registration
+
 [x] - Build out UI
-[x] - Connect to Firebase
-  [x] - Set listeners to keep players sync'd
-[ ] - Gameplay
-  [x] - Users can connect to game
-  [x] - Game can be started
-  [x] - Deck can be shuffled and dealt
-  [ ] - Cards can be played
-  [ ] - Hands can be scored
-  [ ] - Games can be completed
+
+[x] - Connect to Firebase and keep players sync'd
+
+[x] - Users can connect to game
+
+[x] - Game can be started
+
+[x] - Deck can be shuffled and dealt
+
+[ ] - Cards can be played
+
+[ ] - Hands can be scored
+
+[ ] - Games can be completed
+  
