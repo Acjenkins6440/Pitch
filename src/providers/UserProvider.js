@@ -40,6 +40,7 @@ const removeUser = (uid) => {
 
 const setOnline = (user) => {
   db.ref(`users/${user.uid}/status`).set('online');
+  localStorage.setItem('userUID', user.uid);
 };
 
 const setOffline = (uid) => {
@@ -114,6 +115,8 @@ const updateUser = (props, setUserData, user, setError) => {
     });
 };
 
+const userUid = () => localStorage.getItem('userUID');
+
 export {
   emailLogin,
   googleLogin,
@@ -125,4 +128,5 @@ export {
   getUserData,
   setOnline,
   setOffline,
+  userUid,
 };

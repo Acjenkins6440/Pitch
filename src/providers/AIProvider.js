@@ -57,8 +57,35 @@ const generateBotName = (currentBotNames) => {
   currentBotNames.push(name);
   return `${name} (Bot)`;
 };
+
+const calcBid = (hand) => {
+  const sortedHand = hand.slice().sort();
+  debugger;
+};
+
+const takeBotsTurn = (gameData, setBid, pass) => {
+  console.log('big fart');
+  const { phase } = gameData;
+  const currBotIndex = gameData.users.findIndex(user => user.uid === gameData.playersTurn.uid);
+  const { hand } = gameData.users[currBotIndex];
+
+  if (phase === 'bid') {
+    const topBid = calcBid(hand);
+    if (topBid > gameData.currentBid.bid) {
+      // setBid(topBid, gameData);
+    } else {
+      pass(gameData);
+    }
+  } else if (phase === 'deal') {
+
+  } else if (phase === 'play card') {
+
+  }
+};
+
 /* eslint-disable */ 
 export {
   generateBotName,
+  takeBotsTurn
 };
 /* eslint-disable */
