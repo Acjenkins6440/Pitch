@@ -51,7 +51,7 @@ Player.propTypes = {
       uid: PropTypes.string,
       displayName: PropTypes.string,
     }),
-    phase: PropTypes.string.isRequired,
+    phase: PropTypes.string,
   }).isRequired,
 };
 

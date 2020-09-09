@@ -282,8 +282,11 @@ const inProgressGameData = (gameData) => {
       bid: 0,
       player: gameData.users[1],
     },
-    playersTurn: gameData.users[1],
-    playerThrewFirst: {
+    playersTurn: {
+      uid: '',
+      displayname: ''
+    },
+    playerWonBid: {
       uid: '',
       displayName: '',
     },
@@ -364,6 +367,8 @@ const pass = (gameData) => {
 
 const setNextPhase = (gameData) => {
   const phaseRef = db.ref(`games/active/${activeGameKey}/phase`)
+  const turnRef = db.ref(`games/active/${activeGameKey}/playersTurn`)
+  let nextPlayerIndex = null
   let newPhase = ''
   switch (gameData.phase) {
     case 'deal': 
@@ -386,7 +391,18 @@ const setNextPhase = (gameData) => {
       newPhase = 'deal'
       break;
   }
-  phaseRef.set(newPhase)
+  if(newPhase === 'bid'){
+    const dealerIndex = gameData.users.findIndex((user) => user.uid === gameData.dealer.uid)
+    nextPlayerIndex = 0
+    if(dealerIndex !== 3){
+      nextPlayerIndex = dealerIndex + 1
+    }
+  }
+  phaseRef.set(newPhase).then(() => {
+    if(nextPlayerIndex !== null){
+      turnRef.set(gameData.users[nextPlayerIndex])
+    }
+  })
 };
 
 const deal = (gameData, setActiveGame) => {
