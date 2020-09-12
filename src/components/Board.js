@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { navigate } from '@reach/router';
 import Player from './Player';
 import BoardMessages from './BoardMessages';
+import ScorePile from './ScorePile';
 import {
   leaveGame, initOwnerListenValues, initPlayerListenValues, gameExists,
 } from '../providers/GameProvider';
@@ -51,8 +52,9 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
         ? players
         : <div />
       }
-      {
-        activeGame.phase !== 'throw'
+      {activeGame.status === 'in progress'
+        ? <ScorePile activeGame={activeGame} mainPlayerIndex={mainPlayerIndex} />
+        : <div />
       }
       <BoardMessages 
         activeGame={activeGame} 

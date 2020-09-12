@@ -1,6 +1,7 @@
 import { db } from '../firebase';
 import { generateBotName, takeBotsTurn } from './AIProvider';
 import { userUid } from './UserProvider';
+import { getDetailedCard } from './ScoreProvider';
 
 let activeGameKey = '';
 let isOwner = false;
@@ -190,7 +191,8 @@ const initUniversalListenValues = (setActiveGame) => {
   const currentBidRef = db.ref(`${endpoint}/currentBid`);
   const playerRef = db.ref(`${endpoint}/users`);
   const turnRef = db.ref(`${endpoint}/playersTurn`);
-  [statusRef, currentBidRef, playerRef, turnRef].forEach((ref) => {
+  const inPlayRef = db.ref(`${endpoint}/inPlay`);
+  [statusRef, currentBidRef, playerRef, turnRef, inPlayRef].forEach((ref) => {
     ref.on('value', () => {
       getFreshGameData().then((gameData) => {
         setActiveGame(gameData);
@@ -205,6 +207,36 @@ const initUniversalListenValues = (setActiveGame) => {
     });
   });
 };
+
+const setTrump = (suit) => {
+  const trumpRef = db.ref(`games/active/${activeGameKey}/trump`);
+  trumpRef.set(suit)
+  //no need for a listener here since there will be lots of other listener 
+  //calls being triggered by the time its someone else's turn
+}
+
+const playCard = (cardIndex, playerIndex) => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`)
+  getFreshGameData().then((gameData) => {
+    const player = gameData.users[playerIndex]
+    const cardPlayed = player.hand.splice(cardIndex, 1)[0];
+    const detailedCard = getDetailedCard(cardPlayed, { displayName: player.displayName, uid: player.uid });
+    if(gameData.inPlay){
+      gameData.inPlay.push(detailedCard)
+    }
+    else {
+      gameData.inPlay = [detailedCard]
+    }
+    if(!gameData.trump) {
+      gameData.trump = detailedCard.suit
+    }
+    return gameRef.set(gameData).then(() => gameData)
+  }).then((gameData) => {
+    nextTurn(gameData)
+  })
+  // get fresh data, take card from players hand, and put it in inPlay
+  // nextTurn 
+}
 
 const initOwnerListenValues = (gameData, setActiveGame) => {
   const endpoint = `games/active/${activeGameKey}`;
@@ -231,7 +263,7 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
   nextTurnRef.on('value', (snapshot) => {
     if (snapshot.exists() && snapshot.val().isBot) {
       getFreshGameData().then((gameData) => {
-        takeBotsTurn(gameData, setBid, pass);
+        takeBotsTurn(gameData, setBid, pass, deal, playCard);
       });
     }
   });
@@ -284,7 +316,7 @@ const inProgressGameData = (gameData) => {
     },
     playersTurn: {
       uid: '',
-      displayname: ''
+      displayname: '',
     },
     playerWonBid: {
       uid: '',
@@ -333,7 +365,6 @@ const getNextPlayerIndex = (gameData) => {
 }
 
 const nextTurn = (gameData) => {
-  console.log(gameData)
   const turnRef = db.ref(`games/active/${activeGameKey}/playersTurn`)
   if(gameData.phase === 'bid'){
     if (gameData.dealer.uid !== gameData.playersTurn.uid){
@@ -358,7 +389,7 @@ const nextTurn = (gameData) => {
 
 const setBid = (bid, gameData) => {
   const bidRef = db.ref(`games/active/${activeGameKey}/currentBid`);
-  bidRef.set(bid).then(() => nextTurn({ ...gameData, bid }))
+  bidRef.set(bid).then(() => nextTurn({ ...gameData, currentBid: bid }))
 };
 
 const pass = (gameData) => {
@@ -391,6 +422,9 @@ const setNextPhase = (gameData) => {
       newPhase = 'deal'
       break;
   }
+  if(newPhase === 'play card'){
+    nextPlayerIndex = gameData.users.findIndex((user) => user.uid === gameData.currentBid.player.uid)
+  }
   if(newPhase === 'bid'){
     const dealerIndex = gameData.users.findIndex((user) => user.uid === gameData.dealer.uid)
     nextPlayerIndex = 0
@@ -412,7 +446,11 @@ const deal = (gameData, setActiveGame) => {
     const offset = index * 6;
     const begin = offset;
     const end = offset + 6;
-    player.hand = deck.slice(begin, end);
+    const hand = deck.slice(begin, end);
+    // sort by value, then suit
+    hand.sort()
+    hand.sort((a,b) => a.charCodeAt(a.length - 1) - b.charCodeAt(b.length - 1))
+    player.hand = hand
   });
   playerRef.set(gameData.users);
   setNextPhase(gameData);
@@ -433,5 +471,6 @@ export {
   gameExists,
   setBid,
   deal,
-  pass
+  pass,
+  playCard
 };
