@@ -100,7 +100,7 @@ const BoardMessages = ({ activeGame, setActiveGame, user }) => {
               <Button
                 onClick={handlePass}
                 onKeyPress={handlePass}
-                disabled={isDealer}
+                disabled={isDealer && !activeGame.currentBid.bid}
               >
                 Pass
               </Button>
@@ -146,13 +146,20 @@ const BoardMessages = ({ activeGame, setActiveGame, user }) => {
         </div>
       );
     }
+    else if(activeGame.phase === 'play card'){
+      <div className="generic-container">
+        <div>
+          <p>Play a card!</p>
+        </div>
+      </div>
+    }
     return null;
   };
 
   return (
     <div className="board-messages">
       {getBoardMessages()}
-      {(activeGame.phase === 'bid' || activeGame.phase !== 'wait')
+      {/* {(activeGame.phase === 'bid' || activeGame.phase === 'wait' || activeGame.phase === 'play card')
         ? (
           <div className="generic-container">
             <div>
@@ -172,7 +179,7 @@ const BoardMessages = ({ activeGame, setActiveGame, user }) => {
           </div>
         )
         : ''
-      }
+      } */}
     </div>
   );
 };

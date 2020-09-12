@@ -25,7 +25,8 @@ const Player = ({
   const isMyTurn = activeGame.playersTurn.uid === user.uid;
   const boldenName = isMyTurn
     && (activeGame.phase === 'bid'
-    || activeGame.phase === 'play card');
+    || activeGame.phase === 'play card'
+    || activeGame.phase === 'wait');
 
   return (
     <div className={className}>

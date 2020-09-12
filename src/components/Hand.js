@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Card from './Card';
-
+import { canPlayCard, cantFollowSuit } from '../providers/ScoreProvider'
 
 const Hand = ({ playerIndex, isPlayer, activeGame }) => {
   const cards = [];
   const playerHand = activeGame.users[playerIndex].hand;
   const handLength = playerHand && activeGame.users[playerIndex].hand.length;
-
+  const isMyTurn = activeGame.playersTurn.uid === activeGame.users[playerIndex].uid
+  const pickAnySuit = cantFollowSuit(playerHand, activeGame.inPlay, isPlayer)
 
   if (handLength) {
     if (!isPlayer) {
@@ -16,8 +17,15 @@ const Hand = ({ playerIndex, isPlayer, activeGame }) => {
         playerHand.push(`blank${i}`);
       }
     }
-    playerHand.forEach((card) => {
-      cards.push(<Card cardKey={card} key={`${card} - ${playerIndex}`} />);
+    playerHand.forEach((card, index) => {
+      cards.push(
+      <Card 
+        cardKey={card} 
+        cardIndex={index} 
+        key={`${card} - ${playerIndex}`} 
+        canPlayCard={canPlayCard(card, activeGame, playerHand, isMyTurn, pickAnySuit)} 
+        playerIndex={playerIndex}
+      />);
     });
   }
 

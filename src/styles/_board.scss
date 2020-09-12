@@ -17,6 +17,42 @@
     }
   }
 
+  .in-play{
+    position: absolute;
+    height: 350px;
+    width: 300px;
+    margin-left: 40%;
+    margin-top: 15%;
+    border: 1px solid black;
+    .row{
+      height: 33%;
+      .card{
+        background-color: transparent;
+        height: 100%;
+        .front{
+          height: 100%;
+          img{
+            &:hover{
+                border: 1px solid black;
+            }
+          }
+        }
+        img{
+          height: 100%;
+        }
+        &.right{
+          transform: rotate(270deg);
+        }
+        &.left{
+          transform: rotate(90deg);
+
+
+        }
+      }
+    }
+
+  }
+
   .player{
     position: absolute;
     padding: 10px;
