@@ -184,6 +184,144 @@ const getGameLocalPhase = (gameData) => {
   return localPhase;
 };
 
+const setNextPhase = (gameData) => {
+  const phaseRef = db.ref(`games/active/${activeGameKey}/phase`);
+  const turnRef = db.ref(`games/active/${activeGameKey}/playersTurn`);
+  let nextPlayerIndex = null;
+  let newPhase = '';
+  switch (gameData.phase) {
+    case 'deal':
+      newPhase = 'bid';
+      break;
+    case 'bid':
+      newPhase = 'play card';
+      break;
+    case 'play card':
+      if (gameData.bidCount === 4) {
+        newPhase = 'score';
+        break;
+      } else newPhase = 'play card';
+      break;
+    case 'score':
+      newPhase = 'show score';
+      break;
+    case 'show score':
+      newPhase = 'deal';
+      break;
+    default:
+      break;
+  }
+  if (newPhase === 'play card') {
+    nextPlayerIndex = gameData.users.findIndex(user => user.uid === gameData.currentBid.player.uid);
+  }
+  if (newPhase === 'bid') {
+    const dealerIndex = gameData.users.findIndex(user => user.uid === gameData.dealer.uid);
+    nextPlayerIndex = 0;
+    if (dealerIndex !== 3) {
+      nextPlayerIndex = dealerIndex + 1;
+    }
+  }
+  phaseRef.set(newPhase).then(() => {
+    if (nextPlayerIndex !== null) {
+      turnRef.set(gameData.users[nextPlayerIndex]);
+    }
+  });
+};
+
+const getNextPlayerIndex = (gameData) => {
+  let nextPlayerIndex = 0;
+  const currPlayerIndex = gameData.users.findIndex(user => user.uid === gameData.playersTurn.uid);
+  if (currPlayerIndex !== 3) {
+    nextPlayerIndex = currPlayerIndex + 1;
+  }
+  return nextPlayerIndex;
+};
+
+const nextTurn = (gameData) => {
+  const turnRef = db.ref(`games/active/${activeGameKey}/playersTurn`);
+  if (gameData.phase === 'bid') {
+    if (gameData.dealer.uid !== gameData.playersTurn.uid) {
+      const nextPlayerIndex = getNextPlayerIndex(gameData);
+      turnRef.set(gameData.users[nextPlayerIndex]);
+    } else {
+      setNextPhase(gameData);
+    }
+  } else if (gameData.phase === 'play card') {
+    const cardCount = gameData.inPlay.length;
+    if (cardCount < 4) {
+      const nextPlayerIndex = getNextPlayerIndex(gameData);
+      turnRef.set(gameData.users[nextPlayerIndex]);
+    } else {
+      setNextPhase(gameData);
+    }
+  }
+};
+
+const setBid = (bid, gameData) => {
+  const bidRef = db.ref(`games/active/${activeGameKey}/currentBid`);
+  bidRef.set(bid).then(() => nextTurn({ ...gameData, currentBid: bid }));
+};
+
+/* eslint-disable */
+
+const shuffleDeck = (deck) => {
+  // Fisher Yates shuffle algorithm
+  let i = 52;
+  while (i -= 1) {
+    const ri = Math.floor(Math.random() * (i + 1));
+    const temp = deck[i];
+    deck[i] = deck[ri];
+    deck[ri] = temp;
+  }
+  return deck;
+};
+
+/* eslint-enable */
+
+
+const deal = (gameData) => {
+  const deck = shuffleDeck(gameData.deck);
+  const playerRef = db.ref(`games/active/${activeGameKey}/users`);
+  gameData.users.forEach((player, index) => {
+    const offset = index * 6;
+    const begin = offset;
+    const end = offset + 6;
+    const hand = deck.slice(begin, end).map(card => getDetailedCard(card, player));
+    // sort by value, then suit
+    hand.sort((a, b) => a.value - b.value);
+    hand.sort((a, b) => a.suit.charCodeAt(0) - b.suit.charCodeAt(0));
+    Object.assign(player, { ...player, hand });
+  });
+  playerRef.set(gameData.users);
+  setNextPhase(gameData);
+};
+
+
+const playCard = (cardIndex, playerIndex) => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`);
+  getFreshGameData().then((gameData) => {
+    const player = gameData.users[playerIndex];
+    const cardPlayed = player.hand.splice(cardIndex, 1)[0];
+    if (gameData.inPlay) {
+      gameData.inPlay.push(cardPlayed);
+    } else {
+      Object.assign(gameData, { ...gameData, inPlay: [cardPlayed] });
+    }
+    if (!gameData.trump) {
+      Object.assign(gameData, { ...gameData, trump: cardPlayed.suit });
+    }
+    return gameRef.set(gameData).then(() => gameData);
+  }).then((gameData) => {
+    nextTurn(gameData);
+  });
+  // get fresh data, take card from players hand, and put it in inPlay
+  // nextTurn
+};
+
+const pass = (gameData) => {
+  nextTurn(gameData);
+};
+
 const initUniversalListenValues = (setActiveGame) => {
   const endpoint = `games/active/${activeGameKey}`;
   const statusRef = db.ref(`${endpoint}/status`);
@@ -207,35 +345,6 @@ const initUniversalListenValues = (setActiveGame) => {
     });
   });
 };
-
-const setTrump = (suit) => {
-  const trumpRef = db.ref(`games/active/${activeGameKey}/trump`);
-  trumpRef.set(suit)
-  //no need for a listener here since there will be lots of other listener 
-  //calls being triggered by the time its someone else's turn
-}
-
-const playCard = (cardIndex, playerIndex) => {
-  const gameRef = db.ref(`games/active/${activeGameKey}`)
-  getFreshGameData().then((gameData) => {
-    const player = gameData.users[playerIndex]
-    const cardPlayed = player.hand.splice(cardIndex, 1)[0];
-    if(gameData.inPlay){
-      gameData.inPlay.push(cardPlayed)
-    }
-    else {
-      gameData.inPlay = [cardPlayed]
-    }
-    if(!gameData.trump) {
-      gameData.trump = cardPlayed.suit
-    }
-    return gameRef.set(gameData).then(() => gameData)
-  }).then((gameData) => {
-    nextTurn(gameData)
-  })
-  // get fresh data, take card from players hand, and put it in inPlay
-  // nextTurn 
-}
 
 const initOwnerListenValues = (gameData, setActiveGame) => {
   const endpoint = `games/active/${activeGameKey}`;
@@ -262,7 +371,7 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
   nextTurnRef.on('value', (snapshot) => {
     if (snapshot.exists() && snapshot.val().isBot) {
       getFreshGameData().then((gameData) => {
-        setTimeout(takeBotsTurn(gameData, setBid, pass, deal, playCard), 500)
+        setTimeout(takeBotsTurn(gameData, setBid, pass, deal, playCard), 500);
       });
     }
   });
@@ -295,9 +404,10 @@ const inProgressGameData = (gameData) => {
   const botNames = [];
   for (let i = 0; i < 4; i += 1) {
     if (!gameData.users[i]) {
-      gameData.users.push({ uid: `bot${i}`, isBot: true, displayName: generateBotName(botNames)});
+      gameData.users.push({ uid: `bot${i}`, isBot: true, displayName: generateBotName(botNames) });
     }
-    gameData.users[i].team = (i % 2 === 0) ? 'team1' : 'team2'
+    const team = (i % 2 === 0) ? 'team1' : 'team2';
+    Object.assign(gameData.users[i], { ...gameData.users[i], team });
   }
   return {
     ...gameData,
@@ -339,124 +449,6 @@ const startGame = (gameData, setActiveGame) => {
   });
 };
 
-/* eslint-disable */
-
-const shuffleDeck = (deck) => {
-  // Fisher Yates shuffle algorithm
-  let i = 52;
-  while (i -= 1) {
-    const ri = Math.floor(Math.random() * (i + 1));
-    const temp = deck[i];
-    deck[i] = deck[ri];
-    deck[ri] = temp;
-  }
-  return deck;
-};
-
-/* eslint-disable */ 
-
-const getNextPlayerIndex = (gameData) => {
-  let nextPlayerIndex = 0
-  const currPlayerIndex = gameData.users.findIndex((user) => user.uid === gameData.playersTurn.uid)
-  if (currPlayerIndex !== 3) {
-    nextPlayerIndex = currPlayerIndex + 1
-  }
-  return nextPlayerIndex
-}
-
-const nextTurn = (gameData) => {
-  const turnRef = db.ref(`games/active/${activeGameKey}/playersTurn`)
-  if(gameData.phase === 'bid'){
-    if (gameData.dealer.uid !== gameData.playersTurn.uid){
-      const nextPlayerIndex = getNextPlayerIndex(gameData)
-      turnRef.set(gameData.users[nextPlayerIndex])
-    }
-    else {
-      setNextPhase(gameData)
-    }
-  }
-  else if(gameData.phase === 'play card'){
-    const cardCount = gameData.inPlay.length
-    if(cardCount < 4){
-      const nextPlayerIndex = getNextPlayerIndex(gameData)  
-      turnRef.set(gameData.users[nextPlayerIndex])    
-    }
-    else {
-      setNextPhase(gameData)
-    }
-  }
-}
-
-const setBid = (bid, gameData) => {
-  const bidRef = db.ref(`games/active/${activeGameKey}/currentBid`);
-  bidRef.set(bid).then(() => nextTurn({ ...gameData, currentBid: bid }))
-};
-
-const pass = (gameData) => {
-  nextTurn(gameData)
-}
-
-const setNextPhase = (gameData) => {
-  const phaseRef = db.ref(`games/active/${activeGameKey}/phase`)
-  const turnRef = db.ref(`games/active/${activeGameKey}/playersTurn`)
-  let nextPlayerIndex = null
-  let newPhase = ''
-  switch (gameData.phase) {
-    case 'deal': 
-      newPhase = 'bid'
-      break;
-    case 'bid':
-      newPhase = 'play card'
-      break;
-    case 'play card':
-      if(gameData.bidCount === 4){
-        newPhase = 'score'
-        break;
-      }
-      else newPhase = 'play card'
-      break;
-    case 'score': 
-      newPhase = 'show score'
-      break;
-    case 'show score': 
-      newPhase = 'deal'
-      break;
-  }
-  if(newPhase === 'play card'){
-    nextPlayerIndex = gameData.users.findIndex((user) => user.uid === gameData.currentBid.player.uid)
-  }
-  if(newPhase === 'bid'){
-    const dealerIndex = gameData.users.findIndex((user) => user.uid === gameData.dealer.uid)
-    nextPlayerIndex = 0
-    if(dealerIndex !== 3){
-      nextPlayerIndex = dealerIndex + 1
-    }
-  }
-  phaseRef.set(newPhase).then(() => {
-    if(nextPlayerIndex !== null){
-      turnRef.set(gameData.users[nextPlayerIndex])
-    }
-  })
-};
-
-const deal = (gameData, setActiveGame) => {
-  const deck = shuffleDeck(gameData.deck);
-  const playerRef = db.ref(`games/active/${activeGameKey}/users`);
-  gameData.users.forEach((player, index) => {
-    const offset = index * 6;
-    const begin = offset;
-    const end = offset + 6;
-    const hand = deck.slice(begin, end);
-    // sort by value, then suit
-    hand.sort()
-    hand.sort((a,b) => a.charCodeAt(a.length - 1) - b.charCodeAt(b.length - 1))
-    player.hand = hand.map((card) => getDetailedCard(card, player))
-  });
-  playerRef.set(gameData.users);
-  setNextPhase(gameData);
-};
-
-
 export {
   createGame,
   getActiveGames,
@@ -472,5 +464,5 @@ export {
   setBid,
   deal,
   pass,
-  playCard
+  playCard,
 };

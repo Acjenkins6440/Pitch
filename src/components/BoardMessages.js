@@ -7,7 +7,7 @@ import {
 
 const BoardMessages = ({ activeGame, setActiveGame, userIndex }) => {
   const isOwner = getOwner();
-  const user = activeGame.users[userIndex]
+  const user = activeGame.users[userIndex];
 
   const startGameDisabled = () => {
     if (activeGame.botsEnabled) {
@@ -147,12 +147,14 @@ const BoardMessages = ({ activeGame, setActiveGame, userIndex }) => {
         </div>
       );
     }
-    else if(activeGame.phase === 'play card'){
-      <div className="generic-container">
-        <div>
-          <p>Play a card!</p>
+    if (activeGame.phase === 'play card') {
+      return (
+        <div className="generic-container">
+          <div>
+            <p>Play a card!</p>
+          </div>
         </div>
-      </div>
+      );
     }
     return null;
   };
@@ -160,27 +162,6 @@ const BoardMessages = ({ activeGame, setActiveGame, userIndex }) => {
   return (
     <div className="board-messages">
       {getBoardMessages()}
-      {/* {(activeGame.phase === 'bid' || activeGame.phase === 'wait' || activeGame.phase === 'play card')
-        ? (
-          <div className="generic-container">
-            <div>
-              <p>
-                turn:
-                {activeGame.playersTurn ? activeGame.playersTurn.displayName : ''}
-              </p>
-              <p>
-                phase:
-                {activeGame.phase}
-              </p>
-              <p>
-                bid:
-                {activeGame.currentBid ? `${activeGame.currentBid.bid} by ${activeGame.currentBid.player.displayName}` : ''}
-              </p>
-            </div>
-          </div>
-        )
-        : ''
-      } */}
     </div>
   );
 };
@@ -206,10 +187,7 @@ BoardMessages.propTypes = {
       displayName: PropTypes.string,
     }),
   }).isRequired,
-  user: PropTypes.shape({
-    uid: PropTypes.string.isRequired,
-    displayName: PropTypes.string.isRequired,
-  }).isRequired,
+  userIndex: PropTypes.number.isRequired,
   setActiveGame: PropTypes.func.isRequired,
 };
 
