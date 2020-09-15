@@ -262,22 +262,19 @@ const setBid = (bid, gameData) => {
   bidRef.set(bid).then(() => nextTurn({ ...gameData, currentBid: bid }));
 };
 
-/* eslint-disable */
-
 const shuffleDeck = (deck) => {
   // Fisher Yates shuffle algorithm
   let i = 52;
-  while (i -= 1) {
+  const shuffledDeck = deck.slice();
+  while (i > 0) {
     const ri = Math.floor(Math.random() * (i + 1));
-    const temp = deck[i];
-    deck[i] = deck[ri];
-    deck[ri] = temp;
+    const temp = shuffledDeck[i];
+    shuffledDeck[i] = shuffledDeck[ri];
+    shuffledDeck[ri] = temp;
+    i -= 1;
   }
-  return deck;
+  return shuffledDeck;
 };
-
-/* eslint-enable */
-
 
 const deal = (gameData) => {
   const deck = shuffleDeck(gameData.deck);
