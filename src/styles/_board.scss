@@ -22,8 +22,7 @@
     height: 350px;
     width: 300px;
     margin-left: 40%;
-    margin-top: 15%;
-    border: 1px solid black;
+    margin-top: 18%;
     .row{
       height: 33%;
       .card{
@@ -31,13 +30,8 @@
         height: 100%;
         .front{
           height: 100%;
-          img{
-            &:hover{
-                border: 1px solid black;
-            }
-          }
         }
-        img{
+        input, img{
           height: 100%;
         }
         &.right{
@@ -93,13 +87,16 @@
       background-color: transparent;
       border: none;
       .front{
-        img{
+        input, img{
           &:hover{
               border: 1px solid black;
           }
+          &:focus{
+            outline: none;
+          }
         }
       }
-      img{
+      input, img{
         width: 85%;
       }
     }
