@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 import { navigate } from '@reach/router';
 import Player from './Player';
 import BoardMessages from './BoardMessages';
+import ScorePile from './ScorePile';
 import {
   leaveGame, initOwnerListenValues, initPlayerListenValues, gameExists,
 } from '../providers/GameProvider';
 
 const Board = ({ userData, activeGame, setActiveGame }) => {
   const players = [];
-
-  const isMyTurn = userData.uid === activeGame.playersTurn;
 
   const initListeners = () => {
     if (userData.uid === activeGame.owner.uid) {
@@ -42,8 +41,8 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
       key={user.displayName}
       playerIndex={index}
       mainPlayerIndex={mainPlayerIndex}
-      displayName={user.displayName}
       activeGame={activeGame}
+      user={user}
     />);
   });
 
@@ -53,10 +52,15 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
         ? players
         : <div />
       }
-      {
-        activeGame.phase !== 'throw'
+      {activeGame.status === 'in progress'
+        ? <ScorePile activeGame={activeGame} mainPlayerIndex={mainPlayerIndex} />
+        : <div />
       }
-      <BoardMessages activeGame={activeGame} myTurn={isMyTurn} setActiveGame={setActiveGame} />
+      <BoardMessages 
+        activeGame={activeGame} 
+        setActiveGame={setActiveGame}
+        userIndex={activeGame.users.findIndex((user) => userData.uid === user.uid)}
+      />
     </div>
   );
 };
@@ -72,7 +76,10 @@ Board.propTypes = {
     owner: PropTypes.shape({
       uid: PropTypes.string.isRequired,
     }),
-    playersTurn: PropTypes.string,
+    playersTurn: PropTypes.shape({
+      uid: PropTypes.string,
+      displayName: PropTypes.string,
+    }),
     phase: PropTypes.string,
   }).isRequired,
   setActiveGame: PropTypes.func.isRequired,

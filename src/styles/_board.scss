@@ -17,13 +17,46 @@
     }
   }
 
+  .in-play{
+    position: absolute;
+    height: 350px;
+    width: 300px;
+    margin-left: 40%;
+    margin-top: 18%;
+    .row{
+      height: 33%;
+      .card{
+        background-color: transparent;
+        height: 100%;
+        .front{
+          height: 100%;
+        }
+        input, img{
+          height: 100%;
+        }
+        &.right{
+          transform: rotate(270deg);
+        }
+        &.left{
+          transform: rotate(90deg);
+
+
+        }
+      }
+    }
+
+  }
+
   .player{
     position: absolute;
     padding: 10px;
     width: 550px;
     height: 140px;
     text-align: center;
-
+    .big-n-bold{
+      font-size: 16px;
+      font-weight: bold;
+    }
     &.top{
       left: 50%;
       transform: translate(-50%, 0%);
@@ -54,16 +87,16 @@
       background-color: transparent;
       border: none;
       .front{
-        img{
+        input, img{
           &:hover{
               border: 1px solid black;
           }
+          &:focus{
+            outline: none;
+          }
         }
       }
-      .back{
-
-      }
-      img{
+      input, img{
         width: 85%;
       }
     }
