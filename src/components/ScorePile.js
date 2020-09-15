@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Container from 'react-bootstrap/container';
-import Row from 'react-bootstrap/row';
-import Col from 'react-bootstrap/col';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Card from './Card';
 
 const ScorePile = ({ activeGame, mainPlayerIndex }) => {
