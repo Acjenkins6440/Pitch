@@ -59,7 +59,7 @@ const Board = ({ userData, activeGame, setActiveGame }) => {
       <BoardMessages 
         activeGame={activeGame} 
         setActiveGame={setActiveGame}
-        user={{ uid: userData.uid, displayName: userData.displayName }}
+        userIndex={activeGame.users.findIndex((user) => userData.uid === user.uid)}
       />
     </div>
   );

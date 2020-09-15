@@ -14,15 +14,16 @@ const Hand = ({ playerIndex, isPlayer, activeGame }) => {
     if (!isPlayer) {
       playerHand.length = 0;
       for (let i = 0; i < handLength; i += 1) {
-        playerHand.push(`blank${i}`);
+        const blankCard = { cardKey: `blank${i}`, blank: true }
+        playerHand.push(blankCard);
       }
     }
     playerHand.forEach((card, index) => {
       cards.push(
       <Card 
-        cardKey={card} 
+        cardKey={card.cardKey} 
         cardIndex={index} 
-        key={`${card} - ${playerIndex}`} 
+        key={`${card.cardKey} - ${playerIndex}`} 
         canPlayCard={canPlayCard(card, activeGame, playerHand, isMyTurn, pickAnySuit)} 
         playerIndex={playerIndex}
       />);

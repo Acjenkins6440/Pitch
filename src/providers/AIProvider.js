@@ -1,4 +1,21 @@
-import { getCardGameValue, calcScorePile, getDetailedCard } from './ScoreProvider'
+import { 
+  getNonHighPointCard, 
+  getJunkCard, 
+  getWinningCard, 
+  getGamePointValue, 
+  getHighTrumpCard 
+} from './ScoreProvider'
+
+// const aiKnowledge = {
+//   universal: {
+//     outOfTrump: [],
+//     highGone: false,
+//     lowGone: false,
+//     jackGone: false,
+//     noJack: false,
+//     highestTrumpLeft: 'A',
+//   }
+// }
 
 const botNames = [
   'Janet Jackson',
@@ -81,8 +98,7 @@ const calcBid = (hand) => {
     S: { points: 0, cards: [] },
   };
   hand.forEach((card) => {
-    const detailedCard = getDetailedCard(card)
-    suits[detailedCard.suit].cards.push(detailedCard);
+    suits[card.suit].cards.push(card);
   });
   const bestSuit = {
     points: 0,
@@ -180,23 +196,128 @@ const calcBid = (hand) => {
 const chooseLeadCard = (gameData, currBotIndex) => {
   const trump = gameData.trump
   const hand = gameData.user[currBotIndex]
+  const teamHasBid = gameData.currentBid.player.team === gameData.user[currBotIndex].team
+  if(teamHasBid){
+    const highTrump = getHighTrumpCard(hand, trump)
+    if(hand.length === 5 || hand.length === 6 && highTrump.value >= 13){
+      return highCard
+    }
+    else{
+      return junkCard(hand, trump)
+    }
+  }  
 }
-
-const chooseBotCard = (gameData) => {
+// For choosing bot cards...
+// if leading and has high, throw high
+// if leading and doesn't have anything good, throw something worth no points
+// if following and team member is winning with an ace of trump, throw a point
+// if following and team member is winning with J+, throw a trash card
+// if following and team member threw a point (2 or jack of trump or 10), try to win that hand
+// if following and enemy threw a point, try to win that hand
+// if last to throw, and there are no points or trump, throw low OR jack OR a 10 unless you have nothing, then throw nothing
+// if following and other team is winning with queen/king/ace of trump, check to see if you can beat it
+//    if you can beat it, do it
+//    otherwise, throw a trash card
+// 
+const chooseBotCard = (gameData, currBotIndex) => {
+  const bot = gameData.users[currBotIndex]
   if(gameData.inPlay && gameData.inPlay.length){
-    const suitThatLead = gameData.inPlay[0].suit
+    const leadingSuit = gameData.inPlay[0].suit
+    const lastToThrow = gameData.inPlay.length === 3
+    const winningCardSoFar = getWinningCard(gameData.inPlay, gameData.trump, leadingSuit)
+    if(lastToThrow){
+      if (winningCardSoFar.player.team === bot.team){
+        const pointCard = getNonHighPointCard(bot.hand, gameData.trump, leadingSuit)
+        if(pointCard.value === 2 
+          || pointCard.value === 3 
+          || pointCard.value === 10 
+          || pointCard.value === 11){
+          console.log('we winning and i can get an easy point')
+          return pointCard
+        }
+        else{
+          const junkCard = getJunkCard(bot.hand, gameData.trump, leadingSuit)
+          console.log('we winning and i have no points')
+          return junkCard
+        }
+      }
+      else{
+        const trumpPlayed = gameData.inPlay.filter((card) => card.suit === gameData.trump)
+        const easyPoint = getNonHighPointCard(bot.hand, gameData.trump, leadingSuit)
+        if(!trumpPlayed 
+          && easyPoint.suit === gameData.trump 
+          && (easyPoint.value === 11 || easyPoint.value === 2 || easyPoint.value === 3)){
+          console.log('we not winning yet but imma get this point with trump')
+          return easyPoint
+        }
+        else if(trumpPlayed 
+          && easyPoint.suit === gameData.trump
+          && (Math.max(...trumpPlayed.map((card) => card.value)) < easyPoint.value)){
+            console.log('we not winnin yet but i can beat the next best trump')
+            return easyPoint
+          }
+        else if(easyPoint.suit !== gameData.trump && easyPoint.suit === leadingSuit){
+          console.log('we not winning yet but imma get this point without trump')
+          return easyPoint
+        }
+        else{
+          console.log('we not winning and all i have is garbage')
+          return getJunkCard(bot.hand, gameData.trump, leadingSuit)
+        }
+      }
+    }
+    else if(winningCardSoFar.player.team === bot.team){
+      const pointCard = getNonHighPointCard(bot.hand, gameData.trump, leadingSuit)
+      if (pointCard.value === 2
+        || pointCard.value === 3
+        || pointCard.value === 10
+        || pointCard.value === 11) {
+        console.log('we winning and imma grab a point')
+        return pointCard
+      }
+      else {
+        const junkCard = getJunkCard(bot.hand, gameData.trump, leadingSuit)
+        console.log('we winning but i dont have anything')
+        return junkCard
+      }
+    }
+    else if(getGamePointValue(gameData.inPlay) >= 6){
+      const highTrump = getHighTrumpCard(bot.hand, gameData.trump)
+      if(highTrump){ 
+        console.log('gonna snag this quick')
+        return highTrump 
+      }
+      else{
+        console.log('i aint got shit')
+        return getJunkCard(bot.hand, gameData.trump, leadingSuit)
+      }
+    }
+    else if(getHighTrumpCard(bot.hand, gameData.trump)){
+      const highTrumpCard = getHighTrumpCard(bot.hand, gameData.trump)
+      if(highTrumpCard.value >= 13){
+        console.log('im going for it')
+        return highTrumpCard
+      }
+      else{
+        console.log('i got nothing')
+        return getJunkCard(bot.hand, gameData.trump, leadingSuit)
+      }
+    }
+    else{
+      console.log('no other crit has matched so im throwing garbage')
+      return getJunkCard(bot.hand, gameData.trump, leadingSuit)
+    }
   }
   else {
-    const suitToLead = chooseLeadCard()
+    return chooseLeadCard(bot, gameData.trump)
   }
 };
 
 const takeBotsTurn = (gameData, setBid, pass, deal, playCard) => {
-  const { phase } = gameData;
   const currBotIndex = gameData.users.findIndex(user => user.uid === gameData.playersTurn.uid);
-  const { hand } = gameData.users[currBotIndex];
+  const hand = gameData.users[currBotIndex].hand
 
-  if (phase === 'bid') {
+  if (gameData.phase === 'bid') {
     const topBid = calcBid(hand);
     if (topBid.points > gameData.currentBid.bid) {
       const botUser = { ...gameData.playersTurn, hand: null }
@@ -204,11 +325,14 @@ const takeBotsTurn = (gameData, setBid, pass, deal, playCard) => {
     } else {
       pass(gameData);
     }
-  } else if (phase === 'deal') {
+  } else if (gameData.phase === 'deal') {
     deal();
-  } else if (phase === 'play card') {
+  } else if (gameData.phase === 'play card') {
     const cardToPlay = chooseBotCard(gameData, currBotIndex);
-    playCard(cardToPlay);
+    const cardIndex = hand.findIndex((card) => card.cardKey === cardToPlay.cardKey)
+    console.log(hand)
+    console.log(cardToPlay)
+    playCard(cardIndex, currBotIndex);
   }
 };
 
