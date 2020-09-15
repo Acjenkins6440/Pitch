@@ -5,8 +5,9 @@ import {
   startGame, getOwner, setBid, deal, pass,
 } from '../providers/GameProvider';
 
-const BoardMessages = ({ activeGame, setActiveGame, user }) => {
+const BoardMessages = ({ activeGame, setActiveGame, userIndex }) => {
   const isOwner = getOwner();
+  const user = activeGame.users[userIndex]
 
   const startGameDisabled = () => {
     if (activeGame.botsEnabled) {

@@ -220,15 +220,14 @@ const playCard = (cardIndex, playerIndex) => {
   getFreshGameData().then((gameData) => {
     const player = gameData.users[playerIndex]
     const cardPlayed = player.hand.splice(cardIndex, 1)[0];
-    const detailedCard = getDetailedCard(cardPlayed, { displayName: player.displayName, uid: player.uid });
     if(gameData.inPlay){
-      gameData.inPlay.push(detailedCard)
+      gameData.inPlay.push(cardPlayed)
     }
     else {
-      gameData.inPlay = [detailedCard]
+      gameData.inPlay = [cardPlayed]
     }
     if(!gameData.trump) {
-      gameData.trump = detailedCard.suit
+      gameData.trump = cardPlayed.suit
     }
     return gameRef.set(gameData).then(() => gameData)
   }).then((gameData) => {
@@ -263,7 +262,7 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
   nextTurnRef.on('value', (snapshot) => {
     if (snapshot.exists() && snapshot.val().isBot) {
       getFreshGameData().then((gameData) => {
-        takeBotsTurn(gameData, setBid, pass, deal, playCard);
+        setTimeout(takeBotsTurn(gameData, setBid, pass, deal, playCard), 500)
       });
     }
   });
@@ -296,8 +295,9 @@ const inProgressGameData = (gameData) => {
   const botNames = [];
   for (let i = 0; i < 4; i += 1) {
     if (!gameData.users[i]) {
-      gameData.users.push({ uid: `bot${i}`, isBot: true, displayName: generateBotName(botNames) });
+      gameData.users.push({ uid: `bot${i}`, isBot: true, displayName: generateBotName(botNames)});
     }
+    gameData.users[i].team = (i % 2 === 0) ? 'team1' : 'team2'
   }
   return {
     ...gameData,
@@ -450,7 +450,7 @@ const deal = (gameData, setActiveGame) => {
     // sort by value, then suit
     hand.sort()
     hand.sort((a,b) => a.charCodeAt(a.length - 1) - b.charCodeAt(b.length - 1))
-    player.hand = hand
+    player.hand = hand.map((card) => getDetailedCard(card, player))
   });
   playerRef.set(gameData.users);
   setNextPhase(gameData);
