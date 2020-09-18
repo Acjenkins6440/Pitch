@@ -3,8 +3,20 @@
   height: 90%;
   position: relative;
 
-  .logout-button{
+  .logout-button, .team-scores{
     position: absolute;
+  }
+
+  .trump-indicator{
+    margin-right: 5%;
+    float: right;
+    .red{
+      color: red;
+    }
+  }
+
+  .winning-bid{
+    height: 24px;
   }
 
   .board-messages{
@@ -64,11 +76,14 @@
     }
     &.top{
       left: 50%;
-      transform: translate(-50%, 0%);
+      transform: translate(-50%, 40%) rotate(180deg);
       margin: 0 auto;
+      .player-name{
+        transform: rotate(180deg);
+      }
     }
     &.right{
-      transform: translate(30%, 230%) rotate(270deg);
+      transform: translate(25%, 230%) rotate(270deg);
       margin: 0 auto;
       right: 0;
     }
@@ -79,7 +94,7 @@
       margin: 0 auto;
     }
     &.left{
-      transform: translate(-30%, 260%) rotate(90deg);
+      transform: translate(-25%, 260%) rotate(90deg);
       margin: 0 auto;
     }
     .card{

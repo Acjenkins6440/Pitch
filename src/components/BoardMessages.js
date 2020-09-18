@@ -106,10 +106,10 @@ const BoardMessages = ({ activeGame, setActiveGame, userIndex }) => {
             </Row>
             <Row>
               <Col>
-                <p>{activeGame.scores.team1}</p>
+                <p>{activeGame.score.team1}</p>
               </Col>
               <Col>
-                <p>{activeGame.scores.team2}</p>
+                <p>{activeGame.score.team2}</p>
               </Col>
             </Row>
           </Container>

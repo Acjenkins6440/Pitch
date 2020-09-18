@@ -140,23 +140,49 @@ const getWinningCard = (inPlay, trump) => {
 
 const getGamePointValue = inPlay => inPlay.reduce((acc, curr) => acc + curr.gameValue, 0);
 
-const updateScorePiles = (activeGame, winningTeam) => {
-  debugger
-  const scorePiles = Object.assign({}, activeGame.scorePiles)
-  if(!scorePiles){
-    scorePiles = { team1: [], team2: [] }
-  }
-  if(!scorePiles[winningTeam]){
-    scorePiles[winningTeam] = activeGame.inPlay.splice(0,4)
-  }
-  else{
-    scorePiles[winningTeam].push(...activeGame.inPlay.splice(0,4))
-  }
-  return scorePiles
+const updateScorePile = (gameData, winningTeam) => {
+  const scorePile =  gameData.scorePile ? [...gameData.scorePile] : []
+  const scorePileAddition = gameData.inPlay.splice(0,4).map(card => ({ ...card, team: winningTeam }));
+  return scorePile.concat(scorePileAddition)
 }
 
-const updateScore = (gameData) => {
+const calcHandScore = (gameData) => {
+  const scoreToBeat = gameData.currentBid.bid
+  const biddingTeam = gameData.currentBid.player.team
+  const handScores = { team1: 0, team2: 0}
+  const gamePoints = { team1: 0, team2: 0}
+  const trumpCards = gameData.scorePile.filter(card => card.suit === gameData.trump)
+  const maxTrumpValue = Math.max(...trumpCards.map(card => card.value))
+  const minTrumpValue = Math.min(...trumpCards.map(card => card.value))
+  const high = trumpCards.find(card => card.value === maxTrumpValue)
+  const low = trumpCards.find(card => card.value === minTrumpValue)
+  const jack = trumpCards.find(card => card.value === 11)
+  gameData.scorePile.forEach(card => {gamePoints[card.team] += card.gameValue})
+  if(gamePoints.team1 > gamePoints.team2){
+    handScores['team1'] += 1
+  }
+  else if(gamePoints.team2 > gamePoints.team1){
+    handScores['team2'] += 1
+  }
+  handScores[high.team] += 1
+  handScores[low.team] += 1
+  if(jack){
+    handScores[jack.team] += 1
+  }
+  if(handScores[biddingTeam] < scoreToBeat){
+    handScores[biddingTeam] = scoreToBeat * -1
+  }
+  return handScores
+}
 
+const mergeScores = (scores1, scores2) => {
+  const team1Scores = scores1.team1 ? scores1.team1 : 0
+  const team2Scores = scores1.team2 ? scores1.team2 : 0
+  return { team1: team1Scores + scores2.team1, team2: team2Scores + scores2.team2}
+}
+
+const getUpdatedScore = (oldScore, scoreUpdates) => {
+  return oldScore ? mergeScores(oldScore, scoreUpdates) : scoreUpdates
 }
 
 export {
@@ -169,6 +195,7 @@ export {
   getJunkCard,
   getGamePointValue,
   getHighTrumpCard,
-  updateScore,
-  updateScorePiles
+  getUpdatedScore,
+  updateScorePile,
+  calcHandScore
 };

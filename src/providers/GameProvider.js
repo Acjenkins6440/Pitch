@@ -1,7 +1,13 @@
 import { db } from '../firebase';
 import { generateBotName, takeBotsTurn } from './AIProvider';
 import { userUid } from './UserProvider';
-import { getDetailedCard, updateScorePiles, getWinningCard } from './ScoreProvider';
+import { 
+  getDetailedCard, 
+  updateScorePile, 
+  getWinningCard, 
+  calcHandScore, 
+  getUpdatedScore 
+} from './ScoreProvider';
 
 let activeGameKey = '';
 let isOwner = false;
@@ -187,7 +193,9 @@ const getGameLocalPhase = (gameData) => {
 const setNextPhase = (gameData) => {
   const phaseRef = db.ref(`games/active/${activeGameKey}/phase`);
   const turnRef = db.ref(`games/active/${activeGameKey}/playersTurn`);
+  const dealerRef = db.ref(`games/active/${activeGameKey}/dealer`);
   let nextPlayerIndex = null;
+  let nextDealerIndex = null;
   let newPhase = '';
   switch (gameData.phase) {
     case 'deal':
@@ -198,27 +206,26 @@ const setNextPhase = (gameData) => {
       break;
     case 'play card':
       if (gameData.inPlay && gameData.inPlay.length === 4) {
-        newPhase = 'scoreThrow';
+        newPhase = 'score throw';
         break;
       } else newPhase = 'play card';
       break;
-    case 'scoreThrow':
-      newPhase = 'play card';
+    case 'score throw':
+      const noMoreCards = !gameData.users[0].hand
+      newPhase = noMoreCards ? 'score hand' : 'play card'
       break;
-    case 'scoreHand':
-      newPhase = 'show score'
-      break;
-    case 'show score':
-      newPhase = 'deal';
+    case 'score hand':
+      newPhase = 'deal'
       break;
     default:
       break;
   }
   if(newPhase === 'deal'){
-    // change dealer
+    const dealerIndex = gameData.users.findIndex(user => user.uid === gameData.dealer.uid)
+    nextDealerIndex = dealerIndex === 3 ? 0 : dealerIndex + 1;
   }
   if (newPhase === 'play card') {
-    const firstThrowOfHand = !gameData.scorePiles
+    const firstThrowOfHand = !gameData.scorePile
     if(firstThrowOfHand){
       nextPlayerIndex = gameData.users.findIndex(user => user.uid === gameData.currentBid.player.uid);
     } else {
@@ -235,6 +242,9 @@ const setNextPhase = (gameData) => {
   phaseRef.set(newPhase).then(() => {
     if (nextPlayerIndex !== null) {
       turnRef.set(gameData.users[nextPlayerIndex]);
+    }
+    if(nextDealerIndex !== null) {
+      dealerRef.set(gameData.users[nextDealerIndex])
     }
   });
 };
@@ -334,10 +344,27 @@ const scoreThrow = (gameData) => {
   const gameRef = db.ref(`games/active/${activeGameKey}`);
   const winningCard = getWinningCard(gameData.inPlay, gameData.trump, gameData.inPlay[0].suit)
   const wonLastThrow = winningCard.player
-  const scorePiles = updateScorePiles(gameData, wonLastThrow.team)
-  const updates = { ...gameData, wonLastThrow, scorePiles }
+  const scorePile = updateScorePile(gameData, wonLastThrow.team)
+  const updates = { ...gameData, wonLastThrow, scorePile }
   gameRef.set(updates).then(() => {
     setNextPhase(updates)
+  })
+}
+
+const scoreHand = (gameData) => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`);
+  const teamScores = calcHandScore(gameData)
+  const newScore = getUpdatedScore(gameData.score, teamScores)
+  const updates = { 
+    ...gameData, 
+    scorePile: [], 
+    score: newScore, 
+    trump: '', 
+    currentBid: { bid: 0, player: currentBid.player }
+  }
+  gameRef.set(updates).then(() => {
+    setNextPhase(updates)
+    debugger
   })
 }
 
@@ -396,9 +423,12 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
     }
   });
   phaseRef.on('value', (snapshot) => {
-    if(snapshot.exists() && snapshot.val() === 'scoreThrow'){
+    if(snapshot.exists() && (snapshot.val() === 'score throw' || snapshot.val() === 'score hand')){
       getFreshGameData().then((gameData) => {
-        scoreThrow(gameData)
+        if(snapshot.val() === 'score throw'){
+          scoreThrow(gameData)
+        }
+        else{ scoreHand(gameData) }
       })
     }
   })
@@ -443,11 +473,8 @@ const inProgressGameData = (gameData) => {
     deck,
     inPlay: [],
     trump: '',
-    scorePiles: {
-      team1: [],
-      team2: [],
-    },
-    scores: {
+    scorePile: [],
+    score: {
       team1: 0,
       team2: 0
     },
