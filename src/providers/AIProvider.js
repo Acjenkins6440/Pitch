@@ -221,7 +221,8 @@ const chooseBotCard = (gameData, currBotIndex) => {
   if (gameData.inPlay && gameData.inPlay.length) {
     const leadingSuit = gameData.inPlay[0].suit;
     const lastToThrow = gameData.inPlay.length === 3;
-    const winningCardSoFar = getWinningCard(gameData.inPlay, gameData.trump, leadingSuit);
+    const winningCardSoFar = getWinningCard(gameData.inPlay, gameData.trump);
+    console.log(leadingSuit)
     if (lastToThrow) {
       if (winningCardSoFar.player.team === bot.team) {
         const pointCard = getNonHighPointCard(bot.hand, gameData.trump, leadingSuit);
@@ -267,7 +268,7 @@ const chooseBotCard = (gameData, currBotIndex) => {
       const junkCard = getJunkCard(bot.hand, gameData.trump, leadingSuit);
       return junkCard;
     }
-    if (getGamePointValue(gameData.inPlay) >= 6) {
+    else if (getGamePointValue(gameData.inPlay) >= 6) {
       const highTrump = getHighTrumpCard(bot.hand, gameData.trump);
       if (highTrump) {
         return highTrump;
@@ -275,7 +276,7 @@ const chooseBotCard = (gameData, currBotIndex) => {
 
       return getJunkCard(bot.hand, gameData.trump, leadingSuit);
     }
-    if (getHighTrumpCard(bot.hand, gameData.trump)) {
+    else if (getHighTrumpCard(bot.hand, gameData.trump)) {
       const highTrumpCard = getHighTrumpCard(bot.hand, gameData.trump);
       if (highTrumpCard.value >= 13 && highTrumpCard.value > winningCardSoFar.value) {
         return highTrumpCard;

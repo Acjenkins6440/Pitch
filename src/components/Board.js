@@ -10,7 +10,6 @@ import {
 
 const Board = ({ userData, activeGame, setActiveGame }) => {
   const players = [];
-
   const initListeners = () => {
     if (userData.uid === activeGame.owner.uid) {
       initOwnerListenValues(activeGame, setActiveGame);

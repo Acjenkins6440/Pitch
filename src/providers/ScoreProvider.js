@@ -61,10 +61,10 @@ const canPlayCard = (card, gameData, hand, isMyTurn, anySuit) => {
     return false;
   }
   const cardSuit = card.suit;
-  const playable = !gameData.trump
+  const playable = anySuit
+  || !gameData.inPlay
   || gameData.trump === cardSuit
   || gameData.inPlay[0].suit === cardSuit
-  || anySuit;
 
   return playable;
 };
@@ -84,15 +84,20 @@ const getJunkCard = (hand, trump, leadingSuit) => {
       && card.value < 9
       && card.suit === leadingSuit);
   } else {
-    junkCard = hand.find(card => card.suit !== trump && card.value < 9);
+    const possibleJunkCards = hand.filter(card => card.suit !== trump && card.value < 9);
+    junkCard = possibleJunkCards
   }
   if (!junkCard && !followSuit) {
     junkCard = hand.find(card => card.suit !== trump
       || (card.suit === trump && card.value < 9 && card.value > 4));
   } else if (!junkCard) {
-    junkCard = hand.find(card => card.suit === leadingSuit);
-  } else {
-    [junkCard] = hand;
+    const allowableNonTrumpCards = hand.filter(card => card.suit === leadingSuit)
+    junkCard = allowableNonTrumpCards.length 
+    ? allowableNonTrumpCards[Math.floor(Math.random() * allowableNonTrumpCards.length)]
+    : null
+  } 
+  if(!junkCard) {
+    junkCard = hand[Math.floor(Math.random() * hand.length)]
   }
   return junkCard;
 };
@@ -107,10 +112,11 @@ const getNonHighPointCard = (hand, trump, leadingSuit) => {
     let maxGameValue = 0;
     if (needToFollowSuit(hand, leadingSuit)) {
       maxGameValue = Math.max(...hand.map(card => card.suit === leadingSuit && card.gameValue));
+      pointCard = hand.find(card => card.gameValue === maxGameValue && card.suit === leadingSuit)
     } else {
       maxGameValue = Math.max(...hand.map(card => card.gameValue));
+      pointCard = hand.find(card => card.gameValue === maxGameValue );
     }
-    pointCard = hand.find(card => card.gameValue === maxGameValue);
   }
   return pointCard;
 };
@@ -125,13 +131,33 @@ const getHighTrumpCard = (hand, trump, botsTrump) => {
   return hand.find(card => card.suit === trump && card.value === highestTrumpValue);
 };
 
-const getWinningCard = (inPlay, trump, leadingSuit) => {
+const getWinningCard = (inPlay, trump) => {
+  const leadingSuit = inPlay[0].suit
   const trumpCards = inPlay.filter(card => card.suit === trump);
-  const contenders = trumpCards || inPlay.filter(card => card.suit === leadingSuit);
+  const contenders = (trumpCards.length && trumpCards) || inPlay.filter(card => card.suit === leadingSuit);
   return contenders.reduce((prev, curr) => (prev.value > curr.value ? prev : curr));
 };
 
 const getGamePointValue = inPlay => inPlay.reduce((acc, curr) => acc + curr.gameValue, 0);
+
+const updateScorePiles = (activeGame, winningTeam) => {
+  debugger
+  const scorePiles = Object.assign({}, activeGame.scorePiles)
+  if(!scorePiles){
+    scorePiles = { team1: [], team2: [] }
+  }
+  if(!scorePiles[winningTeam]){
+    scorePiles[winningTeam] = activeGame.inPlay.splice(0,4)
+  }
+  else{
+    scorePiles[winningTeam].push(...activeGame.inPlay.splice(0,4))
+  }
+  return scorePiles
+}
+
+const updateScore = (gameData) => {
+
+}
 
 export {
   getCardGameValue,
@@ -143,4 +169,6 @@ export {
   getJunkCard,
   getGamePointValue,
   getHighTrumpCard,
+  updateScore,
+  updateScorePiles
 };

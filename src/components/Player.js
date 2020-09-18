@@ -31,11 +31,15 @@ const Player = ({
   return (
     <div className={className}>
       <p className={boldenName ? 'big-n-bold' : ''}>{user.displayName}</p>
-      <Hand
-        playerIndex={playerIndex}
-        isPlayer={mainPlayerIndex === playerIndex}
-        activeGame={activeGame}
-      />
+      { activeGame.users[playerIndex].hand && activeGame.users[playerIndex].hand.length > 0 
+        ? (<Hand
+          playerIndex={playerIndex}
+          isPlayer={mainPlayerIndex === playerIndex}
+          activeGame={activeGame}
+        />)
+        : <div></div>
+      }
+
     </div>
   );
 };

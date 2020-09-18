@@ -43,7 +43,7 @@ const ScorePile = ({ activeGame, mainPlayerIndex }) => {
 
   getFilledPositions();
 
-  return activeGame.phase === 'wait' || activeGame.phase === 'play card'
+  return activeGame.phase === 'wait' || activeGame.phase === 'play card' || activeGame.phase === 'scoreThrow'
     ? (
       <Container className="in-play">
         <Row>

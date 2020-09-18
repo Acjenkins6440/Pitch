@@ -1,6 +1,9 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import {
   startGame, getOwner, setBid, deal, pass,
 } from '../providers/GameProvider';
@@ -75,21 +78,51 @@ const BoardMessages = ({ activeGame, setActiveGame, userIndex }) => {
         </div>
       );
     }
-    if (activeGame.phase === 'deal') {
-      if (isDealer) {
-        return (
-          <div className="generic-container">
+    if (activeGame.phase === 'deal' || activeGame.phase === 'score') {
+      let team1 = [activeGame.users[0], activeGame.users[2]]
+      let team2 = [activeGame.users[1], activeGame.users[3]]
+      return (
+        <div className="generic-container">
+          <Container>
+            <Row>
+              <Col><h3>Scoreboard</h3></Col>
+            </Row>
+            <Row><hr /></Row>
+            <Row>
+              <Col>
+                <p>{`${team1[0].displayName} - ${team1[1].displayName}`}</p>
+              </Col>
+              <Col>
+                <p>{`${team2[0].displayName} - ${team2[1].displayName}`}</p>
+              </Col>
+            </Row>
+            <Row>              
+              <Col>
+                <hr />
+              </Col>
+              <Col>
+                <hr />
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <p>{activeGame.scores.team1}</p>
+              </Col>
+              <Col>
+                <p>{activeGame.scores.team2}</p>
+              </Col>
+            </Row>
+          </Container>
+          {isDealer && activeGame.phase === 'deal' ?
             <Button
               onClick={handleDeal}
               onKeyPress={handleDeal}
             >
               Click to Deal!
-            </Button>
-          </div>
-        );
-      }
-
-      return null;
+          </Button> :
+          <div></div>}
+        </div>
+      );
     } if (activeGame.phase === 'bid') {
       if (isMyTurn) {
         return (
