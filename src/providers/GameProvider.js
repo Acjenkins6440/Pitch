@@ -1,12 +1,12 @@
 import { db } from '../firebase';
 import { generateBotName, takeBotsTurn } from './AIProvider';
 import { userUid } from './UserProvider';
-import { 
-  getDetailedCard, 
-  updateScorePile, 
-  getWinningCard, 
-  calcHandScore, 
-  getUpdatedScore 
+import {
+  getDetailedCard,
+  updateScorePile,
+  getWinningCard,
+  calcHandScore,
+  getUpdatedScore,
 } from './ScoreProvider';
 
 let activeGameKey = '';
@@ -214,26 +214,26 @@ const setNextPhase = (gameData) => {
       } else newPhase = 'play card';
       break;
     case 'score throw':
-      const noMoreCards = !gameData.users[0].hand
-      newPhase = noMoreCards ? 'score hand' : 'play card'
+      const noMoreCards = !gameData.users[0].hand;
+      newPhase = noMoreCards ? 'score hand' : 'play card';
       break;
     case 'score hand':
-      newPhase = 'deal'
+      newPhase = 'deal';
       break;
     default:
       break;
   }
-  if(newPhase === 'deal'){
-    gameOver = gameData.score && (gameData.score.team1 >= 11 || gameData.score.team2 >= 11)
-    const dealerIndex = gameData.users.findIndex(user => user.uid === gameData.dealer.uid)
+  if (newPhase === 'deal') {
+    gameOver = gameData.score && (gameData.score.team1 >= 11 || gameData.score.team2 >= 11);
+    const dealerIndex = gameData.users.findIndex(user => user.uid === gameData.dealer.uid);
     nextDealerIndex = dealerIndex === 3 ? 0 : dealerIndex + 1;
   }
   if (newPhase === 'play card') {
-    const firstThrowOfHand = !gameData.scorePile
-    if(firstThrowOfHand){
+    const firstThrowOfHand = !gameData.scorePile;
+    if (firstThrowOfHand) {
       nextPlayerIndex = gameData.users.findIndex(user => user.uid === gameData.currentBid.player.uid);
     } else {
-      nextPlayerIndex = gameData.users.findIndex(user => user.uid === gameData.wonLastThrow.uid)
+      nextPlayerIndex = gameData.users.findIndex(user => user.uid === gameData.wonLastThrow.uid);
     }
   }
   if (newPhase === 'bid') {
@@ -243,18 +243,18 @@ const setNextPhase = (gameData) => {
       nextPlayerIndex = dealerIndex + 1;
     }
   }
-  if (newPhase === 'score throw'){
-   return setTimeout(() => phaseRef.set(newPhase), 2000)
+  if (newPhase === 'score throw') {
+    return setTimeout(() => phaseRef.set(newPhase), 2000);
   }
   phaseRef.set(newPhase).then(() => {
-    if(gameOver) {
-      return statusRef.set('game over')
+    if (gameOver) {
+      return statusRef.set('game over');
     }
     if (nextPlayerIndex !== null) {
       turnRef.set(gameData.users[nextPlayerIndex]);
     }
-    if(nextDealerIndex !== null) {
-      dealerRef.set(gameData.users[nextDealerIndex])
+    if (nextDealerIndex !== null) {
+      dealerRef.set(gameData.users[nextDealerIndex]);
     }
   });
 };
@@ -352,30 +352,30 @@ const pass = (gameData) => {
 
 const scoreThrow = (gameData) => {
   const gameRef = db.ref(`games/active/${activeGameKey}`);
-  const winningCard = getWinningCard(gameData.inPlay, gameData.trump, gameData.inPlay[0].suit)
-  const wonLastThrow = winningCard.player
-  const scorePile = updateScorePile(gameData, wonLastThrow.team)
-  const updates = { ...gameData, wonLastThrow, scorePile }
+  const winningCard = getWinningCard(gameData.inPlay, gameData.trump, gameData.inPlay[0].suit);
+  const wonLastThrow = winningCard.player;
+  const scorePile = updateScorePile(gameData, wonLastThrow.team);
+  const updates = { ...gameData, wonLastThrow, scorePile };
   gameRef.set(updates).then(() => {
-    setNextPhase(updates)
-  })
-}
+    setNextPhase(updates);
+  });
+};
 
 const scoreHand = (gameData) => {
   const gameRef = db.ref(`games/active/${activeGameKey}`);
-  const teamScores = calcHandScore(gameData)
-  const newScore = getUpdatedScore(gameData.score, teamScores)
-  const updates = { 
-    ...gameData, 
-    scorePile: [], 
-    score: newScore, 
-    trump: '', 
-    currentBid: { bid: 0, player: gameData.currentBid.player }
-  }
+  const teamScores = calcHandScore(gameData);
+  const newScore = getUpdatedScore(gameData.score, teamScores);
+  const updates = {
+    ...gameData,
+    scorePile: [],
+    score: newScore,
+    trump: '',
+    currentBid: { bid: 0, player: gameData.currentBid.player },
+  };
   gameRef.set(updates).then(() => {
-    setNextPhase(updates)
-  })
-}
+    setNextPhase(updates);
+  });
+};
 
 const initUniversalListenValues = (setActiveGame) => {
   const endpoint = `games/active/${activeGameKey}`;
@@ -404,7 +404,7 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
   const nextTurnRef = db.ref(`${endpoint}/playersTurn`);
   const phaseRef = db.ref(`${endpoint}/phase`);
   const dealerRef = db.ref(`${endpoint}/dealer`);
-  const botTurnArray = [nextTurnRef, dealerRef]
+  const botTurnArray = [nextTurnRef, dealerRef];
 
   playerLeftRef.on('value', (snapshot) => {
     const playerToRemove = snapshot.val();
@@ -423,26 +423,25 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
     }
   });
   phaseRef.on('value', (snapshot) => {
-    if(snapshot.exists() && (snapshot.val() === 'score throw' || snapshot.val() === 'score hand')){
+    if (snapshot.exists() && (snapshot.val() === 'score throw' || snapshot.val() === 'score hand')) {
       getFreshGameData().then((gameData) => {
-        if(snapshot.val() === 'score throw'){
-          scoreThrow(gameData)
-        }
-        else{ scoreHand(gameData) }
-      })
+        if (snapshot.val() === 'score throw') {
+          scoreThrow(gameData);
+        } else { scoreHand(gameData); }
+      });
     }
-  })
-  botTurnArray.forEach(ref => {
+  });
+  botTurnArray.forEach((ref) => {
     ref.on('value', (snapshot) => {
       if (snapshot.exists() && snapshot.val().isBot) {
         getFreshGameData().then((gameData) => {
-          if(gameData.status === 'in progress') {
+          if (gameData.status === 'in progress') {
             setTimeout(() => takeBotsTurn(gameData, setBid, pass, deal, playCard), 500);
           }
         });
       }
-    })
-  })
+    });
+  });
   initUniversalListenValues(setActiveGame);
 };
 
@@ -487,7 +486,7 @@ const inProgressGameData = (gameData) => {
     scorePile: [],
     score: {
       team1: 0,
-      team2: 0
+      team2: 0,
     },
     currentBid: {
       bid: 0,

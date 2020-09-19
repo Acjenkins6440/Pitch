@@ -222,7 +222,7 @@ const chooseBotCard = (gameData, currBotIndex) => {
     const leadingSuit = gameData.inPlay[0].suit;
     const lastToThrow = gameData.inPlay.length === 3;
     const winningCardSoFar = getWinningCard(gameData.inPlay, gameData.trump);
-    console.log(leadingSuit)
+    console.log(leadingSuit);
     if (lastToThrow) {
       if (winningCardSoFar.player.team === bot.team) {
         const pointCard = getNonHighPointCard(bot.hand, gameData.trump, leadingSuit);
@@ -268,7 +268,7 @@ const chooseBotCard = (gameData, currBotIndex) => {
       const junkCard = getJunkCard(bot.hand, gameData.trump, leadingSuit);
       return junkCard;
     }
-    else if (getGamePointValue(gameData.inPlay) >= 6) {
+    if (getGamePointValue(gameData.inPlay) >= 6) {
       const highTrump = getHighTrumpCard(bot.hand, gameData.trump);
       if (highTrump) {
         return highTrump;
@@ -276,7 +276,7 @@ const chooseBotCard = (gameData, currBotIndex) => {
 
       return getJunkCard(bot.hand, gameData.trump, leadingSuit);
     }
-    else if (getHighTrumpCard(bot.hand, gameData.trump)) {
+    if (getHighTrumpCard(bot.hand, gameData.trump)) {
       const highTrumpCard = getHighTrumpCard(bot.hand, gameData.trump);
       if (highTrumpCard.value >= 13 && highTrumpCard.value > winningCardSoFar.value) {
         return highTrumpCard;
@@ -295,17 +295,17 @@ const takeBotsTurn = (gameData, setBid, pass, deal, playCard) => {
   const currBotIndex = gameData.users.findIndex(user => user.uid === gameData.playersTurn.uid);
   const { hand } = gameData.users[currBotIndex];
 
-  console.log(`fired for ${gameData.users[currBotIndex].displayName}`)
+  console.log(`fired for ${gameData.users[currBotIndex].displayName}`);
 
   if (gameData.phase === 'bid') {
     const topBid = calcBid(hand);
-    const isDealer = gameData.users[currBotIndex].uid === gameData.dealer.uid
+    const isDealer = gameData.users[currBotIndex].uid === gameData.dealer.uid;
     if (topBid.points > gameData.currentBid.bid) {
       const botUser = { ...gameData.users[currBotIndex], hand: null };
       setBid({ bid: topBid.points, player: botUser }, gameData);
-    } else if (isDealer && !gameData.currentBid.bid ) {
+    } else if (isDealer && !gameData.currentBid.bid) {
       const botUser = { ...gameData.users[currBotIndex], hand: null };
-      setBid({ bid: 2, player: botUser}, gameData)
+      setBid({ bid: 2, player: botUser }, gameData);
     } else {
       pass(gameData);
     }

@@ -79,8 +79,8 @@ const BoardMessages = ({ activeGame, setActiveGame, userIndex }) => {
       );
     }
     if (activeGame.phase === 'deal' || activeGame.phase === 'score') {
-      let team1 = [activeGame.users[0], activeGame.users[2]]
-      let team2 = [activeGame.users[1], activeGame.users[3]]
+      const team1 = [activeGame.users[0], activeGame.users[2]];
+      const team2 = [activeGame.users[1], activeGame.users[3]];
       return (
         <div className="generic-container">
           <Container>
@@ -96,7 +96,7 @@ const BoardMessages = ({ activeGame, setActiveGame, userIndex }) => {
                 <p>{`${team2[0].displayName} - ${team2[1].displayName}`}</p>
               </Col>
             </Row>
-            <Row>              
+            <Row>
               <Col>
                 <hr />
               </Col>
@@ -117,14 +117,16 @@ const BoardMessages = ({ activeGame, setActiveGame, userIndex }) => {
             ? <div>Game over!</div>
             : <div />
           }
-          {isDealer && activeGame.phase === 'deal' && activeGame.status === 'in progress' ?
-            <Button
-              onClick={handleDeal}
-              onKeyPress={handleDeal}
-            >
-              Click to Deal!
-          </Button> :
-          <div></div>}
+          {isDealer && activeGame.phase === 'deal' && activeGame.status === 'in progress'
+            ? (
+              <Button
+                onClick={handleDeal}
+                onKeyPress={handleDeal}
+              >
+                Click to Deal!
+              </Button>
+            )
+            : <div />}
         </div>
       );
     } if (activeGame.phase === 'bid') {

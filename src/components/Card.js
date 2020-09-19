@@ -4,12 +4,13 @@ import cardBack from '../assets/cardback.jpeg';
 import { playCard } from '../providers/GameProvider';
 
 const Card = ({
-  cardKey, playerIndex, cardIndex, canPlayCard, classAttr,
+  cardKey, playerIndex, cardIndex, canPlayCard, classAttr, alreadyPlayedCard,
 }) => {
   const classToAdd = classAttr || '';
 
   const handlePlayCard = () => {
-    if (canPlayCard) {
+    if (canPlayCard && !alreadyPlayedCard) {
+      alreadyPlayedCard = true;
       playCard(cardIndex, playerIndex);
     }
   };

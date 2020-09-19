@@ -27,25 +27,32 @@ const Player = ({
     && (activeGame.phase === 'bid'
     || activeGame.phase === 'play card'
     || activeGame.phase === 'wait');
-  const winningBid = activeGame.currentBid 
+  const winningBid = activeGame.currentBid
     && activeGame.currentBid.bid > 0
-    && activeGame.currentBid.player.uid === user.uid  
-  const isDealer = activeGame.dealer && activeGame.dealer.uid === user.uid
+    && activeGame.currentBid.player.uid === user.uid;
+  const isDealer = activeGame.dealer && activeGame.dealer.uid === user.uid;
 
   return (
     <div className={className}>
       {winningBid && activeGame.phase === 'bid'
-        ? <p className='winning-bid'>Winning bid with: {activeGame.currentBid.bid}</p>
-        : <p className='winning-bid'></p>
+        ? (
+          <p className="winning-bid">
+            Winning bid with:
+            {activeGame.currentBid.bid}
+          </p>
+        )
+        : <p className="winning-bid" />
       }
       <p className={boldenName ? 'player-name big-n-bold' : 'player-name'}>{`${user.displayName} ${isDealer ? '[Dealer]' : ''}`}</p>
-      { activeGame.users[playerIndex].hand && activeGame.users[playerIndex].hand.length > 0 
-        ? (<Hand
-          playerIndex={playerIndex}
-          isPlayer={mainPlayerIndex === playerIndex}
-          activeGame={activeGame}
-        />)
-        : <div></div>
+      { activeGame.users[playerIndex].hand && activeGame.users[playerIndex].hand.length > 0
+        ? (
+          <Hand
+            playerIndex={playerIndex}
+            isPlayer={mainPlayerIndex === playerIndex}
+            activeGame={activeGame}
+          />
+        )
+        : <div />
       }
 
     </div>
