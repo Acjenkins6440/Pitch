@@ -214,7 +214,7 @@ const chooseLeadCard = (gameData, currBotIndex) => {
 //    check to see if you can beat it
 //        if you can beat it, do it
 //        otherwise, throw a trash card
-//
+
 const chooseBotCard = (gameData, currBotIndex) => {
   const bot = gameData.users[currBotIndex];
   if (gameData.inPlay && gameData.inPlay.length) {
