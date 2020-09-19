@@ -27,15 +27,34 @@ const Player = ({
     && (activeGame.phase === 'bid'
     || activeGame.phase === 'play card'
     || activeGame.phase === 'wait');
+  const winningBid = activeGame.currentBid
+    && activeGame.currentBid.bid > 0
+    && activeGame.currentBid.player.uid === user.uid;
+  const isDealer = activeGame.dealer && activeGame.dealer.uid === user.uid;
 
   return (
     <div className={className}>
-      <p className={boldenName ? 'big-n-bold' : ''}>{user.displayName}</p>
-      <Hand
-        playerIndex={playerIndex}
-        isPlayer={mainPlayerIndex === playerIndex}
-        activeGame={activeGame}
-      />
+      {winningBid && activeGame.phase === 'bid'
+        ? (
+          <p className="winning-bid">
+            Winning bid with:
+            {activeGame.currentBid.bid}
+          </p>
+        )
+        : <p className="winning-bid" />
+      }
+      <p className={boldenName ? 'player-name big-n-bold' : 'player-name'}>{`${user.displayName} ${isDealer ? '[Dealer]' : ''}`}</p>
+      { activeGame.users[playerIndex].hand && activeGame.users[playerIndex].hand.length > 0
+        ? (
+          <Hand
+            playerIndex={playerIndex}
+            isPlayer={mainPlayerIndex === playerIndex}
+            activeGame={activeGame}
+          />
+        )
+        : <div />
+      }
+
     </div>
   );
 };
@@ -52,6 +71,17 @@ Player.propTypes = {
       uid: PropTypes.string,
       displayName: PropTypes.string,
     }),
+    currentBid: PropTypes.shape({
+      bid: PropTypes.number,
+      player: PropTypes.shape({
+        uid: PropTypes.string,
+      }),
+    }),
+    dealer: PropTypes.shape({
+      uid: PropTypes.string,
+      displayName: PropTypes.string,
+    }),
+    users: PropTypes.array,
     phase: PropTypes.string,
   }).isRequired,
 };

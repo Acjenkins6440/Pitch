@@ -5,6 +5,7 @@ const devMode = process.env.NODE_ENV !== 'production'
 module.exports = (env) => {
   return {
     mode: env,
+    devtool: 'inline-source-map',
     entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, 'dist'),

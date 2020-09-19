@@ -61,10 +61,10 @@ const canPlayCard = (card, gameData, hand, isMyTurn, anySuit) => {
     return false;
   }
   const cardSuit = card.suit;
-  const playable = !gameData.trump
+  const playable = anySuit
+  || !gameData.inPlay
   || gameData.trump === cardSuit
-  || gameData.inPlay[0].suit === cardSuit
-  || anySuit;
+  || gameData.inPlay[0].suit === cardSuit;
 
   return playable;
 };
@@ -84,15 +84,20 @@ const getJunkCard = (hand, trump, leadingSuit) => {
       && card.value < 9
       && card.suit === leadingSuit);
   } else {
-    junkCard = hand.find(card => card.suit !== trump && card.value < 9);
+    const possibleJunkCards = hand.filter(card => card.suit !== trump && card.value < 9);
+    junkCard = possibleJunkCards;
   }
   if (!junkCard && !followSuit) {
     junkCard = hand.find(card => card.suit !== trump
       || (card.suit === trump && card.value < 9 && card.value > 4));
   } else if (!junkCard) {
-    junkCard = hand.find(card => card.suit === leadingSuit);
-  } else {
-    [junkCard] = hand;
+    const allowableNonTrumpCards = hand.filter(card => card.suit === leadingSuit);
+    junkCard = allowableNonTrumpCards.length
+      ? allowableNonTrumpCards[Math.floor(Math.random() * allowableNonTrumpCards.length)]
+      : null;
+  }
+  if (!junkCard) {
+    junkCard = hand[Math.floor(Math.random() * hand.length)];
   }
   return junkCard;
 };
@@ -107,10 +112,11 @@ const getNonHighPointCard = (hand, trump, leadingSuit) => {
     let maxGameValue = 0;
     if (needToFollowSuit(hand, leadingSuit)) {
       maxGameValue = Math.max(...hand.map(card => card.suit === leadingSuit && card.gameValue));
+      pointCard = hand.find(card => card.gameValue === maxGameValue && card.suit === leadingSuit);
     } else {
       maxGameValue = Math.max(...hand.map(card => card.gameValue));
+      pointCard = hand.find(card => card.gameValue === maxGameValue);
     }
-    pointCard = hand.find(card => card.gameValue === maxGameValue);
   }
   return pointCard;
 };
@@ -125,13 +131,62 @@ const getHighTrumpCard = (hand, trump, botsTrump) => {
   return hand.find(card => card.suit === trump && card.value === highestTrumpValue);
 };
 
-const getWinningCard = (inPlay, trump, leadingSuit) => {
+const getWinningCard = (inPlay, trump) => {
+  const leadingSuit = inPlay[0].suit;
   const trumpCards = inPlay.filter(card => card.suit === trump);
-  const contenders = trumpCards || inPlay.filter(card => card.suit === leadingSuit);
+  const contenders = (trumpCards.length && trumpCards)
+    || inPlay.filter(card => card.suit === leadingSuit);
   return contenders.reduce((prev, curr) => (prev.value > curr.value ? prev : curr));
 };
 
 const getGamePointValue = inPlay => inPlay.reduce((acc, curr) => acc + curr.gameValue, 0);
+
+const updateScorePile = (gameData, winningTeam) => {
+  const scorePile = gameData.scorePile ? [...gameData.scorePile] : [];
+  const scorePileAddition = gameData.inPlay.splice(0, 4).map(card => (
+    { ...card, team: winningTeam }));
+  return scorePile.concat(scorePileAddition);
+};
+
+const calcHandScore = (gameData) => {
+  const scoreToBeat = gameData.currentBid.bid;
+  const biddingTeam = gameData.currentBid.player.team;
+  const handScores = { team1: 0, team2: 0 };
+  const gamePoints = { team1: 0, team2: 0 };
+  const trumpCards = gameData.scorePile.filter(card => card.suit === gameData.trump);
+  const maxTrumpValue = Math.max(...trumpCards.map(card => card.value));
+  const minTrumpValue = Math.min(...trumpCards.map(card => card.value));
+  const high = trumpCards.find(card => card.value === maxTrumpValue);
+  const low = trumpCards.find(card => card.value === minTrumpValue);
+  const jack = trumpCards.find(card => card.value === 11);
+  gameData.scorePile.forEach((card) => { gamePoints[card.team] += card.gameValue; });
+  if (gamePoints.team1 > gamePoints.team2) {
+    handScores.team1 += 1;
+  } else if (gamePoints.team2 > gamePoints.team1) {
+    handScores.team2 += 1;
+  }
+  handScores[high.team] += 1;
+  handScores[low.team] += 1;
+  if (jack) {
+    handScores[jack.team] += 1;
+  }
+  if (handScores[biddingTeam] < scoreToBeat) {
+    handScores[biddingTeam] = scoreToBeat * -1;
+  }
+  return handScores;
+};
+
+const mergeScores = (scores1, scores2) => {
+  const team1Scores = scores1.team1 ? scores1.team1 : 0;
+  const team2Scores = scores1.team2 ? scores1.team2 : 0;
+  return { team1: team1Scores + scores2.team1, team2: team2Scores + scores2.team2 };
+};
+
+const getUpdatedScore = (oldScore, scoreUpdates) => (
+  oldScore
+    ? mergeScores(oldScore, scoreUpdates)
+    : scoreUpdates
+);
 
 export {
   getCardGameValue,
@@ -143,4 +198,7 @@ export {
   getJunkCard,
   getGamePointValue,
   getHighTrumpCard,
+  getUpdatedScore,
+  updateScorePile,
+  calcHandScore,
 };

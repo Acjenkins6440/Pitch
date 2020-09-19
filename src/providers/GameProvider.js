@@ -1,7 +1,13 @@
 import { db } from '../firebase';
 import { generateBotName, takeBotsTurn } from './AIProvider';
 import { userUid } from './UserProvider';
-import { getDetailedCard } from './ScoreProvider';
+import {
+  getDetailedCard,
+  updateScorePile,
+  getWinningCard,
+  calcHandScore,
+  getUpdatedScore,
+} from './ScoreProvider';
 
 let activeGameKey = '';
 let isOwner = false;
@@ -187,8 +193,14 @@ const getGameLocalPhase = (gameData) => {
 const setNextPhase = (gameData) => {
   const phaseRef = db.ref(`games/active/${activeGameKey}/phase`);
   const turnRef = db.ref(`games/active/${activeGameKey}/playersTurn`);
+  const dealerRef = db.ref(`games/active/${activeGameKey}/dealer`);
+  const statusRef = db.ref(`games/active/${activeGameKey}/status`);
+
   let nextPlayerIndex = null;
+  let nextDealerIndex = null;
+  let gameOver = null;
   let newPhase = '';
+  let noMoreCards = false;
   switch (gameData.phase) {
     case 'deal':
       newPhase = 'bid';
@@ -197,22 +209,31 @@ const setNextPhase = (gameData) => {
       newPhase = 'play card';
       break;
     case 'play card':
-      if (gameData.bidCount === 4) {
-        newPhase = 'score';
+      if (gameData.inPlay && gameData.inPlay.length === 4) {
+        newPhase = 'score throw';
         break;
       } else newPhase = 'play card';
       break;
-    case 'score':
-      newPhase = 'show score';
+    case 'score throw':
+      noMoreCards = !gameData.users[0].hand;
+      newPhase = noMoreCards ? 'score hand' : 'play card';
       break;
-    case 'show score':
+    case 'score hand':
       newPhase = 'deal';
       break;
     default:
       break;
   }
+  if (newPhase === 'deal') {
+    gameOver = gameData.score && (gameData.score.team1 >= 11 || gameData.score.team2 >= 11);
+    const dealerIndex = gameData.users.findIndex(user => user.uid === gameData.dealer.uid);
+    nextDealerIndex = dealerIndex === 3 ? 0 : dealerIndex + 1;
+  }
   if (newPhase === 'play card') {
-    nextPlayerIndex = gameData.users.findIndex(user => user.uid === gameData.currentBid.player.uid);
+    const firstThrowOfHand = !gameData.scorePile;
+    nextPlayerIndex = firstThrowOfHand
+      ? gameData.users.findIndex(user => user.uid === gameData.currentBid.player.uid)
+      : gameData.users.findIndex(user => user.uid === gameData.wonLastThrow.uid);
   }
   if (newPhase === 'bid') {
     const dealerIndex = gameData.users.findIndex(user => user.uid === gameData.dealer.uid);
@@ -221,9 +242,19 @@ const setNextPhase = (gameData) => {
       nextPlayerIndex = dealerIndex + 1;
     }
   }
-  phaseRef.set(newPhase).then(() => {
+  if (newPhase === 'score throw') {
+    return setTimeout(() => phaseRef.set(newPhase), 2000);
+  }
+  return phaseRef.set(newPhase).then(() => {
+    if (gameOver) {
+      statusRef.set('game over');
+      return;
+    }
     if (nextPlayerIndex !== null) {
       turnRef.set(gameData.users[nextPlayerIndex]);
+    }
+    if (nextDealerIndex !== null) {
+      dealerRef.set(gameData.users[nextDealerIndex]);
     }
   });
 };
@@ -267,11 +298,11 @@ const shuffleDeck = (deck) => {
   let i = 52;
   const shuffledDeck = deck.slice();
   while (i > 0) {
+    i -= 1;
     const ri = Math.floor(Math.random() * (i + 1));
     const temp = shuffledDeck[i];
     shuffledDeck[i] = shuffledDeck[ri];
     shuffledDeck[ri] = temp;
-    i -= 1;
   }
   return shuffledDeck;
 };
@@ -319,6 +350,33 @@ const pass = (gameData) => {
   nextTurn(gameData);
 };
 
+const scoreThrow = (gameData) => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`);
+  const winningCard = getWinningCard(gameData.inPlay, gameData.trump, gameData.inPlay[0].suit);
+  const wonLastThrow = winningCard.player;
+  const scorePile = updateScorePile(gameData, wonLastThrow.team);
+  const updates = { ...gameData, wonLastThrow, scorePile };
+  gameRef.set(updates).then(() => {
+    setNextPhase(updates);
+  });
+};
+
+const scoreHand = (gameData) => {
+  const gameRef = db.ref(`games/active/${activeGameKey}`);
+  const teamScores = calcHandScore(gameData);
+  const newScore = getUpdatedScore(gameData.score, teamScores);
+  const updates = {
+    ...gameData,
+    scorePile: [],
+    score: newScore,
+    trump: '',
+    currentBid: { bid: 0, player: gameData.currentBid.player },
+  };
+  gameRef.set(updates).then(() => {
+    setNextPhase(updates);
+  });
+};
+
 const initUniversalListenValues = (setActiveGame) => {
   const endpoint = `games/active/${activeGameKey}`;
   const statusRef = db.ref(`${endpoint}/status`);
@@ -327,18 +385,14 @@ const initUniversalListenValues = (setActiveGame) => {
   const playerRef = db.ref(`${endpoint}/users`);
   const turnRef = db.ref(`${endpoint}/playersTurn`);
   const inPlayRef = db.ref(`${endpoint}/inPlay`);
-  [statusRef, currentBidRef, playerRef, turnRef, inPlayRef].forEach((ref) => {
+  const dealerRef = db.ref(`${endpoint}/dealer`);
+  [statusRef, currentBidRef, playerRef, turnRef, inPlayRef, dealerRef, phaseRef].forEach((ref) => {
     ref.on('value', () => {
       getFreshGameData().then((gameData) => {
-        setActiveGame(gameData);
+        const localPhase = getGameLocalPhase(gameData);
+        const gameWithLocalPhase = { ...gameData, phase: localPhase };
+        setActiveGame(gameWithLocalPhase);
       });
-    });
-  });
-  phaseRef.on('value', () => {
-    getFreshGameData().then((gameData) => {
-      const localPhase = getGameLocalPhase(gameData);
-      const gameWithLocalPhase = { ...gameData, phase: localPhase };
-      setActiveGame(gameWithLocalPhase);
     });
   });
 };
@@ -348,6 +402,9 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
   const playerLeftRef = db.ref(`${endpoint}/playerLeft`);
   const playerJoinedRef = db.ref(`${endpoint}/playerJoined`);
   const nextTurnRef = db.ref(`${endpoint}/playersTurn`);
+  const phaseRef = db.ref(`${endpoint}/phase`);
+  const dealerRef = db.ref(`${endpoint}/dealer`);
+  const botTurnArray = [nextTurnRef, dealerRef];
 
   playerLeftRef.on('value', (snapshot) => {
     const playerToRemove = snapshot.val();
@@ -365,12 +422,25 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
       playerJoinedRef.set({});
     }
   });
-  nextTurnRef.on('value', (snapshot) => {
-    if (snapshot.exists() && snapshot.val().isBot) {
+  phaseRef.on('value', (snapshot) => {
+    if (snapshot.exists() && (snapshot.val() === 'score throw' || snapshot.val() === 'score hand')) {
       getFreshGameData().then((gameData) => {
-        setTimeout(takeBotsTurn(gameData, setBid, pass, deal, playCard), 500);
+        if (snapshot.val() === 'score throw') {
+          scoreThrow(gameData);
+        } else { scoreHand(gameData); }
       });
     }
+  });
+  botTurnArray.forEach((ref) => {
+    ref.on('value', (snapshot) => {
+      if (snapshot.exists() && snapshot.val().isBot) {
+        getFreshGameData().then((gameData) => {
+          if (gameData.status === 'in progress') {
+            setTimeout(() => takeBotsTurn(gameData, setBid, pass, deal, playCard), 500);
+          }
+        });
+      }
+    });
   });
   initUniversalListenValues(setActiveGame);
 };
@@ -413,9 +483,10 @@ const inProgressGameData = (gameData) => {
     deck,
     inPlay: [],
     trump: '',
-    scorePiles: {
-      team1: [],
-      team2: [],
+    scorePile: [],
+    score: {
+      team1: 0,
+      team2: 0,
     },
     currentBid: {
       bid: 0,
