@@ -78,7 +78,7 @@
       left: 50%;
       transform: translate(-50%, 40%) rotate(180deg);
       margin: 0 auto;
-      .player-name{
+      .player-name, .winning-bid{
         transform: rotate(180deg);
       }
     }

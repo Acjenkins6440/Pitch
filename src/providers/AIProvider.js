@@ -295,16 +295,22 @@ const takeBotsTurn = (gameData, setBid, pass, deal, playCard) => {
   const currBotIndex = gameData.users.findIndex(user => user.uid === gameData.playersTurn.uid);
   const { hand } = gameData.users[currBotIndex];
 
+  console.log(`fired for ${gameData.users[currBotIndex].displayName}`)
+
   if (gameData.phase === 'bid') {
     const topBid = calcBid(hand);
+    const isDealer = gameData.users[currBotIndex].uid === gameData.dealer.uid
     if (topBid.points > gameData.currentBid.bid) {
-      const botUser = { ...gameData.playersTurn, hand: null };
+      const botUser = { ...gameData.users[currBotIndex], hand: null };
       setBid({ bid: topBid.points, player: botUser }, gameData);
+    } else if (isDealer && !gameData.currentBid.bid ) {
+      const botUser = { ...gameData.users[currBotIndex], hand: null };
+      setBid({ bid: 2, player: botUser}, gameData)
     } else {
       pass(gameData);
     }
   } else if (gameData.phase === 'deal') {
-    deal();
+    setTimeout(() => deal(gameData), 4000);
   } else if (gameData.phase === 'play card') {
     const cardToPlay = chooseBotCard(gameData, currBotIndex);
     const cardIndex = hand.findIndex(card => card.cardKey === cardToPlay.cardKey);

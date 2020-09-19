@@ -194,8 +194,11 @@ const setNextPhase = (gameData) => {
   const phaseRef = db.ref(`games/active/${activeGameKey}/phase`);
   const turnRef = db.ref(`games/active/${activeGameKey}/playersTurn`);
   const dealerRef = db.ref(`games/active/${activeGameKey}/dealer`);
+  const statusRef = db.ref(`games/active/${activeGameKey}/status`);
+
   let nextPlayerIndex = null;
   let nextDealerIndex = null;
+  let gameOver = null;
   let newPhase = '';
   switch (gameData.phase) {
     case 'deal':
@@ -221,6 +224,7 @@ const setNextPhase = (gameData) => {
       break;
   }
   if(newPhase === 'deal'){
+    gameOver = gameData.score && (gameData.score.team1 >= 11 || gameData.score.team2 >= 11)
     const dealerIndex = gameData.users.findIndex(user => user.uid === gameData.dealer.uid)
     nextDealerIndex = dealerIndex === 3 ? 0 : dealerIndex + 1;
   }
@@ -239,7 +243,13 @@ const setNextPhase = (gameData) => {
       nextPlayerIndex = dealerIndex + 1;
     }
   }
+  if (newPhase === 'score throw'){
+   return setTimeout(() => phaseRef.set(newPhase), 2000)
+  }
   phaseRef.set(newPhase).then(() => {
+    if(gameOver) {
+      return statusRef.set('game over')
+    }
     if (nextPlayerIndex !== null) {
       turnRef.set(gameData.users[nextPlayerIndex]);
     }
@@ -360,11 +370,10 @@ const scoreHand = (gameData) => {
     scorePile: [], 
     score: newScore, 
     trump: '', 
-    currentBid: { bid: 0, player: currentBid.player }
+    currentBid: { bid: 0, player: gameData.currentBid.player }
   }
   gameRef.set(updates).then(() => {
     setNextPhase(updates)
-    debugger
   })
 }
 
@@ -376,18 +385,14 @@ const initUniversalListenValues = (setActiveGame) => {
   const playerRef = db.ref(`${endpoint}/users`);
   const turnRef = db.ref(`${endpoint}/playersTurn`);
   const inPlayRef = db.ref(`${endpoint}/inPlay`);
-  [statusRef, currentBidRef, playerRef, turnRef, inPlayRef].forEach((ref) => {
+  const dealerRef = db.ref(`${endpoint}/dealer`);
+  [statusRef, currentBidRef, playerRef, turnRef, inPlayRef, dealerRef, phaseRef].forEach((ref) => {
     ref.on('value', () => {
       getFreshGameData().then((gameData) => {
-        setActiveGame(gameData);
+        const localPhase = getGameLocalPhase(gameData);
+        const gameWithLocalPhase = { ...gameData, phase: localPhase };
+        setActiveGame(gameWithLocalPhase);
       });
-    });
-  });
-  phaseRef.on('value', () => {
-    getFreshGameData().then((gameData) => {
-      const localPhase = getGameLocalPhase(gameData);
-      const gameWithLocalPhase = { ...gameData, phase: localPhase };
-      setActiveGame(gameWithLocalPhase);
     });
   });
 };
@@ -398,6 +403,8 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
   const playerJoinedRef = db.ref(`${endpoint}/playerJoined`);
   const nextTurnRef = db.ref(`${endpoint}/playersTurn`);
   const phaseRef = db.ref(`${endpoint}/phase`);
+  const dealerRef = db.ref(`${endpoint}/dealer`);
+  const botTurnArray = [nextTurnRef, dealerRef]
 
   playerLeftRef.on('value', (snapshot) => {
     const playerToRemove = snapshot.val();
@@ -415,13 +422,6 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
       playerJoinedRef.set({});
     }
   });
-  nextTurnRef.on('value', (snapshot) => {
-    if (snapshot.exists() && snapshot.val().isBot) {
-      getFreshGameData().then((gameData) => {
-        setTimeout(() => takeBotsTurn(gameData, setBid, pass, deal, playCard), 500);
-      });
-    }
-  });
   phaseRef.on('value', (snapshot) => {
     if(snapshot.exists() && (snapshot.val() === 'score throw' || snapshot.val() === 'score hand')){
       getFreshGameData().then((gameData) => {
@@ -431,6 +431,17 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
         else{ scoreHand(gameData) }
       })
     }
+  })
+  botTurnArray.forEach(ref => {
+    ref.on('value', (snapshot) => {
+      if (snapshot.exists() && snapshot.val().isBot) {
+        getFreshGameData().then((gameData) => {
+          if(gameData.status === 'in progress') {
+            setTimeout(() => takeBotsTurn(gameData, setBid, pass, deal, playCard), 500);
+          }
+        });
+      }
+    })
   })
   initUniversalListenValues(setActiveGame);
 };

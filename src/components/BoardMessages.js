@@ -113,7 +113,11 @@ const BoardMessages = ({ activeGame, setActiveGame, userIndex }) => {
               </Col>
             </Row>
           </Container>
-          {isDealer && activeGame.phase === 'deal' ?
+          {activeGame.status === 'game over'
+            ? <div>Game over!</div>
+            : <div />
+          }
+          {isDealer && activeGame.phase === 'deal' && activeGame.status === 'in progress' ?
             <Button
               onClick={handleDeal}
               onKeyPress={handleDeal}
