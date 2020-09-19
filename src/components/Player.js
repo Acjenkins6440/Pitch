@@ -71,6 +71,17 @@ Player.propTypes = {
       uid: PropTypes.string,
       displayName: PropTypes.string,
     }),
+    currentBid: PropTypes.shape({
+      bid: PropTypes.number,
+      player: PropTypes.shape({
+        uid: PropTypes.string,
+      }),
+    }),
+    dealer: PropTypes.shape({
+      uid: PropTypes.string,
+      displayName: PropTypes.string,
+    }),
+    users: PropTypes.array,
     phase: PropTypes.string,
   }).isRequired,
 };

@@ -134,7 +134,8 @@ const getHighTrumpCard = (hand, trump, botsTrump) => {
 const getWinningCard = (inPlay, trump) => {
   const leadingSuit = inPlay[0].suit;
   const trumpCards = inPlay.filter(card => card.suit === trump);
-  const contenders = (trumpCards.length && trumpCards) || inPlay.filter(card => card.suit === leadingSuit);
+  const contenders = (trumpCards.length && trumpCards)
+    || inPlay.filter(card => card.suit === leadingSuit);
   return contenders.reduce((prev, curr) => (prev.value > curr.value ? prev : curr));
 };
 
@@ -142,7 +143,8 @@ const getGamePointValue = inPlay => inPlay.reduce((acc, curr) => acc + curr.game
 
 const updateScorePile = (gameData, winningTeam) => {
   const scorePile = gameData.scorePile ? [...gameData.scorePile] : [];
-  const scorePileAddition = gameData.inPlay.splice(0, 4).map(card => ({ ...card, team: winningTeam }));
+  const scorePileAddition = gameData.inPlay.splice(0, 4).map(card => (
+    { ...card, team: winningTeam }));
   return scorePile.concat(scorePileAddition);
 };
 
@@ -180,7 +182,11 @@ const mergeScores = (scores1, scores2) => {
   return { team1: team1Scores + scores2.team1, team2: team2Scores + scores2.team2 };
 };
 
-const getUpdatedScore = (oldScore, scoreUpdates) => (oldScore ? mergeScores(oldScore, scoreUpdates) : scoreUpdates);
+const getUpdatedScore = (oldScore, scoreUpdates) => (
+  oldScore
+    ? mergeScores(oldScore, scoreUpdates)
+    : scoreUpdates
+);
 
 export {
   getCardGameValue,

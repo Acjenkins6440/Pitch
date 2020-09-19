@@ -200,6 +200,7 @@ const setNextPhase = (gameData) => {
   let nextDealerIndex = null;
   let gameOver = null;
   let newPhase = '';
+  let noMoreCards = false;
   switch (gameData.phase) {
     case 'deal':
       newPhase = 'bid';
@@ -214,7 +215,7 @@ const setNextPhase = (gameData) => {
       } else newPhase = 'play card';
       break;
     case 'score throw':
-      const noMoreCards = !gameData.users[0].hand;
+      noMoreCards = !gameData.users[0].hand;
       newPhase = noMoreCards ? 'score hand' : 'play card';
       break;
     case 'score hand':
@@ -230,11 +231,9 @@ const setNextPhase = (gameData) => {
   }
   if (newPhase === 'play card') {
     const firstThrowOfHand = !gameData.scorePile;
-    if (firstThrowOfHand) {
-      nextPlayerIndex = gameData.users.findIndex(user => user.uid === gameData.currentBid.player.uid);
-    } else {
-      nextPlayerIndex = gameData.users.findIndex(user => user.uid === gameData.wonLastThrow.uid);
-    }
+    nextPlayerIndex = firstThrowOfHand
+      ? gameData.users.findIndex(user => user.uid === gameData.currentBid.player.uid)
+      : gameData.users.findIndex(user => user.uid === gameData.wonLastThrow.uid);
   }
   if (newPhase === 'bid') {
     const dealerIndex = gameData.users.findIndex(user => user.uid === gameData.dealer.uid);
@@ -246,9 +245,10 @@ const setNextPhase = (gameData) => {
   if (newPhase === 'score throw') {
     return setTimeout(() => phaseRef.set(newPhase), 2000);
   }
-  phaseRef.set(newPhase).then(() => {
+  return phaseRef.set(newPhase).then(() => {
     if (gameOver) {
-      return statusRef.set('game over');
+      statusRef.set('game over');
+      return;
     }
     if (nextPlayerIndex !== null) {
       turnRef.set(gameData.users[nextPlayerIndex]);

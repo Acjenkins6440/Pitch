@@ -211,6 +211,10 @@ BoardMessages.propTypes = {
     users: PropTypes.array.isRequired,
     status: PropTypes.string.isRequired,
     phase: PropTypes.string,
+    score: PropTypes.shape({
+      team1: PropTypes.number,
+      team2: PropTypes.number,
+    }),
     currentBid: PropTypes.shape({
       bid: PropTypes.number,
       player: PropTypes.shape({

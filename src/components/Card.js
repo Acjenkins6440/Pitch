@@ -4,13 +4,13 @@ import cardBack from '../assets/cardback.jpeg';
 import { playCard } from '../providers/GameProvider';
 
 const Card = ({
-  cardKey, playerIndex, cardIndex, canPlayCard, classAttr, alreadyPlayedCard,
+  cardKey, playerIndex, cardIndex, canPlayCard, classAttr, alreadyPlayedCard, playedCard,
 }) => {
   const classToAdd = classAttr || '';
 
   const handlePlayCard = () => {
     if (canPlayCard && !alreadyPlayedCard) {
-      alreadyPlayedCard = true;
+      playedCard();
       playCard(cardIndex, playerIndex);
     }
   };
@@ -44,6 +44,8 @@ Card.propTypes = {
   cardIndex: PropTypes.number,
   canPlayCard: PropTypes.bool,
   classAttr: PropTypes.string,
+  alreadyPlayedCard: PropTypes.bool,
+  playedCard: PropTypes.func,
 };
 
 Card.defaultProps = {
@@ -51,6 +53,8 @@ Card.defaultProps = {
   cardIndex: 0,
   canPlayCard: false,
   classAttr: '',
+  alreadyPlayedCard: false,
+  playedCard: null,
 };
 
 export default Card;

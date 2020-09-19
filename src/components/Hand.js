@@ -9,7 +9,9 @@ const Hand = ({ playerIndex, isPlayer, activeGame }) => {
   const handLength = playerHand && activeGame.users[playerIndex].hand.length;
   const isMyTurn = activeGame.playersTurn.uid === activeGame.users[playerIndex].uid;
   const pickAnySuit = cantFollowSuit(playerHand, activeGame.inPlay, isPlayer);
-  const alreadyPlayedCard = false;
+  let alreadyPlayedCard = false;
+
+  const playedCard = () => { alreadyPlayedCard = true; };
 
   if (handLength) {
     if (!isPlayer) {
@@ -28,6 +30,7 @@ const Hand = ({ playerIndex, isPlayer, activeGame }) => {
           canPlayCard={canPlayCard(card, activeGame, playerHand, isMyTurn, pickAnySuit)}
           playerIndex={playerIndex}
           alreadyPlayedCard={alreadyPlayedCard}
+          playedCard={playedCard}
         />,
       );
     });
