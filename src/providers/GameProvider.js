@@ -57,17 +57,19 @@ const getActiveGame = () => {
   gameRef.once('value', snapshot => snapshot.val());
 };
 
-const getActiveGames = (setActiveGames) => {
+const getActiveGames = () => {
   const gamesRef = db.ref('games/active/');
   gamesRef.once('value').then((snapshot) => {
     const gameObject = snapshot.val();
+    const games = [];
     if (gameObject) {
-      const games = [];
       Object.keys(gameObject).forEach((key) => {
-        games.push({ ...gameObject[key], key });
+        if(gameObject[key].gameKey) {
+          games.push({ ...gameObject[key], key });
+        }
       });
-      setActiveGames(games);
     }
+    return games;
   });
 };
 
@@ -141,12 +143,14 @@ const leaveGame = (userData, gameData, setActiveGame, navigate) => {
   detatchUniversalListeners();
   if (!isOwner) {
     detatchPlayerListeners();
-    const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`);
-    playerLeftRef.set({ uid: userData.uid }).then(() => {
-      if (navigate) {
-        navigate('/');
-      }
-    });
+    if(activeGameKey){
+      const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`);
+      playerLeftRef.set({ uid: userData.uid }).then(() => {
+        if (navigate) {
+          navigate('/');
+        }
+      })
+    };
   } else {
     detatchOwnerListeners();
     deleteGame(activeGameKey);
@@ -408,7 +412,7 @@ const initOwnerListenValues = (gameData, setActiveGame) => {
 
   playerLeftRef.on('value', (snapshot) => {
     const playerToRemove = snapshot.val();
-    if (playerToRemove && playerToRemove.uid) {
+    if (playerToRemove && playerToRemove.uid && activeGameKey) {
       const action = 'remove';
       addOrRemovePlayer(playerToRemove, gameData, action, setActiveGame);
       playerLeftRef.set({});

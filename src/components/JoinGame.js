@@ -29,11 +29,11 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   }
 
   const initGames = () => {
-    getActiveGames(setActiveGames);
+    setActiveGames(getActiveGames())
   };
 
   useEffect(() => {
-    if (!activeGames.length) {
+    if (!activeGames) {
       initGames();
     }
   }, [activeGames]);

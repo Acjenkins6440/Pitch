@@ -25,7 +25,7 @@ const Card = ({
     );
   }
 
-  const imgSrc = `/public/images/${cardKey}.svg`;
+  const imgSrc = cardKey[0] === 'A' ? `/public/images/Ac${cardKey[1]}.svg` : `/public/images/${cardKey}.svg`;
   const img = classAttr
     ? <img src={imgSrc} alt="Front of card" id={cardKey} />
     : <input type="image" src={imgSrc} alt="Front of card" id={cardKey} onClick={handlePlayCard} onKeyPress={handlePlayCard} />;
