@@ -29,7 +29,7 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   }
 
   const initGames = () => {
-    setActiveGames(getActiveGames())
+    setActiveGames(getActiveGames());
   };
 
   useEffect(() => {

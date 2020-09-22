@@ -64,7 +64,7 @@ const getActiveGames = () => {
     const games = [];
     if (gameObject) {
       Object.keys(gameObject).forEach((key) => {
-        if(gameObject[key].gameKey) {
+        if (gameObject[key].gameKey) {
           games.push({ ...gameObject[key], key });
         }
       });
@@ -143,14 +143,14 @@ const leaveGame = (userData, gameData, setActiveGame, navigate) => {
   detatchUniversalListeners();
   if (!isOwner) {
     detatchPlayerListeners();
-    if(activeGameKey){
+    if (activeGameKey) {
       const playerLeftRef = db.ref(`games/active/${activeGameKey}/playerLeft`);
       playerLeftRef.set({ uid: userData.uid }).then(() => {
         if (navigate) {
           navigate('/');
         }
-      })
-    };
+      });
+    }
   } else {
     detatchOwnerListeners();
     deleteGame(activeGameKey);
