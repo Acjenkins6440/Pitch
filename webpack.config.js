@@ -10,7 +10,8 @@ module.exports = (env) => {
     entry: './src/index.js',
     plugins: [
       new HtmlWebpackPlugin({
-        title: 'Output Management'
+        title: 'Output Management',
+        template: 'template.html'
       }),
     ],
     output: {
