@@ -2,25 +2,26 @@
 
 This is a work in progress multiplayer Pitch game.  
 
-** This web app cannot be hosted locally without the firebase configuration file **
+### It is in alpha state!
+
+Check it out at https://prod.d4xeus2vr1xbc.amplifyapp.com/!
  
 ## Roadmap
 
-[x] - Set up users an user registration
+All alpha goals have been hit, moving on to polishing UI and improving AI.
 
-[x] - Build out UI
+[ ] - Improve scoreboard
 
-[x] - Connect to Firebase and keep players sync'd
+[ ] - Allow AI to make rng based risky moves 
 
-[x] - Users can connect to game
+[ ] - Give AI basic memory so they remember if high/low/jack have been played yet
 
-[x] - Game can be started
+[ ] - Improve indicators of who is bidding, what trump is, who won the last hand.
 
-[x] - Deck can be shuffled and dealt
+[ ] - Fix multitude of bugs
 
-[ ] - Cards can be played
+## Known bugs
 
-[ ] - Hands can be scored
-
-[ ] - Games can be completed
-  
+* When a player leaves a game, it causes the game to crash, players who leave need to be replaced by bots
+* When a game ends, bugs may happen when trying to leave
+* If a game ends from one of the above bugs, it can lead to no one being able to join a game, only create them.
