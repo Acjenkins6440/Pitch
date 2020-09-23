@@ -24,8 +24,10 @@ const Card = ({
       </div>
     );
   }
-  https://pitch-cards.s3.amazonaws.com/images/9S.svg
-  const imgSrc = cardKey[0] === 'A' ? `https://pitch-cards.s3.amazonaws.com/images/Ac${cardKey[1]}.svg` : `https://pitch-cards.s3.amazonaws.com/images/${cardKey}.svg`;
+
+  const imgSrc = cardKey[0] === 'A'
+    ? `https://pitch-cards.s3.amazonaws.com/images/Ac${cardKey[1]}.svg`
+    : `https://pitch-cards.s3.amazonaws.com/images/${cardKey}.svg`;
   const img = classAttr
     ? <img src={imgSrc} alt="Front of card" id={cardKey} />
     : <input type="image" src={imgSrc} alt="Front of card" id={cardKey} onClick={handlePlayCard} onKeyPress={handlePlayCard} />;
