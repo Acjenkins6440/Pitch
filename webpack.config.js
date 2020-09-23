@@ -10,7 +10,7 @@ module.exports = (env) => {
     entry: './src/index.js',
     plugins: [
       new HtmlWebpackPlugin({
-        title: 'Output Management',
+        title: 'Ultimate Pitch!',
         template: 'template.html'
       }),
     ],
@@ -32,7 +32,7 @@ module.exports = (env) => {
           },
         },
         {
-          test: /\.(scss|sass|css)$/,
+          test: /\.(scss|sass|css)$/i,
           use: [
             'style-loader',
             'css-loader',
@@ -45,6 +45,13 @@ module.exports = (env) => {
           use: [{
             loader: 'file-loader'
           }]
+        },
+        {
+          test: /\.css$/i,
+          loader: 'css-loader',
+          options: {
+            url: true,
+          }
         }
       ],
     },
