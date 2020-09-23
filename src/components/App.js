@@ -52,7 +52,6 @@ const App = () => {
     logout(user.uid, user.isAnonymous);
   };
 
-
   const NavLink = props => (
     <Link
       className="nav-link"
