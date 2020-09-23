@@ -36,12 +36,13 @@ module.exports = (env) => {
           use: [
             'style-loader',
             'css-loader',
-            'sass-loader'
+            'resolve-url-loader',
+            'sass-loader',
           ]
         },
         {
 
-          test:  /\.(png|jpe?g|gif)$/i,
+          test:  /\.(png|jpe?g|gif|css)$/i,
           use: [{
             loader: 'file-loader'
           }]
@@ -50,7 +51,7 @@ module.exports = (env) => {
           test: /\.css$/i,
           loader: 'css-loader',
           options: {
-            url: true,
+            url: true
           }
         }
       ],
