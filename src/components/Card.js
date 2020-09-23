@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import cardBack from '../assets/cardback.jpeg';
 import { playCard } from '../providers/GameProvider';
+import { Storage } from 'aws-amplify'
 
 const Card = ({
   cardKey, playerIndex, cardIndex, canPlayCard, classAttr, alreadyPlayedCard, playedCard,
 }) => {
+  const [imgSrc, setImgSrc] = useState('')
+  useEffect(() => {
+    const imgKey = cardKey[0] === 'A'
+      ? `Ac${cardKey[1]}.svg`
+      : `${cardKey}.svg`;
+    Storage.get(`images/${imgKey}`).then(resp => { setImgSrc(resp) })
+  }, [cardKey])
   const classToAdd = classAttr || '';
 
   const handlePlayCard = () => {
@@ -38,7 +46,7 @@ const Card = ({
     }
   }
 
-  const getCardName = (cardKey) => {
+  const getCardAltText = (cardKey) => {
     const suit = cardKey.slice(-1);
     let value = ''
     switch (cardKey[1]) {
@@ -56,19 +64,20 @@ const Card = ({
     return `${name} of ${suit}`
   }
 
-  const imgSrc = cardKey[0] === 'A'
-    ? `https://amplify-pitch-dev-122630-deployment.s3.amazonaws.com/images/Ac${cardKey[1]}.svg`
-    : `https://amplify-pitch-dev-122630-deployment.s3.amazonaws.com/images/${cardKey}.svg`;
+
+
   const img = classAttr
-    ? <img src={imgSrc} alt={getCardName(cardKey)} id={cardKey} />
-    : <input type="image" src={imgSrc} alt={getCardName(cardKey)} id={cardKey} onClick={handlePlayCard} onKeyPress={handlePlayCard} />;
+  ? <img src={imgSrc} alt={getCardAltText(cardKey)} id={cardKey} />
+  : <input type="image" src={imgSrc} alt={getCardAltText(cardKey)} id={cardKey} onClick={handlePlayCard} onKeyPress={handlePlayCard} />;
+
+
   return (
     <div className={`card ${classToAdd}`}>
       <div className="front">
         {img}
       </div>
     </div>
-  );
+  )
 };
 
 Card.propTypes = {
