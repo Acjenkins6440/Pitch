@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const devMode = process.env.NODE_ENV !== 'production'
 
@@ -7,6 +8,11 @@ module.exports = (env) => {
     mode: env,
     devtool: 'inline-source-map',
     entry: './src/index.js',
+    plugins: [
+      new HtmlWebpackPlugin({
+        title: 'Output Management'
+      }),
+    ],
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: 'bundle.development.js',
