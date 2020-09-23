@@ -25,12 +25,43 @@ const Card = ({
     );
   }
 
+  const getValueName = (value) => {
+    switch (value) {
+      case 'J':
+        return  'Jack'
+      case 'Q':
+        return 'Queen'
+      case 'K': 
+        return 'King'
+      default:
+        return value
+    }
+  }
+
+  const getCardName = (cardKey) => {
+    const suit = cardKey.slice(-1);
+    let value = ''
+    switch (cardKey[1]) {
+      case 'c':
+        value = 'Ace'
+        break;
+      case '0':
+        value = 10
+        break;
+      default:
+        value = cardKey[0]
+        break;
+    }
+    const name = getValueName(value)
+    return `${name} of ${suit}`
+  }
+
   const imgSrc = cardKey[0] === 'A'
-    ? `https://pitch-cards.s3.amazonaws.com/images/Ac${cardKey[1]}.svg`
-    : `https://pitch-cards.s3.amazonaws.com/images/${cardKey}.svg`;
+    ? `https://amplify-pitch-dev-122630-deployment.s3.amazonaws.com/images/Ac${cardKey[1]}.svg`
+    : `https://amplify-pitch-dev-122630-deployment.s3.amazonaws.com/images/${cardKey}.svg`;
   const img = classAttr
-    ? <img src={imgSrc} alt="Front of card" id={cardKey} />
-    : <input type="image" src={imgSrc} alt="Front of card" id={cardKey} onClick={handlePlayCard} onKeyPress={handlePlayCard} />;
+    ? <img src={imgSrc} alt={getCardName(cardKey)} id={cardKey} />
+    : <input type="image" src={imgSrc} alt={getCardName(cardKey)} id={cardKey} onClick={handlePlayCard} onKeyPress={handlePlayCard} />;
   return (
     <div className={`card ${classToAdd}`}>
       <div className="front">

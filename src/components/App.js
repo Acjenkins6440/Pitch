@@ -15,6 +15,9 @@ import {
   logout, getUserData, setOnline, setOffline,
 } from '../providers/UserProvider';
 import { leaveGame } from '../providers/GameProvider';
+import Amplify from 'aws-amplify';
+import awsconfig from '../aws-exports';
+Amplify.configure(awsconfig)
 
 const App = () => {
   const [user, loading] = useAuthState(auth);

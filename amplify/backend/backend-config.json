@@ -1,12 +1,6 @@
 {
-  "hosting": {
-    "amplifyhosting": {
-      "service": "amplifyhosting",
-      "type": "cicd"
-    }
-  },
   "auth": {
-    "pitch6afd9053": {
+    "pitch64508c34": {
       "service": "Cognito",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
@@ -14,7 +8,7 @@
     }
   },
   "storage": {
-    "Pitch": {
+    "pitch": {
       "service": "S3",
       "providerPlugin": "awscloudformation"
     }
