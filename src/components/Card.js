@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { Storage } from 'aws-amplify';
 import cardBack from '../assets/cardback.jpeg';
 import { playCard } from '../providers/GameProvider';
-import { Storage } from 'aws-amplify'
 
 const Card = ({
   cardKey, playerIndex, cardIndex, canPlayCard, classAttr, alreadyPlayedCard, playedCard,
 }) => {
-  const [imgSrc, setImgSrc] = useState('')
+  const [imgSrc, setImgSrc] = useState('');
   useEffect(() => {
     const imgKey = cardKey[0] === 'A'
       ? `Ac${cardKey[1]}.svg`
       : `${cardKey}.svg`;
-    Storage.get(`images/${imgKey}`).then(resp => { setImgSrc(resp) })
-  }, [cardKey])
+    Storage.get(`images/${imgKey}`).then((resp) => { setImgSrc(resp); });
+  }, [cardKey]);
   const classToAdd = classAttr || '';
 
   const handlePlayCard = () => {
@@ -36,39 +36,38 @@ const Card = ({
   const getValueName = (value) => {
     switch (value) {
       case 'J':
-        return  'Jack'
+        return 'Jack';
       case 'Q':
-        return 'Queen'
-      case 'K': 
-        return 'King'
+        return 'Queen';
+      case 'K':
+        return 'King';
       default:
-        return value
+        return value;
     }
-  }
+  };
 
   const getCardAltText = (cardKey) => {
     const suit = cardKey.slice(-1);
-    let value = ''
+    let value = '';
     switch (cardKey[1]) {
       case 'c':
-        value = 'Ace'
+        value = 'Ace';
         break;
       case '0':
-        value = 10
+        value = 10;
         break;
       default:
-        value = cardKey[0]
+        [value] = cardKey;
         break;
     }
-    const name = getValueName(value)
-    return `${name} of ${suit}`
-  }
-
+    const name = getValueName(value);
+    return `${name} of ${suit}`;
+  };
 
 
   const img = classAttr
-  ? <img src={imgSrc} alt={getCardAltText(cardKey)} id={cardKey} />
-  : <input type="image" src={imgSrc} alt={getCardAltText(cardKey)} id={cardKey} onClick={handlePlayCard} onKeyPress={handlePlayCard} />;
+    ? <img src={imgSrc} alt={getCardAltText(cardKey)} id={cardKey} />
+    : <input type="image" src={imgSrc} alt={getCardAltText(cardKey)} id={cardKey} onClick={handlePlayCard} onKeyPress={handlePlayCard} />;
 
 
   return (
@@ -77,7 +76,7 @@ const Card = ({
         {img}
       </div>
     </div>
-  )
+  );
 };
 
 Card.propTypes = {
