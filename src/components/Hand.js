@@ -27,7 +27,7 @@ const Hand = ({ playerIndex, isPlayer, activeGame }) => {
           cardKey={card.cardKey}
           cardIndex={index}
           key={`${card.cardKey} - ${playerIndex}`}
-          canPlayCard={canPlayCard(card, activeGame, playerHand, isMyTurn, pickAnySuit)}
+          canPlayCard={() => canPlayCard(card, activeGame, playerHand, isMyTurn, pickAnySuit)}
           playerIndex={playerIndex}
           alreadyPlayedCard={alreadyPlayedCard}
           playedCard={playedCard}

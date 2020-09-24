@@ -8,6 +8,7 @@ const Card = ({
   cardKey, playerIndex, cardIndex, canPlayCard, classAttr, alreadyPlayedCard, playedCard,
 }) => {
   const [imgSrc, setImgSrc] = useState('');
+  const [highlight, setHighlight] = useState(false);
   useEffect(() => {
     const imgKey = cardKey[0] === 'A'
       ? `Ac${cardKey[1]}.svg`
@@ -17,7 +18,7 @@ const Card = ({
   const classToAdd = classAttr || '';
 
   const handlePlayCard = () => {
-    if (canPlayCard && !alreadyPlayedCard) {
+    if (canPlayCard() && !alreadyPlayedCard) {
       playedCard();
       playCard(cardIndex, playerIndex);
     }
@@ -64,26 +65,46 @@ const Card = ({
     return `${name} of ${suit}`;
   };
 
+  const setHighlightTimeout = () => { setTimeout(() => setHighlight(true), 500); };
+  if (canPlayCard() && !alreadyPlayedCard) {
+    setHighlightTimeout();
+  } else if (highlight) {
+    setHighlight(false);
+  }
 
-  const img = classAttr
-    ? <img src={imgSrc} alt={getCardAltText(cardKey)} id={cardKey} />
-    : <input type="image" src={imgSrc} alt={getCardAltText(cardKey)} id={cardKey} onClick={handlePlayCard} onKeyPress={handlePlayCard} />;
+
+  if (imgSrc) {
+    const img = classAttr
+      ? <img src={imgSrc} alt={getCardAltText(cardKey)} id={cardKey} />
+      : (
+        <input
+          className={highlight ? 'highlighted' : ''}
+          type="image"
+          src={imgSrc}
+          alt={getCardAltText(cardKey)}
+          id={cardKey}
+          onClick={handlePlayCard}
+          onKeyPress={handlePlayCard}
+        />
+      );
 
 
-  return (
-    <div className={`card ${classToAdd}`}>
-      <div className="front">
-        {img}
+    return (
+      <div className={`card ${classToAdd}`}>
+        <div className="front">
+          {img}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+  return <div />;
 };
 
 Card.propTypes = {
   cardKey: PropTypes.string.isRequired,
   playerIndex: PropTypes.number,
   cardIndex: PropTypes.number,
-  canPlayCard: PropTypes.bool,
+  canPlayCard: PropTypes.func,
   classAttr: PropTypes.string,
   alreadyPlayedCard: PropTypes.bool,
   playedCard: PropTypes.func,
@@ -92,7 +113,7 @@ Card.propTypes = {
 Card.defaultProps = {
   playerIndex: 0,
   cardIndex: 0,
-  canPlayCard: false,
+  canPlayCard: () => {},
   classAttr: '',
   alreadyPlayedCard: false,
   playedCard: null,
