@@ -57,7 +57,7 @@ const getActiveGame = () => {
   gameRef.once('value', snapshot => snapshot.val());
 };
 
-const getActiveGames = () => {
+const getActiveGames = (setActiveGames) => {
   const gamesRef = db.ref('games/active/');
   gamesRef.once('value').then((snapshot) => {
     const gameObject = snapshot.val();
@@ -69,7 +69,7 @@ const getActiveGames = () => {
         }
       });
     }
-    return games;
+    setActiveGames(games);
   });
 };
 
