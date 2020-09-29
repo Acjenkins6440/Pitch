@@ -4,7 +4,7 @@ This is a work in progress multiplayer Pitch game.
 
 ### It is in alpha state!
 
-Check it out at https://prod.d4xeus2vr1xbc.amplifyapp.com/!
+Check it out at https://dev.d2boy5ubnylkqh.amplifyapp.com/!
  
 ## Roadmap
 
