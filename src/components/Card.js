@@ -9,11 +9,13 @@ const Card = ({
 }) => {
   const [imgSrc, setImgSrc] = useState('');
   const [highlight, setHighlight] = useState(false);
+  let timeoutVar = null;
   useEffect(() => {
     const imgKey = cardKey[0] === 'A'
       ? `Ac${cardKey[1]}.svg`
       : `${cardKey}.svg`;
     Storage.get(`images/${imgKey}`).then((resp) => { setImgSrc(resp); });
+    return (clearTimeout(timeoutVar));
   }, [cardKey]);
   const classToAdd = classAttr || '';
 
@@ -65,7 +67,7 @@ const Card = ({
     return `${name} of ${suit}`;
   };
 
-  const setHighlightTimeout = () => { setTimeout(() => setHighlight(true), 500); };
+  const setHighlightTimeout = () => { timeoutVar = setTimeout(() => setHighlight(true), 5000); };
   if (canPlayCard() && !alreadyPlayedCard) {
     setHighlightTimeout();
   } else if (highlight) {
