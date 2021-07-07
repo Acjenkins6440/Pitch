@@ -4,6 +4,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { Nav } from 'react-bootstrap';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
+import Amplify from 'aws-amplify';
 import { auth } from '../firebase';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
@@ -15,6 +16,9 @@ import {
   logout, getUserData, setOnline, setOffline,
 } from '../providers/UserProvider';
 import { leaveGame } from '../providers/GameProvider';
+import awsconfig from '../aws-exports';
+
+Amplify.configure(awsconfig);
 
 const App = () => {
   const [user, loading] = useAuthState(auth);

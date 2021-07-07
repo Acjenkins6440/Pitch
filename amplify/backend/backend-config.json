@@ -1,0 +1,16 @@
+{
+  "auth": {
+    "pitch64508c34": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false
+    }
+  },
+  "storage": {
+    "pitch": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation"
+    }
+  }
+}

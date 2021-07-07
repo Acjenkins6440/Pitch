@@ -294,6 +294,7 @@ const takeBotsTurn = (gameData, setBid, pass, deal, playCard) => {
   const currBotIndex = gameData.users.findIndex(user => user.uid === gameData.playersTurn.uid);
   const { hand } = gameData.users[currBotIndex];
 
+
   if (gameData.phase === 'bid') {
     const topBid = calcBid(hand);
     botsTrump[currentBotUid] = topBid.suit;

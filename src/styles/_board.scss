@@ -114,6 +114,9 @@
           &:focus{
             outline: none;
           }
+          &.highlighted{
+            box-shadow: 0 0 10pt 3pt #ff2500eb;
+          }
         }
       }
       input, img{

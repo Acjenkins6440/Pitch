@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const devMode = process.env.NODE_ENV !== 'production'
 
@@ -10,8 +11,11 @@ module.exports = (env) => {
     entry: './src/index.js',
     plugins: [
       new HtmlWebpackPlugin({
-        title: 'Output Management'
+        title: 'Ultimate Pitch!',
+        template: 'template.html',
+        favicon: 'src/favicon.ico',
       }),
+      new CleanWebpackPlugin(),
     ],
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -31,19 +35,27 @@ module.exports = (env) => {
           },
         },
         {
-          test: /\.(scss|sass|css)$/,
+          test: /\.(scss|sass|css)$/i,
           use: [
             'style-loader',
             'css-loader',
-            'sass-loader'
+            'resolve-url-loader',
+            'sass-loader',
           ]
         },
         {
 
-          test:  /\.(png|jpe?g|gif)$/i,
+          test:  /\.(png|jpe?g|gif|css|ico)$/i,
           use: [{
             loader: 'file-loader'
           }]
+        },
+        {
+          test: /\.css$/i,
+          loader: 'css-loader',
+          options: {
+            url: true
+          }
         }
       ],
     },

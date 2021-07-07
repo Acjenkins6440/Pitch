@@ -4,7 +4,7 @@ import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Pagination from 'react-bootstrap/Pagination';
 import PropTypes from 'prop-types';
-import { getActiveGames, joinGame, deleteGame } from '../providers/GameProvider';
+import { getActiveGames, joinGame } from '../providers/GameProvider';
 
 const numberOnPage = 5;
 
@@ -29,14 +29,14 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
   }
 
   const initGames = () => {
-    setActiveGames(getActiveGames());
+    getActiveGames(setActiveGames);
   };
 
   useEffect(() => {
-    if (!activeGames) {
+    if (!activeGames.length) {
       initGames();
     }
-  }, [activeGames]);
+  }, []);
 
   useEffect(() => {
     const begin = (pageNumber - 1) * numberOnPage;
@@ -80,10 +80,6 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
     return <p>Join</p>;
   };
 
-  const removeGame = (gameData) => {
-    deleteGame(gameData.key);
-  };
-
   const getRow = (gameData) => {
     const gameKey = gameData.key;
     const padlockSrc = `/public/images/${!gameData.passwordEnabled ? 'un' : ''}locked_game.svg`;
@@ -96,14 +92,6 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
         <td>{getTimeDiff(gameKey)}</td>
         <td>{getJoinLink(gameData)}</td>
         <td><img src={padlockSrc} alt={gameData.passwordEnabled ? 'locked game' : 'unlocked game'} /></td>
-        <td>
-          <Button
-            onClick={() => removeGame(gameData)}
-            onKeyPress={() => removeGame(gameData)}
-          >
-            Delete
-          </Button>
-        </td>
       </tr>
     );
   };
@@ -128,7 +116,6 @@ const JoinGame = ({ userData, backToLobby, setActiveGame }) => {
               <th>Active time</th>
               <th>Join</th>
               <th>Private</th>
-              <th>Delete</th>
             </tr>
           </thead>
           <tbody>
